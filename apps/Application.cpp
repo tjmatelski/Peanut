@@ -1,6 +1,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -23,7 +24,7 @@ int main()
     GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        spdlog::error("Failed to create GLFW Window");
         glfwTerminate();
         return -1;
     }
@@ -31,7 +32,7 @@ int main()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        spdlog::error("Failed to initialize GLAD");
         return -1;
     }
 
@@ -51,6 +52,6 @@ int main()
 
     glfwTerminate();
 
-    std::cout << "Peanut!!!" << std::endl;
+    spdlog::info("PEANUT!!!");
     return 0;
 }
