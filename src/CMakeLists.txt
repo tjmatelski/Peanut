@@ -1,4 +1,4 @@
-add_library(Peanut Window.cpp Shader.cpp)
+add_library(Peanut Window.cpp Shader.cpp GLDebug.cpp)
 
 target_include_directories(Peanut PUBLIC ../include)
 find_package(OpenGL REQUIRED)
