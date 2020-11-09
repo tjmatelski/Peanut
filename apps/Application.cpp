@@ -35,11 +35,8 @@ int main()
     glEnableVertexAttribArray(0);
 
     // Element Buffer
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    IndexBuffer ebo(6, indices);
+    ebo.Bind();
 
     // Shader Abstraction
     Shader shader("./res/shaders/basic.shader");
