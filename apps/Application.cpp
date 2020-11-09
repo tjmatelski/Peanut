@@ -22,9 +22,7 @@ int main()
     };
 
     // Vertex Array Object
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    VertexArray vao;
 
     // Vertex Buffer
     VertexBuffer vbo(sizeof(vertices), vertices);
@@ -33,8 +31,9 @@ int main()
     // Vertex Attributes
     BufferLayout layout;
     layout.Push<float>(3);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+
+    vao.AddBuffer(vbo, layout);
+    vao.Bind();
 
     // Element Buffer
     IndexBuffer ebo(6, indices);

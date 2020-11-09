@@ -3,7 +3,8 @@ add_library(Peanut Window.cpp
     GLDebug.cpp
     VertexBuffer.cpp
     IndexBuffer.cpp
-    BufferLayout.cpp)
+    BufferLayout.cpp
+    VertexArray.cpp)
 
 target_include_directories(Peanut PUBLIC ../include)
 find_package(OpenGL REQUIRED)
