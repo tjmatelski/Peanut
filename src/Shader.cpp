@@ -20,7 +20,7 @@ Shader::~Shader()
     GLCALL(glDeleteProgram(m_ShaderProgramID));
 }
 
-void Shader::Use()
+void Shader::Use() const
 {
     GLCALL(glUseProgram(m_ShaderProgramID));
 }

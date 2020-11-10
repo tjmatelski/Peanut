@@ -3,7 +3,7 @@
 
 #include "GLDebug.h"
 
-IndexBuffer::IndexBuffer(const unsigned int elements, const void* data) : m_ID(0)
+IndexBuffer::IndexBuffer(const unsigned int elements, const void* data) : m_ID(0), m_elementCount(elements)
 {
     static_assert(sizeof(unsigned int) == sizeof(GLuint));
 

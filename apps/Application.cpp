@@ -26,33 +26,27 @@ int main()
 
     // Vertex Buffer
     VertexBuffer vbo(sizeof(vertices), vertices);
-    vbo.Bind();
 
     // Vertex Attributes
     BufferLayout layout;
     layout.Push<float>(3);
 
     vao.AddBuffer(vbo, layout);
-    vao.Bind();
 
     // Element Buffer
     IndexBuffer ebo(6, indices);
-    ebo.Bind();
 
     // Shader Abstraction
     Shader shader("./res/shaders/basic.shader");
-    shader.Use();
 
     while (!window.WindowShouldClose())
     {
         window.ProcessInput();
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        Renderer::Draw(vao, ebo, shader);
 
         window.SwapBuffers();
         window.PollEvents();

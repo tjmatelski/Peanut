@@ -7,7 +7,7 @@ class Shader
 public:
     Shader(const char* shaderFile);
     ~Shader();
-    void Use();
+    void Use() const;
 
 private:
     struct ShaderSources
