@@ -37,7 +37,8 @@ int main()
     IndexBuffer ebo(6, indices);
 
     // Shader Abstraction
-    Shader shader("./res/shaders/basic.shader");
+    Shader shader("./res/shaders/basicWithUniform.shader");
+    shader.SetUniform4f("myColor", 0.7f, 0.2f, 0.9f, 1.0f);
 
     while (!window.WindowShouldClose())
     {

@@ -8,6 +8,7 @@ public:
     Shader(const char* shaderFile);
     ~Shader();
     void Use() const;
+    void SetUniform4f(const char* name, const float a, const float b, const float c, const float d);
 
 private:
     struct ShaderSources
