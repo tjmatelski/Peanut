@@ -21,13 +21,16 @@ void VertexArray::AddBuffer(const VertexBuffer &vb, const BufferLayout &bl)
 
     unsigned int attribute = 0;
     const unsigned int stride = bl.GetStride();
-    const auto& elements = bl.GetElements();
+    const auto &elements = bl.GetElements();
     unsigned int offset = 0;
 
     for (const auto &element : elements)
     {
+        LOG_INFO("Attrib: {0}, Size: {1}, Type: {2}, Norm: {3}, Stride: {4}, Offset: {5}",
+                 attribute, element.size, element.type, element.normalized, stride, offset);
+
         GLCALL(glVertexAttribPointer(attribute, element.size, element.type, element.normalized, stride, (void *)offset));
-        GLCALL(glEnableVertexAttribArray(0));
+        GLCALL(glEnableVertexAttribArray(attribute));
         ++attribute;
         offset += element.size * BufferLayout::Element::GetSizeOfGLType(element.type);
     }

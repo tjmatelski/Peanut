@@ -10,10 +10,10 @@ int main()
     Window window("My App", 800, 600);
 
     float vertices[] = {
-        0.5f, 0.5f, 0.0f,   // top right
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f, 0.0f   // top left
+         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
+         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f  // top left
     };
     unsigned int indices[] = {
         // note that we start from 0!
@@ -30,6 +30,7 @@ int main()
     // Vertex Attributes
     BufferLayout layout;
     layout.Push<float>(3);
+    layout.Push<float>(3);
 
     vao.AddBuffer(vbo, layout);
 
@@ -37,8 +38,7 @@ int main()
     IndexBuffer ebo(6, indices);
 
     // Shader Abstraction
-    Shader shader("./res/shaders/basicWithUniform.shader");
-    shader.SetUniform4f("myColor", 0.7f, 0.2f, 0.9f, 1.0f);
+    Shader shader("./res/shaders/posAndColor.shader");
 
     while (!window.WindowShouldClose())
     {
