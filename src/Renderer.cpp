@@ -18,3 +18,9 @@ void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuff
 
     GLCALL(glDrawElements(GL_TRIANGLES, indexBuffer.GetElementCount(), GL_UNSIGNED_INT, 0));
 }
+
+void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture)
+{
+    texture.Bind();
+    Draw(vertexArray, indexBuffer, shader);
+}

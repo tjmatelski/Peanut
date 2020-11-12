@@ -10,10 +10,10 @@ int main()
     Window window("My App", 800, 600);
 
     float vertices[] = {
-         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f  // top left
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,  0.0f, 1.0f  // top left
     };
     unsigned int indices[] = {
         // note that we start from 0!
@@ -31,6 +31,7 @@ int main()
     BufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(3);
+    layout.Push<float>(2);
 
     vao.AddBuffer(vbo, layout);
 
@@ -38,7 +39,10 @@ int main()
     IndexBuffer ebo(6, indices);
 
     // Shader Abstraction
-    Shader shader("./res/shaders/posAndColor.shader");
+    Shader shader("./res/shaders/posColorAndTexture.shader");
+
+    // Texture
+    Texture texture("./res/textures/container.jpg");
 
     while (!window.WindowShouldClose())
     {
@@ -47,7 +51,7 @@ int main()
         Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        Renderer::Draw(vao, ebo, shader);
+        Renderer::Draw(vao, ebo, shader, texture);
 
         window.SwapBuffers();
         window.PollEvents();
