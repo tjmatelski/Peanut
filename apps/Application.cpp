@@ -7,7 +7,7 @@
 
 int main()
 {
-    Window window("My App", 800, 600);
+    Window window("Peanut", 800, 600);
 
     float vertices[] = {
          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right

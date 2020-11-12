@@ -15,7 +15,7 @@ Window::Window(const char* title, const int width, const int height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(800, 600, title, NULL, NULL);
     m_window = window;
     if (window == NULL)
     {
@@ -26,7 +26,7 @@ Window::Window(const char* title, const int width, const int height)
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        spdlog::error("Failed to initialize GLAD");
+        LOG_ERROR("Failed to initialize GLAD");
     }
 
     glViewport(0, 0, 800, 600);
