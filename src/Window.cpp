@@ -8,6 +8,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+void GlfwErrorCallback(int code, const char* message)
+{
+    LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
+}
+
 Window::Window(const char* title, const int width, const int height)
 {
     glfwInit();
@@ -19,7 +24,9 @@ Window::Window(const char* title, const int width, const int height)
     m_window = window;
     if (window == NULL)
     {
-        LOG_ERROR("Failed to create GLFW Window");
+        const char* message;
+        int code = glfwGetError(&message);
+        LOG_ERROR("Failed to create GLFW Window. CODE: {0} MESSAGE: {1}", code, message);
         glfwTerminate();
     }
     glfwMakeContextCurrent(window);
@@ -31,6 +38,7 @@ Window::Window(const char* title, const int width, const int height)
 
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetErrorCallback(GlfwErrorCallback);
 }
 
 Window::~Window()
