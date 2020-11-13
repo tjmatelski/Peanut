@@ -14,11 +14,22 @@ Texture::Texture(const char *textureFile) : m_ID(0)
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     // load and generate the texture
+    stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
     unsigned char *data = stbi_load(textureFile, &width, &height, &nrChannels, 0);
     if (data)
     {
-        GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
+        switch (nrChannels)
+        {
+        case 3:
+            GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
+            break;
+        case 4:
+            GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+            break;
+        default:
+            LOG_ERROR("Texture does not currently support a texture with {0} channels", nrChannels);
+        }
         GLCALL(glGenerateMipmap(GL_TEXTURE_2D));
     }
     else

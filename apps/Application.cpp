@@ -43,6 +43,7 @@ int main()
 
     // Texture
     Texture texture("./res/textures/container.jpg");
+    Texture awesomeFaceTexture("./res/textures/awesomeface.png");
 
     while (!window.WindowShouldClose())
     {
@@ -51,7 +52,7 @@ int main()
         Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        Renderer::Draw(vao, ebo, shader, texture);
+        Renderer::Draw(vao, ebo, shader, awesomeFaceTexture);
 
         window.SwapBuffers();
         window.PollEvents();
