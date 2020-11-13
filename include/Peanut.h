@@ -3,6 +3,7 @@
 #include "BufferLayout.h"
 #include "IndexBuffer.h"
 #include "Log.h"
+#include "Math.h"
 #include "Renderer.h"
 #include "Shader.h"
 #include "Texture.h"
