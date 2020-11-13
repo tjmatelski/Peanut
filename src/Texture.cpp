@@ -25,7 +25,7 @@ Texture::Texture(const char *textureFile) : m_ID(0)
             GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
             break;
         case 4:
-            GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
+            GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data));
             break;
         default:
             LOG_ERROR("Texture does not currently support a texture with {0} channels", nrChannels);
