@@ -39,7 +39,10 @@ int main()
     IndexBuffer ebo(6, indices);
 
     // Shader Abstraction
-    Shader shader("./res/shaders/posColorAndTexture.shader");
+    Shader shader("./res/shaders/twoTexture.shader");
+    shader.Use();
+    shader.SetUniform1i("texture1", 0);
+    shader.SetUniform1i("texture2", 1);
 
     // Texture
     Texture texture("./res/textures/container.jpg");
@@ -52,7 +55,7 @@ int main()
         Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        Renderer::Draw(vao, ebo, shader, awesomeFaceTexture);
+        Renderer::Draw(vao, ebo, shader, {&texture, &awesomeFaceTexture});
 
         window.SwapBuffers();
         window.PollEvents();

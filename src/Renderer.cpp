@@ -24,3 +24,14 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     texture.Bind();
     Draw(vertexArray, indexBuffer, shader);
 }
+
+void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuffer, const Shader &shader, const std::vector<Texture*> &textures)
+{
+    int glTextureNumber = GL_TEXTURE0;
+    for (const auto texture : textures)
+    {
+        GLCALL(glActiveTexture(glTextureNumber++));
+        texture->Bind();
+    }
+    Draw(vertexArray, indexBuffer, shader);
+}

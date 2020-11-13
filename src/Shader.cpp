@@ -128,3 +128,15 @@ void Shader::SetUniform4f(const char* name, const float a, const float b, const 
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform4f(vertexColorLocation, a, b, c, d));
 }
+
+void Shader::SetUniform1i(const char* name, const int i)
+{
+    int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
+    GL_CHECK_ERROR();
+    if (vertexColorLocation == -1)
+    {
+        LOG_ERROR("Could not find uniform: {0}", name);
+    }
+    GLCALL(glUseProgram(m_ShaderProgramID));
+    GLCALL(glUniform1i(vertexColorLocation, i));
+}
