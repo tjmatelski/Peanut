@@ -3,15 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void GlfwErrorCallback(int code, const char* message)
-{
-    LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
-}
+#include "GLDebug.h"
 
 Window::Window(const char* title, const int width, const int height)
 {
@@ -37,8 +29,8 @@ Window::Window(const char* title, const int width, const int height)
     }
 
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetErrorCallback(GlfwErrorCallback);
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow*, int width, int height){ GLCALL(glViewport(0, 0, width, height)); });
+    glfwSetErrorCallback([](int code, const char* message){ LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message); });
 }
 
 Window::~Window()
