@@ -29,8 +29,18 @@ Window::Window(const char* title, const int width, const int height)
     }
 
     glViewport(0, 0, 800, 600);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow*, int width, int height){ GLCALL(glViewport(0, 0, width, height)); });
-    glfwSetErrorCallback([](int code, const char* message){ LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message); });
+
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow*, int width, int height){
+        GLCALL(glViewport(0, 0, width, height));
+    });
+
+    glfwSetErrorCallback([](int code, const char* message){
+        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
+    });
+
+    glfwSetKeyCallback(window, [](GLFWwindow*, int key, int scancode, int action, int mods){
+        LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
+    });
 }
 
 Window::~Window()
