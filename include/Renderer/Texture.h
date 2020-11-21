@@ -1,5 +1,8 @@
 #pragma once
 
+namespace PEANUT
+{
+
 class Texture
 {
 public:
@@ -9,3 +12,5 @@ public:
 private:
     unsigned int m_ID;
 };
+
+}

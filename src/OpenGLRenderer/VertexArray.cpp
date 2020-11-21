@@ -4,6 +4,9 @@
 
 #include "GLDebug.h"
 
+namespace PEANUT
+{
+
 VertexArray::VertexArray() : m_ID(0)
 {
     glGenVertexArrays(1, &m_ID);
@@ -31,4 +34,6 @@ void VertexArray::AddBuffer(const VertexBuffer &vb, const BufferLayout &bl)
         ++attribute;
         offset += element.size * BufferLayout::Element::GetSizeOfGLType(element.type);
     }
+}
+
 }

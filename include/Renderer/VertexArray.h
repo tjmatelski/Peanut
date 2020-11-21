@@ -3,6 +3,9 @@
 #include "VertexBuffer.h"
 #include "BufferLayout.h"
 
+namespace PEANUT
+{
+
 class VertexArray
 {
 public:
@@ -13,3 +16,5 @@ public:
 private:
     unsigned int m_ID;
 };
+
+}

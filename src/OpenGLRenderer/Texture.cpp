@@ -4,6 +4,9 @@
 #include "GLDebug.h"
 #include "../stb_image.h"
 
+namespace PEANUT
+{
+
 Texture::Texture(const char *textureFile) : m_ID(0)
 {
     GLCALL(glGenTextures(1, &m_ID));
@@ -43,4 +46,6 @@ Texture::Texture(const char *textureFile) : m_ID(0)
 void Texture::Bind() const 
 {
     GLCALL(glBindTexture(GL_TEXTURE_2D, m_ID));
+}
+
 }

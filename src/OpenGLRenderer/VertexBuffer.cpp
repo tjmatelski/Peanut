@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include "GLDebug.h"
 
+namespace PEANUT
+{
+
 VertexBuffer::VertexBuffer(const unsigned int size, const void* data) : m_ID(0)
 {
     GLCALL(glGenBuffers(1, &m_ID));
@@ -12,4 +15,6 @@ VertexBuffer::VertexBuffer(const unsigned int size, const void* data) : m_ID(0)
 void VertexBuffer::Bind() const
 {
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
+}
+
 }

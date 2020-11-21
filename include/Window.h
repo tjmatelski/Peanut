@@ -1,5 +1,8 @@
 #pragma once
 
+namespace PEANUT
+{
+
 class Window
 {
 public:
@@ -14,3 +17,5 @@ public:
 private:
     void* m_window;
 };
+
+}

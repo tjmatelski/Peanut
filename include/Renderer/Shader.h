@@ -2,6 +2,9 @@
 
 #include <string>
 
+namespace PEANUT
+{
+
 class Shader
 {
 public:
@@ -24,3 +27,5 @@ private:
     unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
     unsigned int CompileShader(const unsigned int type, const std::string& shaderSource);
 };
+
+}

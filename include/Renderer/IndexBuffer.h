@@ -1,5 +1,8 @@
 #pragma once
 
+namespace PEANUT
+{
+
 class IndexBuffer
 {
 public:
@@ -11,3 +14,5 @@ private:
     unsigned int m_ID;
     unsigned int m_elementCount;
 };
+
+}

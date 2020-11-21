@@ -7,7 +7,7 @@
 
 int main()
 {
-    Window window("Peanut", 800, 600);
+    PEANUT::Window window("Peanut", 800, 600);
 
     float vertices[] = {
          0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
@@ -22,13 +22,13 @@ int main()
     };
 
     // Vertex Array Object
-    VertexArray vao;
+    PEANUT::VertexArray vao;
 
     // Vertex Buffer
-    VertexBuffer vbo(sizeof(vertices), vertices);
+    PEANUT::VertexBuffer vbo(sizeof(vertices), vertices);
 
     // Vertex Attributes
-    BufferLayout layout;
+    PEANUT::BufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(3);
     layout.Push<float>(2);
@@ -36,26 +36,26 @@ int main()
     vao.AddBuffer(vbo, layout);
 
     // Element Buffer
-    IndexBuffer ebo(6, indices);
+    PEANUT::IndexBuffer ebo(6, indices);
 
     // Shader Abstraction
-    Shader shader("./res/shaders/twoTexture.shader");
+    PEANUT::Shader shader("./res/shaders/twoTexture.shader");
     shader.Use();
     shader.SetUniform1i("texture1", 0);
     shader.SetUniform1i("texture2", 1);
 
     // Texture
-    Texture texture("./res/textures/container.jpg");
-    Texture awesomeFaceTexture("./res/textures/awesomeface.png");
+    PEANUT::Texture texture("./res/textures/container.jpg");
+    PEANUT::Texture awesomeFaceTexture("./res/textures/awesomeface.png");
 
     while (!window.WindowShouldClose())
     {
         window.ProcessInput();
 
-        Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        Renderer::Draw(vao, ebo, shader, {&texture, &awesomeFaceTexture});
+        PEANUT::Renderer::Draw(vao, ebo, shader, {&texture, &awesomeFaceTexture});
 
         window.SwapBuffers();
         window.PollEvents();

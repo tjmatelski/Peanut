@@ -6,6 +6,9 @@
 // TODO: Remove this dependancy, probably once event system exists
 #include "OpenGLRenderer/GLDebug.h"
 
+namespace PEANUT
+{
+
 Window::Window(const char* title, const int width, const int height)
 {
     glfwInit();
@@ -69,4 +72,6 @@ void Window::SwapBuffers()
 void Window::PollEvents()
 {
     glfwPollEvents();
+}
+
 }

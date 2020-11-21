@@ -2,6 +2,9 @@
 #include <glad/glad.h>
 #include "GLDebug.h"
 
+namespace PEANUT
+{
+
 Renderer::Renderer() {}
 
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
@@ -34,4 +37,6 @@ void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuff
         texture->Bind();
     }
     Draw(vertexArray, indexBuffer, shader);
+}
+
 }

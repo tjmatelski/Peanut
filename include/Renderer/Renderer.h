@@ -7,6 +7,9 @@
 
 #include <vector>
 
+namespace PEANUT
+{
+
 class Renderer
 {
 public:
@@ -16,3 +19,5 @@ public:
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const std::vector<Texture*>& textures);
 };
+
+}

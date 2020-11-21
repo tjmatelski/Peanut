@@ -2,6 +2,9 @@
 
 #include <vector>
 
+namespace PEANUT
+{
+
 class BufferLayout
 {
 public:
@@ -24,3 +27,5 @@ private:
     unsigned int m_stride;
     std::vector<Element> m_elements;
 };
+
+}

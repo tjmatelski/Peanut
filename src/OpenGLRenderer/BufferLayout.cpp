@@ -3,6 +3,9 @@
 
 #include <cassert>
 
+namespace PEANUT
+{
+
 BufferLayout::BufferLayout() : m_stride(0), m_elements()
 {}
 
@@ -27,4 +30,6 @@ unsigned int BufferLayout::Element::GetSizeOfGLType(const unsigned int glType)
     }
     assert(false);
     return 0;
+}
+
 }

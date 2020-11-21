@@ -9,6 +9,9 @@
 #include <sstream>
 #include <iostream>
 
+namespace PEANUT
+{
+
 Shader::Shader(const char* shaderFile)
 {
     ShaderSources shaderSources = ParseShaderFile(shaderFile);
@@ -139,4 +142,6 @@ void Shader::SetUniform1i(const char* name, const int i)
     }
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform1i(vertexColorLocation, i));
+}
+
 }
