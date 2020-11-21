@@ -1,13 +1,15 @@
-add_library(Peanut Window.cpp
-    Shader.cpp
-    GLDebug.cpp
-    VertexBuffer.cpp
-    IndexBuffer.cpp
-    BufferLayout.cpp
-    VertexArray.cpp
-    Renderer.cpp
+add_library(Peanut 
+    Window.cpp
     stb_image_impl.cpp
-    Texture.cpp)
+# OpenGL Renderer
+    OpenGLRenderer/Shader.cpp
+    OpenGLRenderer/GLDebug.cpp
+    OpenGLRenderer/VertexBuffer.cpp
+    OpenGLRenderer/IndexBuffer.cpp
+    OpenGLRenderer/BufferLayout.cpp
+    OpenGLRenderer/VertexArray.cpp
+    OpenGLRenderer/Renderer.cpp
+    OpenGLRenderer/Texture.cpp)
 
 target_include_directories(Peanut PUBLIC ../include)
 find_package(OpenGL REQUIRED)

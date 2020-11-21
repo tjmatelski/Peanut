@@ -3,7 +3,7 @@
 #include <Peanut.h>
 
 // Temporary
-#include "../src/GLDebug.h"
+#include "../src/OpenGLRenderer/GLDebug.h"
 
 int main()
 {

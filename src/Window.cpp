@@ -3,7 +3,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "GLDebug.h"
+// TODO: Remove this dependancy, probably once event system exists
+#include "OpenGLRenderer/GLDebug.h"
 
 Window::Window(const char* title, const int width, const int height)
 {

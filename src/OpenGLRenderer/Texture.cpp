@@ -1,8 +1,8 @@
-#include <Texture.h>
+#include <Renderer/Texture.h>
 #include <glad/glad.h>
 #include <Log.h>
 #include "GLDebug.h"
-#include "stb_image.h"
+#include "../stb_image.h"
 
 Texture::Texture(const char *textureFile) : m_ID(0)
 {
