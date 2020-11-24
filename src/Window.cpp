@@ -9,7 +9,7 @@
 namespace PEANUT
 {
 
-Window::Window(const char* title, const int width, const int height)
+Window::Window(const char* title, const int width, const int height) : m_window(nullptr)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

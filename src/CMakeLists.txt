@@ -1,4 +1,5 @@
 add_library(Peanut 
+    Application.cpp
     Window.cpp
     stb_image_impl.cpp
 # OpenGL Renderer

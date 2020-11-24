@@ -1,66 +1,92 @@
-#include <iostream>
 #include <glad/glad.h>
 #include <Peanut.h>
+
+#include <iostream>
+#include <memory>
 
 // Temporary
 #include "../src/OpenGLRenderer/GLDebug.h"
 
-int main()
+class MyApp : public PEANUT::Application
 {
-    PEANUT::Window window("Peanut", 800, 600);
-
-    float vertices[] = {
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 1.0f,  0.0f, 1.0f  // top left
-    };
-    unsigned int indices[] = {
-        // note that we start from 0!
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
-    // Vertex Array Object
-    PEANUT::VertexArray vao;
-
-    // Vertex Buffer
-    PEANUT::VertexBuffer vbo(sizeof(vertices), vertices);
-
-    // Vertex Attributes
-    PEANUT::BufferLayout layout;
-    layout.Push<float>(3);
-    layout.Push<float>(3);
-    layout.Push<float>(2);
-
-    vao.AddBuffer(vbo, layout);
-
-    // Element Buffer
-    PEANUT::IndexBuffer ebo(6, indices);
-
-    // Shader Abstraction
-    PEANUT::Shader shader("./res/shaders/twoTexture.shader");
-    shader.Use();
-    shader.SetUniform1i("texture1", 0);
-    shader.SetUniform1i("texture2", 1);
-
-    // Texture
-    PEANUT::Texture texture("./res/textures/container.jpg");
-    PEANUT::Texture awesomeFaceTexture("./res/textures/awesomeface.png");
-
-    while (!window.WindowShouldClose())
+public:
+    MyApp() : Application()
     {
-        window.ProcessInput();
+        window = std::make_unique<PEANUT::Window>("Peanut", 800, 600);
+
+        float vertices[] = {
+            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+            -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f   // top left
+        };
+        unsigned int indices[] = {
+            // note that we start from 0!
+            0, 1, 3, // first triangle
+            1, 2, 3  // second triangle
+        };
+
+        // Vertex Array Object
+        vao = std::make_unique<PEANUT::VertexArray>();
+
+        // Vertex Buffer
+        PEANUT::VertexBuffer vbo(sizeof(vertices), vertices);
+
+        // Vertex Attributes
+        PEANUT::BufferLayout layout;
+        layout.Push<float>(3);
+        layout.Push<float>(3);
+        layout.Push<float>(2);
+
+        vao->AddBuffer(vbo, layout);
+
+        // Element Buffer
+        ebo = std::make_unique<PEANUT::IndexBuffer>(6, indices);
+
+        // Shader Abstraction
+        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTexture.shader");
+        shader->Use();
+        shader->SetUniform1i("texture1", 0);
+        shader->SetUniform1i("texture2", 1);
+
+        // Texture
+        texture = std::make_unique<PEANUT::Texture>("./res/textures/container.jpg");
+        awesomeFaceTexture = std::make_unique<PEANUT::Texture>("./res/textures/awesomeface.png");
+    }
+
+    virtual void OnAttach() override
+    {
+    }
+
+    virtual void OnUpdate() override
+    {
+        window->ProcessInput();
 
         PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
-        PEANUT::Renderer::Draw(vao, ebo, shader, {&texture, &awesomeFaceTexture});
+        PEANUT::Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
 
-        window.SwapBuffers();
-        window.PollEvents();
+        window->SwapBuffers();
+        window->PollEvents();
+        m_shouldWindowClose = window->WindowShouldClose();
     }
 
-    LOG_INFO("Peanut!!!");
-    return 0;
+    virtual void OnRemove() override
+    {
+        LOG_INFO("PEANUT!!!");
+    }
+
+private:
+    std::unique_ptr<PEANUT::Window> window;
+    std::unique_ptr<PEANUT::VertexArray> vao;
+    std::unique_ptr<PEANUT::IndexBuffer> ebo;
+    std::unique_ptr<PEANUT::Shader> shader;
+    std::unique_ptr<PEANUT::Texture> texture;
+    std::unique_ptr<PEANUT::Texture> awesomeFaceTexture;
+};
+
+PEANUT::Application* PEANUT::GetApplication()
+{
+    return new MyApp();
 }
