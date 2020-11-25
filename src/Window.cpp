@@ -4,6 +4,9 @@
 #include <Events/WindowEvents.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 namespace PEANUT
 {
@@ -57,10 +60,29 @@ namespace PEANUT
             Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
             myWindow->m_eventCallback(windowCloseEvent);
         });
+
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+        (void)io;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        const char *glsl_version = "#version 130";
+        ImGui_ImplOpenGL3_Init(glsl_version);
     }
 
     Window::~Window()
     {
+        // Cleanup
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+
         glfwTerminate();
     }
 

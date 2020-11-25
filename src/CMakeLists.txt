@@ -14,4 +14,4 @@ add_library(Peanut
 
 target_include_directories(Peanut PUBLIC ../include)
 find_package(OpenGL REQUIRED)
-target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog)
+target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui)

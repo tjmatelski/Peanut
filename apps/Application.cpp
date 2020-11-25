@@ -62,7 +62,7 @@ public:
         transform = glm::translate(transform, glm::vec3(0.5f, 0.0f, 0.0f));
         transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         shader->SetUniformMat4("transform", transform);
-        
+
         PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
@@ -82,7 +82,7 @@ private:
     std::unique_ptr<PEANUT::Texture> awesomeFaceTexture;
 };
 
-PEANUT::Application* PEANUT::GetApplication()
+PEANUT::Application *PEANUT::GetApplication()
 {
     return new MyApp();
 }
