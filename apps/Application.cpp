@@ -42,7 +42,7 @@ public:
         ebo = std::make_unique<PEANUT::IndexBuffer>(6, indices);
 
         // Shader Abstraction
-        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTexture.shader");
+        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTextureWithTransform.shader");
         shader->Use();
         shader->SetUniform1i("texture1", 0);
         shader->SetUniform1i("texture2", 1);
@@ -58,6 +58,11 @@ public:
 
     virtual void OnUpdate() override
     {
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.5f, 0.0f, 0.0f));
+        transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        shader->SetUniformMat4("transform", transform);
+        
         PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle

@@ -12,136 +12,148 @@
 namespace PEANUT
 {
 
-Shader::Shader(const char* shaderFile)
-{
-    ShaderSources shaderSources = ParseShaderFile(shaderFile);
-    m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
-}
-
-Shader::~Shader()
-{
-    GLCALL(glDeleteProgram(m_ShaderProgramID));
-}
-
-void Shader::Use() const
-{
-    GLCALL(glUseProgram(m_ShaderProgramID));
-}
-
-Shader::ShaderSources Shader::ParseShaderFile(const char* file)
-{
-    std::ifstream inputStream(file);
-    std::string line;
-    std::stringstream ss[2];
-
-    enum class StreamType
+    Shader::Shader(const char *shaderFile)
     {
-        NONE = -1,
-        VERTEX = 0,
-        FRAGMENT = 1
-    };
-
-    if (!inputStream.is_open())
-    {
-        LOG_ERROR("Failed to open shader {0}", file);
+        ShaderSources shaderSources = ParseShaderFile(shaderFile);
+        m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
     }
-    else
-    {
-        StreamType type = StreamType::NONE;
 
-        while (getline(inputStream, line))
+    Shader::~Shader()
+    {
+        GLCALL(glDeleteProgram(m_ShaderProgramID));
+    }
+
+    void Shader::Use() const
+    {
+        GLCALL(glUseProgram(m_ShaderProgramID));
+    }
+
+    Shader::ShaderSources Shader::ParseShaderFile(const char *file)
+    {
+        std::ifstream inputStream(file);
+        std::string line;
+        std::stringstream ss[2];
+
+        enum class StreamType
         {
-            if (line.find("#shader") != std::string::npos)
+            NONE = -1,
+            VERTEX = 0,
+            FRAGMENT = 1
+        };
+
+        if (!inputStream.is_open())
+        {
+            LOG_ERROR("Failed to open shader {0}", file);
+        }
+        else
+        {
+            StreamType type = StreamType::NONE;
+
+            while (getline(inputStream, line))
             {
-                if (line.find("vertex") != std::string::npos)
+                if (line.find("#shader") != std::string::npos)
                 {
-                    type = StreamType::VERTEX;
+                    if (line.find("vertex") != std::string::npos)
+                    {
+                        type = StreamType::VERTEX;
+                    }
+                    if (line.find("fragment") != std::string::npos)
+                    {
+                        type = StreamType::FRAGMENT;
+                    }
                 }
-                if (line.find("fragment") != std::string::npos)
+                else
                 {
-                    type = StreamType::FRAGMENT;
+                    ss[static_cast<int>(type)] << line << '\n';
                 }
-            }
-            else
-            {
-                ss[static_cast<int>(type)] << line << '\n';
             }
         }
+
+        return {ss[static_cast<int>(StreamType::VERTEX)].str(), ss[static_cast<int>(StreamType::FRAGMENT)].str()};
     }
 
-    return {ss[static_cast<int>(StreamType::VERTEX)].str(), ss[static_cast<int>(StreamType::FRAGMENT)].str()};
-}
-
-unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource)
-{
-    unsigned int programID, vertexID, fragmentID;
-    vertexID = CompileShader(GL_VERTEX_SHADER, vertexSource);
-    fragmentID = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
-
-    programID = glCreateProgram();
-    GL_CHECK_ERROR();
-    GLCALL(glAttachShader(programID, vertexID));
-    GLCALL(glAttachShader(programID, fragmentID));
-    GLCALL(glLinkProgram(programID));
-    GLCALL(glValidateProgram(programID));
-    // // // Check for errors
-    int success = 0;
-    GLCALL(glGetProgramiv(programID, GL_LINK_STATUS, &success));
-    if (!success)
+    unsigned int Shader::CreateShaderProgram(const std::string &vertexSource, const std::string &fragmentSource)
     {
-        char infoLog[512];
-        GLCALL(glGetProgramInfoLog(programID, 512, NULL, infoLog));
-        LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog);
-    }
-    GLCALL(glDeleteShader(vertexID));
-    GLCALL(glDeleteShader(fragmentID));
-    return programID;
-}
+        unsigned int programID, vertexID, fragmentID;
+        vertexID = CompileShader(GL_VERTEX_SHADER, vertexSource);
+        fragmentID = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
 
-unsigned int Shader::CompileShader(const unsigned int type, const std::string &shaderSource)
-{
-    unsigned int shaderID;
-    const char* source = shaderSource.c_str();
-    shaderID = glCreateShader(type);
-    GL_CHECK_ERROR();
-    GLCALL(glShaderSource(shaderID, 1, &source, NULL));
-    GLCALL(glCompileShader(shaderID));
-    // // // Check for shader compile errors
-    int success = 0;
-    GLCALL(glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success));
-    if (!success)
+        programID = glCreateProgram();
+        GL_CHECK_ERROR();
+        GLCALL(glAttachShader(programID, vertexID));
+        GLCALL(glAttachShader(programID, fragmentID));
+        GLCALL(glLinkProgram(programID));
+        GLCALL(glValidateProgram(programID));
+        // // // Check for errors
+        int success = 0;
+        GLCALL(glGetProgramiv(programID, GL_LINK_STATUS, &success));
+        if (!success)
+        {
+            char infoLog[512];
+            GLCALL(glGetProgramInfoLog(programID, 512, NULL, infoLog));
+            LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog);
+        }
+        GLCALL(glDeleteShader(vertexID));
+        GLCALL(glDeleteShader(fragmentID));
+        return programID;
+    }
+
+    unsigned int Shader::CompileShader(const unsigned int type, const std::string &shaderSource)
     {
-        char infoLog[512];
-        GLCALL(glGetShaderInfoLog(shaderID, 512, NULL, infoLog));
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << "\nSource: " << shaderSource << std::endl;
-        LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog, shaderSource);
+        unsigned int shaderID;
+        const char *source = shaderSource.c_str();
+        shaderID = glCreateShader(type);
+        GL_CHECK_ERROR();
+        GLCALL(glShaderSource(shaderID, 1, &source, NULL));
+        GLCALL(glCompileShader(shaderID));
+        // // // Check for shader compile errors
+        int success = 0;
+        GLCALL(glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success));
+        if (!success)
+        {
+            char infoLog[512];
+            GLCALL(glGetShaderInfoLog(shaderID, 512, NULL, infoLog));
+            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+                      << infoLog << "\nSource: " << shaderSource << std::endl;
+            LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog, shaderSource);
+        }
+        return shaderID;
     }
-    return shaderID;
-}
 
-void Shader::SetUniform4f(const char* name, const float a, const float b, const float c, const float d)
-{
-    int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
-    GL_CHECK_ERROR();
-    if (vertexColorLocation == -1)
+    void Shader::SetUniform4f(const char *name, const float a, const float b, const float c, const float d)
     {
-        LOG_ERROR("Could not find uniform: {0}", name);
+        int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
+        GL_CHECK_ERROR();
+        if (vertexColorLocation == -1)
+        {
+            LOG_ERROR("Could not find uniform: {0}", name);
+        }
+        GLCALL(glUseProgram(m_ShaderProgramID));
+        GLCALL(glUniform4f(vertexColorLocation, a, b, c, d));
     }
-    GLCALL(glUseProgram(m_ShaderProgramID));
-    GLCALL(glUniform4f(vertexColorLocation, a, b, c, d));
-}
 
-void Shader::SetUniform1i(const char* name, const int i)
-{
-    int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
-    GL_CHECK_ERROR();
-    if (vertexColorLocation == -1)
+    void Shader::SetUniform1i(const char *name, const int i)
     {
-        LOG_ERROR("Could not find uniform: {0}", name);
+        int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
+        GL_CHECK_ERROR();
+        if (vertexColorLocation == -1)
+        {
+            LOG_ERROR("Could not find uniform: {0}", name);
+        }
+        GLCALL(glUseProgram(m_ShaderProgramID));
+        GLCALL(glUniform1i(vertexColorLocation, i));
     }
-    GLCALL(glUseProgram(m_ShaderProgramID));
-    GLCALL(glUniform1i(vertexColorLocation, i));
-}
 
-}
+    void Shader::SetUniformMat4(const char *name, const glm::mat4 &matrix)
+    {
+        int vertexColorLocation = glGetUniformLocation(m_ShaderProgramID, name);
+        GL_CHECK_ERROR();
+        if (vertexColorLocation == -1)
+        {
+            LOG_ERROR("Could not find uniform: {0}", name);
+        }
+        GLCALL(glUseProgram(m_ShaderProgramID));
+        GLCALL(glUniformMatrix4fv(vertexColorLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
+    }
+
+} // namespace PEANUT
