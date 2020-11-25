@@ -15,6 +15,7 @@ class Renderer
 public:
     Renderer();
     static void ClearColor(const float r, const float g, const float b, const float a);
+    static void SetViewport(const int width, const int height);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const std::vector<Texture*>& textures);

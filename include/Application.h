@@ -27,6 +27,7 @@ namespace PEANUT
         void UpdateWindow();
         void OnEvent(Event& event);
         void OnWindowClose(WindowCloseEvent& e);
+        void OnWindowResize(WindowResizeEvent& e);
     };
 
     /**

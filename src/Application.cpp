@@ -1,5 +1,6 @@
 #include <Application.h>
 #include <Log.h>
+#include <Renderer/Renderer.h>
 
 namespace PEANUT
 {
@@ -30,12 +31,19 @@ namespace PEANUT
         LOG_INFO("Application Event: {0}", static_cast<int>(event.GetType()));
         Dispatcher dispatcher(event);
         dispatcher.Dispatch<WindowCloseEvent>([this] (WindowCloseEvent& e) { this->OnWindowClose(e); });
+        dispatcher.Dispatch<WindowResizeEvent>([this] (WindowResizeEvent& e) { this->OnWindowResize(e); });
     }
 
     void Application::OnWindowClose(WindowCloseEvent& e)
     {
         LOG_INFO("Registered Window Should Close Event");
         m_shouldWindowClose = true;
+    }
+
+    void Application::OnWindowResize(WindowResizeEvent& e)
+    {
+        LOG_INFO("Application Window Resize event");
+        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
     }
 }
 

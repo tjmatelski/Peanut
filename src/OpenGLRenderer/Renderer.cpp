@@ -13,6 +13,11 @@ void Renderer::ClearColor(const float r, const float g, const float b, const flo
     GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 }
 
+void Renderer::SetViewport(const int width, const int height)
+{
+    GLCALL(glViewport(0, 0, width, height));
+}
+
 void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuffer, const Shader &shader)
 {
     vertexArray.Bind();
