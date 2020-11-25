@@ -12,8 +12,6 @@ class MyApp : public PEANUT::Application
 public:
     MyApp() : Application()
     {
-        window = std::make_unique<PEANUT::Window>("Peanut", 800, 600);
-
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
             0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
@@ -60,16 +58,10 @@ public:
 
     virtual void OnUpdate() override
     {
-        window->ProcessInput();
-
         PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
         // Render Triangle
         PEANUT::Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
-
-        window->SwapBuffers();
-        window->PollEvents();
-        m_shouldWindowClose = window->WindowShouldClose();
     }
 
     virtual void OnRemove() override
@@ -78,7 +70,6 @@ public:
     }
 
 private:
-    std::unique_ptr<PEANUT::Window> window;
     std::unique_ptr<PEANUT::VertexArray> vao;
     std::unique_ptr<PEANUT::IndexBuffer> ebo;
     std::unique_ptr<PEANUT::Shader> shader;

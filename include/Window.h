@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Event.h"
+#include <functional>
+
 namespace PEANUT
 {
 
@@ -10,12 +13,15 @@ public:
     ~Window();
 
     bool WindowShouldClose() const;
-    void ProcessInput();
     void SwapBuffers();
     void PollEvents();
 
+    using EventCallbackFn = std::function<void(Event& e)>;
+    void SetEventCallback(const EventCallbackFn& func) { m_eventCallback = func; }
+
 private:
     void* m_window;
+    EventCallbackFn m_eventCallback;
 };
 
 }

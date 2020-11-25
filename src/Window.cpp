@@ -9,7 +9,7 @@
 namespace PEANUT
 {
 
-Window::Window(const char* title, const int width, const int height) : m_window(nullptr)
+Window::Window(const char* title, const int width, const int height) : m_window(nullptr), m_eventCallback()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -45,6 +45,15 @@ Window::Window(const char* title, const int width, const int height) : m_window(
     glfwSetKeyCallback(window, [](GLFWwindow*, int key, int scancode, int action, int mods){
         LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
     });
+
+    glfwSetWindowUserPointer(window, this);
+
+    glfwSetWindowCloseCallback(window, [] (GLFWwindow* window_) {
+        LOG_INFO("GLFW Window close callback");
+        WindowCloseEvent windowCloseEvent;
+        Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
+        myWindow->m_eventCallback(windowCloseEvent);
+    });
 }
 
 Window::~Window()
@@ -55,13 +64,6 @@ Window::~Window()
 bool Window::WindowShouldClose() const
 {
     return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window));
-}
-
-void Window::ProcessInput()
-{
-    GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
 }
 
 void Window::SwapBuffers()
