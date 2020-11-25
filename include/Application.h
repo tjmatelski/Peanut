@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Window.h"
-#include "Event.h"
+#include "Events/KeyEvent.h"
+#include "Events/WindowEvents.h"
 
 #include <memory>
 
@@ -26,6 +27,7 @@ namespace PEANUT
         void Run();
         void UpdateWindow();
         void OnEvent(Event& event);
+        void OnKeyEvent(KeyEvent& e);
         void OnWindowClose(WindowCloseEvent& e);
         void OnWindowResize(WindowResizeEvent& e);
     };

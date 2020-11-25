@@ -1,5 +1,7 @@
 #include <Window.h>
 #include <Log.h>
+#include <Events/KeyEvent.h>
+#include <Events/WindowEvents.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -31,7 +33,7 @@ namespace PEANUT
 
         glfwSetWindowUserPointer(window, this);
 
-        glfwSetFramebufferSizeCallback(window, [](GLFWwindow * window_, int width, int height) {
+        glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window_, int width, int height) {
             LOG_INFO("GLFW Framebuffer resize, width = {0}, height = {1}", width, height);
             WindowResizeEvent event(width, height);
             Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
@@ -42,8 +44,11 @@ namespace PEANUT
             LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
         });
 
-        glfwSetKeyCallback(window, [](GLFWwindow *, int key, int scancode, int action, int mods) {
+        glfwSetKeyCallback(window, [](GLFWwindow *window_, int key, int scancode, int action, int mods) {
             LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
+            KeyEvent event(static_cast<KeyCode>(key));
+            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
+            myWindow->m_eventCallback(event);
         });
 
         glfwSetWindowCloseCallback(window, [](GLFWwindow *window_) {
