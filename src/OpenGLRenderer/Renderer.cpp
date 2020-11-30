@@ -9,7 +9,7 @@ Renderer::Renderer() {}
 
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
 {
-    GLCALL(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+    GLCALL(glClearColor(r, g, b, a));
     GLCALL(glClear(GL_COLOR_BUFFER_BIT));
 }
 

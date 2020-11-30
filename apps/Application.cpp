@@ -10,7 +10,7 @@
 class MyApp : public PEANUT::Application
 {
 public:
-    MyApp() : Application()
+    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f)
     {
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
@@ -59,11 +59,11 @@ public:
     virtual void OnUpdate() override
     {
         glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(0.5f, 0.0f, 0.0f));
-        transform = glm::rotate(transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::translate(transform, m_translate);
+        transform = glm::rotate(transform, glm::radians(m_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         shader->SetUniformMat4("transform", transform);
 
-        PEANUT::Renderer::ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
         // Render Triangle
         PEANUT::Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
@@ -74,12 +74,24 @@ public:
         LOG_INFO("PEANUT!!!");
     }
 
+    virtual void OnImGuiUpdate() override
+    {
+        ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
+        ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_clearColor));
+        ImGui::SliderFloat3("Translation", glm::value_ptr(m_translate), -1.0f, 1.0f);
+        ImGui::SliderFloat("Rotation", &m_rotation, 0.0f, 360.0f);
+        ImGui::End();
+    }
+
 private:
     std::unique_ptr<PEANUT::VertexArray> vao;
     std::unique_ptr<PEANUT::IndexBuffer> ebo;
     std::unique_ptr<PEANUT::Shader> shader;
     std::unique_ptr<PEANUT::Texture> texture;
     std::unique_ptr<PEANUT::Texture> awesomeFaceTexture;
+    glm::vec4 m_clearColor;
+    glm::vec3 m_translate;
+    float m_rotation;
 };
 
 PEANUT::Application *PEANUT::GetApplication()

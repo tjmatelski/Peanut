@@ -18,21 +18,14 @@ namespace PEANUT
     {
         while (!m_shouldWindowClose)
         {
-            // Start the Dear ImGui frame
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
+            ImGuiBeginFrame();
 
-            ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-            ImGui::End();
-
+            OnImGuiUpdate();
             OnUpdate();
 
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            
-            UpdateWindow();
+            ImGuiEndFrame();
 
+            UpdateWindow();
         }
     }
 
@@ -71,6 +64,20 @@ namespace PEANUT
         default:
             break;
         }
+    }
+
+    void Application::ImGuiBeginFrame()
+    {
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void Application::ImGuiEndFrame()
+    {
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 } // namespace PEANUT
 

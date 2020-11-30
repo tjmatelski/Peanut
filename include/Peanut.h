@@ -13,3 +13,8 @@
 #include "Renderer/Texture.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexBuffer.h"
+
+// Dear ImGui
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>

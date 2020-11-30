@@ -15,6 +15,7 @@ namespace PEANUT
     public:
         Application();
         virtual void OnAttach() = 0;
+        virtual void OnImGuiUpdate() {}
         virtual void OnUpdate() = 0;
         virtual void OnRemove() = 0;
 
@@ -24,12 +25,14 @@ namespace PEANUT
 
     private:
         friend int ::main(int argc, char **argv);
+        void ImGuiBeginFrame();
+        void ImGuiEndFrame();
         void Run();
-        void UpdateWindow();
         void OnEvent(Event& event);
         void OnKeyEvent(KeyEvent& e);
         void OnWindowClose(WindowCloseEvent& e);
         void OnWindowResize(WindowResizeEvent& e);
+        void UpdateWindow();
     };
 
     /**
