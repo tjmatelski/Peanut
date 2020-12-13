@@ -10,7 +10,8 @@
 class MyApp : public PEANUT::Application
 {
 public:
-    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f)
+    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
+        m_scale(1.0f, 1.0f, 1.0f)
     {
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
@@ -60,7 +61,10 @@ public:
     {
         glm::mat4 transform = glm::mat4(1.0f);
         transform = glm::translate(transform, m_translate);
-        transform = glm::rotate(transform, glm::radians(m_rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::rotate(transform, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+        transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+        transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::scale(transform, m_scale);
         shader->SetUniformMat4("transform", transform);
 
         PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
@@ -79,7 +83,8 @@ public:
         ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_clearColor));
         ImGui::SliderFloat3("Translation", glm::value_ptr(m_translate), -1.0f, 1.0f);
-        ImGui::SliderFloat("Rotation", &m_rotation, 0.0f, 360.0f);
+        ImGui::SliderFloat3("Rotation", glm::value_ptr(m_rotation), 0.0f, 360.0f);
+        ImGui::SliderFloat3("Scale", glm::value_ptr(m_scale), 0.0f, 2.0f);
         ImGui::End();
     }
 
@@ -91,7 +96,8 @@ private:
     std::unique_ptr<PEANUT::Texture> awesomeFaceTexture;
     glm::vec4 m_clearColor;
     glm::vec3 m_translate;
-    float m_rotation;
+    glm::vec3 m_rotation;
+    glm::vec3 m_scale;
 };
 
 PEANUT::Application *PEANUT::GetApplication()
