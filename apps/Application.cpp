@@ -11,7 +11,7 @@ class MyApp : public PEANUT::Application
 {
 public:
     MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
-        m_scale(1.0f, 1.0f, 1.0f)
+        m_scale(1.0f, 1.0f, 1.0f), m_aspectRatio(static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()))
     {
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
@@ -70,11 +70,11 @@ public:
 
         // View matrix
         glm::mat4 view(1.0f);
-        view = glm::translate(view, glm::vec3(0.2f, 0.3f, 0.0f));
+        view = glm::translate(view, glm::vec3(1.7f, 1.0f, 0.0f));
         shader->SetUniformMat4("view", view);
 
         // Projection Matrix
-        glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+        glm::mat4 projection = glm::ortho(0.0f, 2.0f * m_aspectRatio, 0.0f, 2.0f, -1.0f, 1.0f);
         shader->SetUniformMat4("projection", projection);
 
         PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
@@ -98,6 +98,14 @@ public:
         ImGui::End();
     }
 
+    virtual void OnEvent(PEANUT::Event& event)
+    {
+        PEANUT::Dispatcher dispatcher(event);
+        dispatcher.Dispatch<PEANUT::WindowResizeEvent>([&](PEANUT::WindowResizeEvent &e) {
+            m_aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight()); 
+        });
+    }
+
 private:
     std::unique_ptr<PEANUT::VertexArray> vao;
     std::unique_ptr<PEANUT::IndexBuffer> ebo;
@@ -108,6 +116,7 @@ private:
     glm::vec3 m_translate;
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
+    float m_aspectRatio;
 };
 
 PEANUT::Application *PEANUT::GetApplication()

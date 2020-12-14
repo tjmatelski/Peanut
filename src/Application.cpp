@@ -11,7 +11,7 @@ namespace PEANUT
     Application::Application()
     {
         m_window = std::make_unique<Window>("Peanut", 800, 600);
-        m_window->SetEventCallback([this](Event &e) -> void { this->OnEvent(e); });
+        m_window->SetEventCallback([this](Event &e) -> void { this->OnApplicationEvent(e); });
     }
 
     void Application::Run()
@@ -35,12 +35,13 @@ namespace PEANUT
         m_window->PollEvents();
     }
 
-    void Application::OnEvent(Event &event)
+    void Application::OnApplicationEvent(Event &event)
     {
         Dispatcher dispatcher(event);
         dispatcher.Dispatch<KeyEvent>([this](KeyEvent &e) { this->OnKeyEvent(e); });
         dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent &e) { this->OnWindowClose(e); });
         dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent &e) { this->OnWindowResize(e); });
+        OnEvent(event);
     }
 
     void Application::OnWindowClose(WindowCloseEvent &e)

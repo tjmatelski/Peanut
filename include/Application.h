@@ -15,22 +15,23 @@ namespace PEANUT
     public:
         Application();
         virtual void OnAttach() = 0;
+        virtual void OnEvent(Event& event) {}
         virtual void OnImGuiUpdate() {}
         virtual void OnUpdate() = 0;
         virtual void OnRemove() = 0;
 
-    protected:
-        std::unique_ptr<Window> m_window;
+        inline const Window& GetWindow() const { return *m_window; }
 
     private:
         bool m_shouldWindowClose;
+        std::unique_ptr<Window> m_window;
 
     private:
         friend int ::main(int argc, char **argv);
         void ImGuiBeginFrame();
         void ImGuiEndFrame();
         void Run();
-        void OnEvent(Event& event);
+        void OnApplicationEvent(Event& event);
         void OnKeyEvent(KeyEvent& e);
         void OnWindowClose(WindowCloseEvent& e);
         void OnWindowResize(WindowResizeEvent& e);

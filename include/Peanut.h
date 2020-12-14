@@ -14,6 +14,11 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexBuffer.h"
 
+// Events
+#include "Events/Event.h"
+#include "Events/KeyEvent.h"
+#include "Events/WindowEvents.h"
+
 // Dear ImGui
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
