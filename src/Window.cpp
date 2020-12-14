@@ -11,7 +11,8 @@
 namespace PEANUT
 {
 
-    Window::Window(const char *title, const int width, const int height) : m_window(nullptr), m_eventCallback()
+    Window::Window(const char *title, const int width, const int height) : m_window(nullptr), m_width(width), 
+        m_height(height), m_eventCallback()
     {
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -40,6 +41,8 @@ namespace PEANUT
             LOG_INFO("GLFW Framebuffer resize, width = {0}, height = {1}", width, height);
             WindowResizeEvent event(width, height);
             Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
+            myWindow->m_width = width;
+            myWindow->m_height = height;
             myWindow->m_eventCallback(event);
         });
 

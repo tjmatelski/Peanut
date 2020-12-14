@@ -43,7 +43,7 @@ public:
         ebo = std::make_unique<PEANUT::IndexBuffer>(6, indices);
 
         // Shader Abstraction
-        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTextureWithTransform.shader");
+        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTextureMVP.shader");
         shader->Use();
         shader->SetUniform1i("texture1", 0);
         shader->SetUniform1i("texture2", 1);
@@ -59,13 +59,23 @@ public:
 
     virtual void OnUpdate() override
     {
+        // Model matrix
         glm::mat4 transform = glm::mat4(1.0f);
         transform = glm::translate(transform, m_translate);
         transform = glm::rotate(transform, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
         transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
         transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         transform = glm::scale(transform, m_scale);
-        shader->SetUniformMat4("transform", transform);
+        shader->SetUniformMat4("model", transform);
+
+        // View matrix
+        glm::mat4 view(1.0f);
+        view = glm::translate(view, glm::vec3(0.2f, 0.3f, 0.0f));
+        shader->SetUniformMat4("view", view);
+
+        // Projection Matrix
+        glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+        shader->SetUniformMat4("projection", projection);
 
         PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 

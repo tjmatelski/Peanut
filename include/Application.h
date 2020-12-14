@@ -19,8 +19,10 @@ namespace PEANUT
         virtual void OnUpdate() = 0;
         virtual void OnRemove() = 0;
 
-    private:
+    protected:
         std::unique_ptr<Window> m_window;
+
+    private:
         bool m_shouldWindowClose;
 
     private:
