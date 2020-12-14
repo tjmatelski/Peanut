@@ -10,7 +10,8 @@ add_library(Peanut
     OpenGLRenderer/BufferLayout.cpp
     OpenGLRenderer/VertexArray.cpp
     OpenGLRenderer/Renderer.cpp
-    OpenGLRenderer/Texture.cpp)
+    OpenGLRenderer/Texture.cpp
+    OpenGLRenderer/OrthoCamera.cpp)
 
 target_include_directories(Peanut PUBLIC ../include)
 find_package(OpenGL REQUIRED)

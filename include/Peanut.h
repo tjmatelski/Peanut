@@ -8,6 +8,7 @@
 // Renderer
 #include "Renderer/BufferLayout.h"
 #include "Renderer/IndexBuffer.h"
+#include "Renderer/OrthoCamera.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"

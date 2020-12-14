@@ -11,7 +11,8 @@ class MyApp : public PEANUT::Application
 {
 public:
     MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
-        m_scale(1.0f, 1.0f, 1.0f), m_aspectRatio(static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()))
+        m_scale(1.0f, 1.0f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
+            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
     {
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
@@ -66,16 +67,10 @@ public:
         transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
         transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
         transform = glm::scale(transform, m_scale);
+
         shader->SetUniformMat4("model", transform);
-
-        // View matrix
-        glm::mat4 view(1.0f);
-        view = glm::translate(view, glm::vec3(1.7f, 1.0f, 0.0f));
-        shader->SetUniformMat4("view", view);
-
-        // Projection Matrix
-        glm::mat4 projection = glm::ortho(0.0f, 2.0f * m_aspectRatio, 0.0f, 2.0f, -1.0f, 1.0f);
-        shader->SetUniformMat4("projection", projection);
+        shader->SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
+        shader->SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
 
         PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
@@ -102,7 +97,8 @@ public:
     {
         PEANUT::Dispatcher dispatcher(event);
         dispatcher.Dispatch<PEANUT::WindowResizeEvent>([&](PEANUT::WindowResizeEvent &e) {
-            m_aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight()); 
+            float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
+            m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
         });
     }
 
@@ -116,7 +112,7 @@ private:
     glm::vec3 m_translate;
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
-    float m_aspectRatio;
+    PEANUT::OrthoCamera m_orthoCamera;
 };
 
 PEANUT::Application *PEANUT::GetApplication()
