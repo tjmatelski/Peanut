@@ -14,6 +14,7 @@ public:
     void SetProjection(float left, float right, float bottom, float top);
     void SetPosition(float x, float y);
 
+    inline const glm::vec3& GetPosition() const { return m_position; }
     inline const glm::mat4& GetViewMatrix() const { return m_viewMatrix; }
     inline const glm::mat4& GetProjectionMatrix() const { return m_projectionMatrix; }
 

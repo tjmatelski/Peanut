@@ -8,8 +8,10 @@
 
 namespace PEANUT
 {
+    Application* Application::s_application = nullptr;
     Application::Application()
     {
+        s_application = this;
         m_window = std::make_unique<Window>("Peanut", 800, 600);
         m_window->SetEventCallback([this](Event &e) -> void { this->OnApplicationEvent(e); });
     }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Application.h"
+#include "Input.h"
+#include "KeyCodes.h"
 #include "Log.h"
 #include "Math.h"
 #include "Window.h"

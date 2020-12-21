@@ -17,6 +17,7 @@ public:
     void PollEvents();
     inline int GetWidth() const { return m_width; }
     inline int GetHeight() const { return m_height; }
+    inline void* GetRawWindow() const { return m_window; }
 
     using EventCallbackFn = std::function<void(Event& e)>;
     void SetEventCallback(const EventCallbackFn& func) { m_eventCallback = func; }

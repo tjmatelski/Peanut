@@ -20,6 +20,7 @@ namespace PEANUT
         virtual void OnUpdate() = 0;
         virtual void OnRemove() = 0;
 
+        static inline const Application& Get() { return *s_application; }
         inline const Window& GetWindow() const { return *m_window; }
 
     private:
@@ -36,6 +37,7 @@ namespace PEANUT
         void OnWindowClose(WindowCloseEvent& e);
         void OnWindowResize(WindowResizeEvent& e);
         void UpdateWindow();
+        static Application* s_application;
     };
 
     /**

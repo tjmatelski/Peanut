@@ -60,6 +60,25 @@ public:
 
     virtual void OnUpdate() override
     {
+        // Temporary camera controller
+        float camSpeed = 0.1f;
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::W))
+        {
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y + camSpeed);
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::A))
+        {
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - camSpeed, m_orthoCamera.GetPosition().y);
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::S))
+        {
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y - camSpeed);
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::D))
+        {
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x + camSpeed, m_orthoCamera.GetPosition().y);
+        }
+
         // Model matrix
         glm::mat4 transform = glm::mat4(1.0f);
         transform = glm::translate(transform, m_translate);
