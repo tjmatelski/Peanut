@@ -7,7 +7,10 @@
 // Temporary
 #include "../src/OpenGLRenderer/GLDebug.h"
 
-class MyApp : public PEANUT::Application
+namespace PEANUT
+{
+
+class MyApp : public Application
 {
 public:
     MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
@@ -27,13 +30,13 @@ public:
         };
 
         // Vertex Array Object
-        vao = std::make_unique<PEANUT::VertexArray>();
+        vao = std::make_unique<VertexArray>();
 
         // Vertex Buffer
-        PEANUT::VertexBuffer vbo(sizeof(vertices), vertices);
+        VertexBuffer vbo(sizeof(vertices), vertices);
 
         // Vertex Attributes
-        PEANUT::BufferLayout layout;
+        BufferLayout layout;
         layout.Push<float>(3);
         layout.Push<float>(3);
         layout.Push<float>(2);
@@ -41,40 +44,40 @@ public:
         vao->AddBuffer(vbo, layout);
 
         // Element Buffer
-        ebo = std::make_unique<PEANUT::IndexBuffer>(6, indices);
+        ebo = std::make_unique<IndexBuffer>(6, indices);
 
         // Shader Abstraction
-        shader = std::make_unique<PEANUT::Shader>("./res/shaders/twoTextureMVP.shader");
+        shader = std::make_unique<Shader>("./res/shaders/twoTextureMVP.shader");
         shader->Use();
         shader->SetUniform1i("texture1", 0);
         shader->SetUniform1i("texture2", 1);
 
         // Texture
-        texture = std::make_unique<PEANUT::Texture>("./res/textures/container.jpg");
-        awesomeFaceTexture = std::make_unique<PEANUT::Texture>("./res/textures/awesomeface.png");
+        texture = std::make_unique<Texture>("./res/textures/container.jpg");
+        awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
     }
 
     virtual void OnAttach() override
     {
     }
 
-    virtual void OnUpdate() override
+    virtual void OnUpdate(TimeStep timeStep) override
     {
         // Temporary camera controller
-        float camSpeed = 0.1f;
-        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::W))
+        float camSpeed = 1.0f * timeStep;
+        if (Input::IsKeyPressed(KeyCode::W))
         {
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y + camSpeed);
         }
-        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::A))
+        if (Input::IsKeyPressed(KeyCode::A))
         {
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - camSpeed, m_orthoCamera.GetPosition().y);
         }
-        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::S))
+        if (Input::IsKeyPressed(KeyCode::S))
         {
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y - camSpeed);
         }
-        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::D))
+        if (Input::IsKeyPressed(KeyCode::D))
         {
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x + camSpeed, m_orthoCamera.GetPosition().y);
         }
@@ -91,10 +94,10 @@ public:
         shader->SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
         shader->SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
 
-        PEANUT::Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+        Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
         // Render Triangle
-        PEANUT::Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
+        Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
     }
 
     virtual void OnRemove() override
@@ -112,29 +115,31 @@ public:
         ImGui::End();
     }
 
-    virtual void OnEvent(PEANUT::Event& event)
+    virtual void OnEvent(Event& event)
     {
-        PEANUT::Dispatcher dispatcher(event);
-        dispatcher.Dispatch<PEANUT::WindowResizeEvent>([&](PEANUT::WindowResizeEvent &e) {
+        Dispatcher dispatcher(event);
+        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent &e) {
             float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
             m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
         });
     }
 
 private:
-    std::unique_ptr<PEANUT::VertexArray> vao;
-    std::unique_ptr<PEANUT::IndexBuffer> ebo;
-    std::unique_ptr<PEANUT::Shader> shader;
-    std::unique_ptr<PEANUT::Texture> texture;
-    std::unique_ptr<PEANUT::Texture> awesomeFaceTexture;
+    std::unique_ptr<VertexArray> vao;
+    std::unique_ptr<IndexBuffer> ebo;
+    std::unique_ptr<Shader> shader;
+    std::unique_ptr<Texture> texture;
+    std::unique_ptr<Texture> awesomeFaceTexture;
     glm::vec4 m_clearColor;
     glm::vec3 m_translate;
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
-    PEANUT::OrthoCamera m_orthoCamera;
+    OrthoCamera m_orthoCamera;
 };
 
-PEANUT::Application *PEANUT::GetApplication()
+Application *GetApplication()
 {
     return new MyApp();
+}
+
 }

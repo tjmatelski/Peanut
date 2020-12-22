@@ -104,4 +104,9 @@ namespace PEANUT
         glfwPollEvents();
     }
 
+    float Window::GetTime() const
+    {
+        return static_cast<float>(glfwGetTime());
+    }
+
 } // namespace PEANUT

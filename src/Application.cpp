@@ -20,10 +20,14 @@ namespace PEANUT
     {
         while (!m_shouldWindowClose)
         {
+            float currentFrameTime = m_window->GetTime();
+            TimeStep timeStep = currentFrameTime - m_lastFrameTime;
+            m_lastFrameTime = currentFrameTime;
+
             ImGuiBeginFrame();
 
             OnImGuiUpdate();
-            OnUpdate();
+            OnUpdate(timeStep);
 
             ImGuiEndFrame();
 
