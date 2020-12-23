@@ -3,7 +3,7 @@ add_library(Peanut
     Window.cpp
     WindowInput.cpp
     stb_image_impl.cpp
-# OpenGL Renderer
+    # OpenGL Renderer
     OpenGLRenderer/Shader.cpp
     OpenGLRenderer/GLDebug.cpp
     OpenGLRenderer/VertexBuffer.cpp
@@ -12,8 +12,11 @@ add_library(Peanut
     OpenGLRenderer/VertexArray.cpp
     OpenGLRenderer/Renderer.cpp
     OpenGLRenderer/Texture.cpp
-    OpenGLRenderer/OrthoCamera.cpp)
+    OpenGLRenderer/OrthoCamera.cpp
+    # Scene
+    Scene/Scene.cpp)
 
-target_include_directories(Peanut PUBLIC ../include)
+target_include_directories(Peanut PUBLIC ../include ../extern/entt)
 find_package(OpenGL REQUIRED)
 target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui)
+target_compile_features(Peanut PRIVATE cxx_std_17)
