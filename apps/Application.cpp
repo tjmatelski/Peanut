@@ -55,6 +55,8 @@ public:
         // Texture
         texture = std::make_unique<Texture>("./res/textures/container.jpg");
         awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
+
+        m_scene.CreateEntity("MyEntity");
     }
 
     virtual void OnAttach() override
@@ -135,6 +137,7 @@ private:
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
     OrthoCamera m_orthoCamera;
+    Scene m_scene;
 };
 
 Application *GetApplication()

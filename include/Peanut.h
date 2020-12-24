@@ -22,6 +22,11 @@
 #include "Events/KeyEvent.h"
 #include "Events/WindowEvents.h"
 
+// Scene
+#include "Scene/Component.h"
+#include "Scene/Entity.h"
+#include "Scene/Scene.h"
+
 // Dear ImGui
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
