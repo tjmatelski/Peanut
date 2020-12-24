@@ -1,6 +1,8 @@
 #include <glad/glad.h>
 #include <Peanut.h>
 
+#include "SceneHierarchyPanel.h"
+
 #include <iostream>
 #include <memory>
 
@@ -15,7 +17,8 @@ class MyApp : public Application
 public:
     MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
         m_scale(1.0f, 1.0f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
-            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
+            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0), m_scene(std::make_shared<Scene>()),
+        m_scenePanel(m_scene)
     {
         float vertices[] = {
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
@@ -56,9 +59,9 @@ public:
         texture = std::make_unique<Texture>("./res/textures/container.jpg");
         awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
 
-        m_scene.CreateEntity("MyEntity");
-        m_scene.CreateEntity("Entity 2");
-        m_scene.CreateEntity("Another Entity");
+        m_scene->CreateEntity("MyEntity");
+        m_scene->CreateEntity("Entity 2");
+        m_scene->CreateEntity("Another Entity");
     }
 
     virtual void OnAttach() override
@@ -119,21 +122,8 @@ public:
 
         ImGui::Separator();
 
-        ImGui::BeginChild("Scene");
-        ImGui::Text("Scene Heirarchy");
-        m_scene.ForEachEntity([](Entity ent){
-            TagComponent& tag = ent.Get<TagComponent>();
-            if (ImGui::TreeNode(tag.tag.c_str()))
-            {
-                if (ImGui::TreeNode("Test Sub Entity"))
-                {
-                    ImGui::Text("Test Sub Sub ent");
-                    ImGui::TreePop();
-                }
-                ImGui::TreePop();
-            }
-        });
-        ImGui::EndChild();
+        m_scenePanel.UpdateGui();
+
         ImGui::End();
     }
 
@@ -157,7 +147,8 @@ private:
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
     OrthoCamera m_orthoCamera;
-    Scene m_scene;
+    std::shared_ptr<Scene> m_scene;
+    SceneHierarchyPanel m_scenePanel;
 };
 
 Application *GetApplication()
