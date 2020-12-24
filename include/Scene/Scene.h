@@ -1,6 +1,7 @@
 #pragma once
 
 #include <entt.hpp>
+#include "../Log.h"
 
 namespace PEANUT
 {
@@ -14,6 +15,11 @@ public:
     ~Scene() = default;
 
     Entity CreateEntity(const std::string& name = "Default Entity Name");
+    template <typename Functor>
+    void ForEachEntity(Functor func)
+    {
+        m_registry.each([&](entt::entity ent){ func(Entity(ent, this));});
+    }
 
 private:
     entt::registry m_registry;

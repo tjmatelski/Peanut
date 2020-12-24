@@ -19,6 +19,12 @@ public:
         T& component = m_scene->m_registry.emplace<T>(m_entityID, args...);
         return component;
     }
+    
+    template <typename T>
+    T& Get()
+    {
+        return m_scene->m_registry.get<T>(m_entityID);
+    }
 
 private:
     entt::entity m_entityID;

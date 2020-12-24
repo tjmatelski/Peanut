@@ -57,6 +57,8 @@ public:
         awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
 
         m_scene.CreateEntity("MyEntity");
+        m_scene.CreateEntity("Entity 2");
+        m_scene.CreateEntity("Another Entity");
     }
 
     virtual void OnAttach() override
@@ -114,6 +116,24 @@ public:
         ImGui::SliderFloat3("Translation", glm::value_ptr(m_translate), -1.0f, 1.0f);
         ImGui::SliderFloat3("Rotation", glm::value_ptr(m_rotation), 0.0f, 360.0f);
         ImGui::SliderFloat3("Scale", glm::value_ptr(m_scale), 0.0f, 2.0f);
+
+        ImGui::Separator();
+
+        ImGui::BeginChild("Scene");
+        ImGui::Text("Scene Heirarchy");
+        m_scene.ForEachEntity([](Entity ent){
+            TagComponent& tag = ent.Get<TagComponent>();
+            if (ImGui::TreeNode(tag.tag.c_str()))
+            {
+                if (ImGui::TreeNode("Test Sub Entity"))
+                {
+                    ImGui::Text("Test Sub Sub ent");
+                    ImGui::TreePop();
+                }
+                ImGui::TreePop();
+            }
+        });
+        ImGui::EndChild();
         ImGui::End();
     }
 
