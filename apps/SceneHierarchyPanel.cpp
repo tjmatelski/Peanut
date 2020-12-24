@@ -7,7 +7,7 @@ SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene) : m_scene
 
 void SceneHierarchyPanel::UpdateGui()
 {
-    ImGui::BeginChild("Scene");
+    ImGui::BeginChild("Scene", ImVec2(0, 200));
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
         TagComponent &tag = ent.Get<TagComponent>();
@@ -30,10 +30,23 @@ void SceneHierarchyPanel::UpdateGui()
     {
         if (ImGui::MenuItem("Create Empty Entity"))
         {
-            m_scene->CreateEntity("New Entity");
+            m_selectedEntity = m_scene->CreateEntity("New Entity");
         }
         ImGui::EndPopup();
     }
     ImGui::EndChild();
+
+    ImGui::Begin("Properties Panel");
+    if (m_selectedEntity)
+    {
+        char buf[256] = {0};
+        TagComponent &tag = m_selectedEntity.Get<TagComponent>();
+        std::strncpy(buf, tag.tag.c_str(), 256);
+        if (ImGui::InputText("Tag", buf, 256))
+        {
+            tag.tag = buf;
+        }
+    }
+    ImGui::End();
 }
 }
