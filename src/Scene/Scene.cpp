@@ -9,6 +9,7 @@ Entity Scene::CreateEntity(const std::string& name)
 {
     Entity entity(m_registry.create(), this);
     entity.Add<TagComponent>(name);
+    entity.Add<TransformComponent>();
     return entity;
 }
 

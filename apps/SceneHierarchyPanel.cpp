@@ -46,6 +46,16 @@ void SceneHierarchyPanel::UpdateGui()
         {
             tag.tag = buf;
         }
+
+        ImGui::Separator();
+        
+        ImGui::Text("Transform");
+        TransformComponent& transform = m_selectedEntity.Get<TransformComponent>();
+        ImGui::SliderFloat3("Translation", glm::value_ptr(transform.translation), -1.0f, 1.0f);
+        transform.rotation = glm::degrees(transform.rotation);
+        ImGui::SliderFloat3("Rotation", glm::value_ptr(transform.rotation), 0.0f, 360.0f);
+        transform.rotation = glm::radians(transform.rotation);
+        ImGui::SliderFloat3("Scale", glm::value_ptr(transform.scale), 0.0f, 2.0f);
     }
     ImGui::End();
 }

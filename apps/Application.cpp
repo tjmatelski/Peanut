@@ -15,9 +15,9 @@ namespace PEANUT
 class MyApp : public Application
 {
 public:
-    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_translate(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f),
-        m_scale(1.0f, 1.0f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
-            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0), m_scene(std::make_shared<Scene>()),
+    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
+            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0),
+        m_scene(std::make_shared<Scene>()),
         m_scenePanel(m_scene)
     {
         float vertices[] = {
@@ -59,7 +59,7 @@ public:
         texture = std::make_unique<Texture>("./res/textures/container.jpg");
         awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
 
-        m_scene->CreateEntity("MyEntity");
+        m_entity = m_scene->CreateEntity("MyEntity");
         m_scene->CreateEntity("Entity 2");
         m_scene->CreateEntity("Another Entity");
     }
@@ -89,15 +89,7 @@ public:
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x + camSpeed, m_orthoCamera.GetPosition().y);
         }
 
-        // Model matrix
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, m_translate);
-        transform = glm::rotate(transform, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-        transform = glm::rotate(transform, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-        transform = glm::rotate(transform, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-        transform = glm::scale(transform, m_scale);
-
-        shader->SetUniformMat4("model", transform);
+        shader->SetUniformMat4("model", m_entity.Get<TransformComponent>());
         shader->SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
         shader->SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
 
@@ -116,9 +108,6 @@ public:
     {
         ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_clearColor));
-        ImGui::SliderFloat3("Translation", glm::value_ptr(m_translate), -1.0f, 1.0f);
-        ImGui::SliderFloat3("Rotation", glm::value_ptr(m_rotation), 0.0f, 360.0f);
-        ImGui::SliderFloat3("Scale", glm::value_ptr(m_scale), 0.0f, 2.0f);
 
         ImGui::Separator();
 
@@ -143,12 +132,10 @@ private:
     std::unique_ptr<Texture> texture;
     std::unique_ptr<Texture> awesomeFaceTexture;
     glm::vec4 m_clearColor;
-    glm::vec3 m_translate;
-    glm::vec3 m_rotation;
-    glm::vec3 m_scale;
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
+    Entity m_entity;
 };
 
 Application *GetApplication()

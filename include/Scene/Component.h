@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Math.h"
 #include <string>
 
 namespace PEANUT
@@ -10,4 +11,19 @@ struct TagComponent
     std::string tag;
 };
 
+struct TransformComponent
+{
+    TransformComponent() = default;
+
+    glm::vec3 translation;
+    glm::vec3 rotation; ///< In radians
+    glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    operator glm::mat4() const { return GetTransform(); }
+
+    glm::mat4 GetTransform() const
+    {
+        return glm::translate(glm::mat4(1.0f), translation) * glm::mat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
+    }
+};
 }
