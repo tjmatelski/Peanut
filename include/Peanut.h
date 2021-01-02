@@ -6,6 +6,7 @@
 #include "Log.h"
 #include "Math.h"
 #include "Window.h"
+#include "Util.h"
 
 // Renderer
 #include "Renderer/BufferLayout.h"

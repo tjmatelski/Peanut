@@ -7,7 +7,7 @@ SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene) : m_scene
 
 void SceneHierarchyPanel::UpdateGui()
 {
-    ImGui::BeginChild("Scene", ImVec2(0, 200));
+    ImGui::BeginChild("Scene");
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
         TagComponent &tag = ent.Get<TagComponent>();
@@ -36,27 +36,82 @@ void SceneHierarchyPanel::UpdateGui()
     }
     ImGui::EndChild();
 
+    UpdatePropertiesPanel();
+}
+
+void SceneHierarchyPanel::UpdatePropertiesPanel()
+{
     ImGui::Begin("Properties Panel");
     if (m_selectedEntity)
     {
-        char buf[256] = {0};
-        TagComponent &tag = m_selectedEntity.Get<TagComponent>();
-        std::strncpy(buf, tag.tag.c_str(), 256);
-        if (ImGui::InputText("Tag", buf, 256))
-        {
-            tag.tag = buf;
-        }
+        DrawComponent<TagComponent>("Tag Component");
+        DrawComponent<TransformComponent>("Transform");
+        DrawComponent<SpriteRenderComponent>("Sprite Render Component");
 
         ImGui::Separator();
-        
-        ImGui::Text("Transform");
-        TransformComponent& transform = m_selectedEntity.Get<TransformComponent>();
-        ImGui::SliderFloat3("Translation", glm::value_ptr(transform.translation), -1.0f, 1.0f);
-        transform.rotation = glm::degrees(transform.rotation);
-        ImGui::SliderFloat3("Rotation", glm::value_ptr(transform.rotation), 0.0f, 360.0f);
-        transform.rotation = glm::radians(transform.rotation);
-        ImGui::SliderFloat3("Scale", glm::value_ptr(transform.scale), 0.0f, 2.0f);
+        if (ImGui::Button("Add Component"))
+        {
+            ImGui::OpenPopup("AddComponent");
+        }
+        if (ImGui::BeginPopup("AddComponent"))
+        {
+            if (ImGui::MenuItem("Sprite Render Component"))
+            {
+                m_selectedEntity.Add<SpriteRenderComponent>();
+            }
+            ImGui::EndPopup();
+        }
     }
     ImGui::End();
+}
+
+template <>
+void SceneHierarchyPanel::DrawComponent<TagComponent>(const std::string &componentName)
+{
+    char buf[256] = {0};
+    TagComponent &tag = m_selectedEntity.Get<TagComponent>();
+    std::strncpy(buf, tag.tag.c_str(), 256);
+    if (ImGui::InputText("Tag", buf, 256))
+    {
+        tag.tag = buf;
+    }
+}
+
+template <>
+void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string &componentName)
+{
+    ImGui::Separator();
+    ImGui::Text(componentName.c_str());
+    TransformComponent &transform = m_selectedEntity.Get<TransformComponent>();
+    ImGui::SliderFloat3("Translation", glm::value_ptr(transform.translation), -1.0f, 1.0f);
+    transform.rotation = glm::degrees(transform.rotation);
+    ImGui::SliderFloat3("Rotation", glm::value_ptr(transform.rotation), 0.0f, 360.0f);
+    transform.rotation = glm::radians(transform.rotation);
+    ImGui::SliderFloat3("Scale", glm::value_ptr(transform.scale), 0.0f, 2.0f);
+}
+
+template <typename Component>
+void SceneHierarchyPanel::DrawComponent(const std::string& componentName)
+{
+    if (m_selectedEntity.Has<Component>())
+    {
+        ImGui::Separator();
+        ImGui::Text(componentName.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button("X"))
+        {
+            m_selectedEntity.Remove<Component>();
+        }
+        else
+        {
+            DrawComponentSpecifics<Component>();
+        }
+    }
+}
+
+template <>
+void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
+{
+    ImGui::ColorEdit3("Color", glm::value_ptr(m_selectedEntity.Get<SpriteRenderComponent>().color));
 }
 }

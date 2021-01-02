@@ -60,7 +60,8 @@ public:
         awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
 
         m_entity = m_scene->CreateEntity("MyEntity");
-        m_scene->CreateEntity("Entity 2");
+        Entity ent = m_scene->CreateEntity("Entity 2");
+        ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
         m_scene->CreateEntity("Another Entity");
     }
 

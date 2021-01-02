@@ -21,6 +21,12 @@ public:
         T& component = m_scene->m_registry.emplace<T>(m_entityID, args...);
         return component;
     }
+
+    template <typename T>
+    void Remove()
+    {
+        m_scene->m_registry.remove<T>(m_entityID);
+    }
     
     template <typename T>
     T& Get()
