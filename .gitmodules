@@ -11,3 +11,6 @@
 	path = extern/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "extern/yaml-cpp"]
+	path = extern/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

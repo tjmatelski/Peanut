@@ -15,9 +15,10 @@ add_library(Peanut
     OpenGLRenderer/OrthoCamera.cpp
     # Scene
     Scene/Scene.cpp
-    Scene/Entity.cpp)
+    Scene/Entity.cpp
+    Scene/SceneSerializer.cpp)
 
 target_include_directories(Peanut PUBLIC ../include ../extern/entt)
 find_package(OpenGL REQUIRED)
-target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui)
+target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui yaml-cpp)
 target_compile_features(Peanut PUBLIC cxx_std_17)

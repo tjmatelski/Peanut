@@ -50,6 +50,7 @@ void SceneHierarchyPanel::UpdateMenuBar()
             if (ImGui::MenuItem("Save"))
             {
                 LOG_INFO("Saving Scene...");
+                SceneSerializer::Serialize(*m_scene, "./test.yaml");
             }
             if (ImGui::MenuItem("Open"))
             {
