@@ -107,7 +107,7 @@ public:
 
     virtual void OnImGuiUpdate() override
     {
-        ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Peanut Editor", nullptr, ImGuiWindowFlags_MenuBar); // Create a window called "Hello, world!" and append into it.
         ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_clearColor));
 
         ImGui::Separator();

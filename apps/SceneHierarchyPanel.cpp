@@ -7,15 +7,17 @@ SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene) : m_scene
 
 void SceneHierarchyPanel::UpdateGui()
 {
+    UpdateMenuBar();
+
     ImGui::BeginChild("Scene");
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
+        constexpr int treeNodeFlags = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
         TagComponent &tag = ent.Get<TagComponent>();
-        if (ImGui::TreeNode(tag.tag.c_str()))
+        if (ImGui::TreeNodeEx(tag.tag.c_str(), treeNodeFlags))
         {
-            if (ImGui::TreeNode("Test Sub Entity"))
+            if (ImGui::TreeNodeEx("Test Sub Entity", treeNodeFlags))
             {
-                ImGui::Text("Test Sub Sub ent");
                 ImGui::TreePop();
             }
             ImGui::TreePop();
@@ -37,6 +39,26 @@ void SceneHierarchyPanel::UpdateGui()
     ImGui::EndChild();
 
     UpdatePropertiesPanel();
+}
+
+void SceneHierarchyPanel::UpdateMenuBar()
+{
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Save"))
+            {
+                LOG_INFO("Saving Scene...");
+            }
+            if (ImGui::MenuItem("Open"))
+            {
+                LOG_INFO("Opening Scene...");
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
 }
 
 void SceneHierarchyPanel::UpdatePropertiesPanel()
