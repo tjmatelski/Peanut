@@ -2,6 +2,7 @@
 #include <Log.h>
 #include <KeyCodes.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/Renderer2D.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -14,6 +15,7 @@ namespace PEANUT
         s_application = this;
         m_window = std::make_unique<Window>("Peanut", 800, 600);
         m_window->SetEventCallback([this](Event &e) -> void { this->OnApplicationEvent(e); });
+        Renderer2D::Init();
     }
 
     void Application::Run()

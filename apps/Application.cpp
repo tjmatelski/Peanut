@@ -20,45 +20,6 @@ public:
         m_scene(std::make_shared<Scene>()),
         m_scenePanel(m_scene)
     {
-        float vertices[] = {
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // top right
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-            -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f   // top left
-        };
-        unsigned int indices[] = {
-            // note that we start from 0!
-            0, 1, 3, // first triangle
-            1, 2, 3  // second triangle
-        };
-
-        // Vertex Array Object
-        vao = std::make_unique<VertexArray>();
-
-        // Vertex Buffer
-        VertexBuffer vbo(sizeof(vertices), vertices);
-
-        // Vertex Attributes
-        BufferLayout layout;
-        layout.Push<float>(3);
-        layout.Push<float>(3);
-        layout.Push<float>(2);
-
-        vao->AddBuffer(vbo, layout);
-
-        // Element Buffer
-        ebo = std::make_unique<IndexBuffer>(6, indices);
-
-        // Shader Abstraction
-        shader = std::make_unique<Shader>("./res/shaders/twoTextureMVP.shader");
-        shader->Use();
-        shader->SetUniform1i("texture1", 0);
-        shader->SetUniform1i("texture2", 1);
-
-        // Texture
-        texture = std::make_unique<Texture>("./res/textures/container.jpg");
-        awesomeFaceTexture = std::make_unique<Texture>("./res/textures/awesomeface.png");
-
         m_entity = m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
@@ -90,14 +51,15 @@ public:
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x + camSpeed, m_orthoCamera.GetPosition().y);
         }
 
-        shader->SetUniformMat4("model", m_entity.Get<TransformComponent>());
-        shader->SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
-        shader->SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
-
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
-        // Render Triangle
-        Renderer::Draw(*vao, *ebo, *shader, {texture.get(), awesomeFaceTexture.get()});
+        Renderer2D::BeginScene(m_orthoCamera);
+        m_scene->ForEachEntity([](Entity ent){
+            if (ent.Has<SpriteRenderComponent>())
+            {
+                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), ent.Get<SpriteRenderComponent>().color);
+            }
+        });
     }
 
     virtual void OnRemove() override
@@ -127,11 +89,6 @@ public:
     }
 
 private:
-    std::unique_ptr<VertexArray> vao;
-    std::unique_ptr<IndexBuffer> ebo;
-    std::unique_ptr<Shader> shader;
-    std::unique_ptr<Texture> texture;
-    std::unique_ptr<Texture> awesomeFaceTexture;
     glm::vec4 m_clearColor;
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;

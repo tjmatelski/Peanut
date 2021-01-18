@@ -13,6 +13,7 @@
 #include "Renderer/IndexBuffer.h"
 #include "Renderer/OrthoCamera.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/Renderer2D.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
 #include "Renderer/VertexArray.h"
