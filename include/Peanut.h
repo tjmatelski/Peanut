@@ -16,6 +16,7 @@
 #include "Renderer/Renderer2D.h"
 #include "Renderer/Shader.h"
 #include "Renderer/Texture.h"
+#include "Renderer/TextureLibrary.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexBuffer.h"
 

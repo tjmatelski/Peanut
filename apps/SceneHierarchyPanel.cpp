@@ -135,6 +135,8 @@ void SceneHierarchyPanel::DrawComponent(const std::string& componentName)
 template <>
 void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
 {
-    ImGui::ColorEdit3("Color", glm::value_ptr(m_selectedEntity.Get<SpriteRenderComponent>().color));
+    auto& renderComp = m_selectedEntity.Get<SpriteRenderComponent>();
+    ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
+    ImGui::Text(renderComp.texture.c_str());
 }
 }

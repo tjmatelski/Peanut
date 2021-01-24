@@ -18,7 +18,8 @@ public:
     MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
             static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0),
         m_scene(std::make_shared<Scene>()),
-        m_scenePanel(m_scene)
+        m_scenePanel(m_scene),
+        m_textureLib()
     {
         m_entity = m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
@@ -54,10 +55,11 @@ public:
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
         Renderer2D::BeginScene(m_orthoCamera);
-        m_scene->ForEachEntity([](Entity ent){
+        m_scene->ForEachEntity([&](Entity ent){
             if (ent.Has<SpriteRenderComponent>())
             {
-                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), ent.Get<SpriteRenderComponent>().color);
+                const auto& spriteRender = ent.Get<SpriteRenderComponent>();
+                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, *m_textureLib.Load(spriteRender.texture));
             }
         });
     }
@@ -94,6 +96,7 @@ private:
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
     Entity m_entity;
+    TextureLibrary m_textureLib;
 };
 
 Application *GetApplication()

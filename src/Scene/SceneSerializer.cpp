@@ -72,6 +72,7 @@ namespace PEANUT
             out << YAML::Key << "SpriteRenderComponent" << YAML::Value << YAML::BeginMap;
             const SpriteRenderComponent& spriteRenderComp = ent.Get<SpriteRenderComponent>();
             out << YAML::Key << "Color" << YAML::Value << spriteRenderComp.color;
+            out << YAML::Key << "Texture" << YAML::Value << spriteRenderComp.texture;
             out << YAML::EndMap;
         }
 

@@ -35,5 +35,6 @@ struct SpriteRenderComponent
     SpriteRenderComponent(const glm::vec3& rgb) : color(rgb) {}
 
     glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    std::string texture = "./res/textures/BlankSquare.png";
 };
 }

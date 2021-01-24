@@ -13,6 +13,7 @@ add_library(Peanut
     OpenGLRenderer/Renderer.cpp
     OpenGLRenderer/Renderer2D.cpp
     OpenGLRenderer/Texture.cpp
+    OpenGLRenderer/TextureLibrary.cpp
     OpenGLRenderer/OrthoCamera.cpp
     # Scene
     Scene/Scene.cpp
