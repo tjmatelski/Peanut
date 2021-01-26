@@ -138,5 +138,18 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     auto& renderComp = m_selectedEntity.Get<SpriteRenderComponent>();
     ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
     ImGui::Text(renderComp.texture.c_str());
+    ImGui::SameLine();
+    if (ImGui::Button("..."))
+    {
+        m_showSpriteRenderFileSelector = true;
+    }
+    
+    if (m_showSpriteRenderFileSelector)
+    {
+        m_spriteRenderFileSelector.Show([&](const std::string& filename){
+            renderComp.texture = filename;
+            m_showSpriteRenderFileSelector = false;
+        });
+    }
 }
 }
