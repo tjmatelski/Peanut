@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application.h"
+#include "FileSelectorDialog.h"
 #include "Input.h"
 #include "KeyCodes.h"
 #include "Log.h"

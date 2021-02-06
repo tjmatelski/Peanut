@@ -10,7 +10,7 @@ namespace PEANUT
 class FileSelectionPanel
 {
 public:
-    FileSelectionPanel() : m_currentPath(std::getenv("PWD")) {}
+    FileSelectionPanel() : m_currentPath(std::filesystem::current_path()) {}
 
     inline bool SelectedFile() const { return m_fileSelected; }
     inline std::string GetSelectedFile() const { return m_selectedFile; }

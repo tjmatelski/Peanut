@@ -18,9 +18,18 @@ add_library(Peanut
     # Scene
     Scene/Scene.cpp
     Scene/Entity.cpp
-    Scene/SceneSerializer.cpp)
+    Scene/SceneSerializer.cpp
+    # Platform Linux
+    Platform/Linux/GtkFileSelectorDialog.cpp)
 
-target_include_directories(Peanut PUBLIC ../include ../extern/entt)
+find_package(PkgConfig)
+pkg_check_modules(GTKMM gtkmm-3.0)
+
 find_package(OpenGL REQUIRED)
-target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui yaml-cpp)
+
+target_include_directories(Peanut PUBLIC ../include ../extern/entt
+    PRIVATE ${GTKMM_INCLUDE_DIRS})
+target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
+target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui yaml-cpp
+    PRIVATE ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
