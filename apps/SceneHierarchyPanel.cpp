@@ -143,13 +143,5 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
         //m_showSpriteRenderFileSelector = true;
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
     }
-    
-    if (m_showSpriteRenderFileSelector)
-    {
-        m_spriteRenderFileSelector.Show([&](const std::string& filename){
-            renderComp.texture = filename;
-            m_showSpriteRenderFileSelector = false;
-        });
-    }
 }
 }

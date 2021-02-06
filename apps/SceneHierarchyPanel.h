@@ -1,7 +1,5 @@
 #pragma once
 
-#include "FileSelectionPanel.h"
-
 #include <Peanut.h>
 #include <functional>
 #include <memory>
@@ -18,8 +16,6 @@ public:
 private:
     std::shared_ptr<Scene> m_scene;
     Entity m_selectedEntity;
-    FileSelectionPanel m_spriteRenderFileSelector;
-    bool m_showSpriteRenderFileSelector = false;
 
     void UpdateMenuBar();
     void UpdatePropertiesPanel();
