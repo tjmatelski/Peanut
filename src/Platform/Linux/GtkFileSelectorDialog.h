@@ -1,6 +1,7 @@
 #pragma once
 
 #include <FileSelectorDialog.h>
+#include <iostream>
 
 namespace PEANUT
 {

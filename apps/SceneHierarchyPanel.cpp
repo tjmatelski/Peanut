@@ -50,11 +50,12 @@ void SceneHierarchyPanel::UpdateMenuBar()
             if (ImGui::MenuItem("Save"))
             {
                 LOG_INFO("Saving Scene...");
-                SceneSerializer::Serialize(*m_scene, "./test.yaml");
+                SceneSerializer::Serialize(*m_scene, "./test.peanut");
             }
             if (ImGui::MenuItem("Open"))
             {
-                LOG_INFO("Opening Scene...");
+                std::string sceneFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                LOG_INFO("Opening Scene: {}", sceneFile);
             }
             ImGui::EndMenu();
         }
