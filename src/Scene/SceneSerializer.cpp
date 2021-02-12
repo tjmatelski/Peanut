@@ -95,4 +95,31 @@ namespace PEANUT
         ofs << out.c_str();
     }
 
+    void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
+    {
+        scene.Clear();
+        YAML::Node node = YAML::LoadFile(file);
+        for (YAML::const_iterator it = node["Entities"].begin(); it != node["Entities"].end(); ++it)
+        {
+            const YAML::Node entity = *it;
+            Entity sceneEnt = scene.CreateEntity();
+            if (entity["TagComponent"])
+            {
+                sceneEnt.Get<TagComponent>().tag = entity["TagComponent"]["Tag"].as<std::string>();
+            }
+            if (entity["TransformComponent"])
+            {
+                sceneEnt.Get<TransformComponent>().translation = entity["TransformComponent"]["Translation"].as<glm::vec3>();
+                sceneEnt.Get<TransformComponent>().rotation = entity["TransformComponent"]["Rotation"].as<glm::vec3>();
+                sceneEnt.Get<TransformComponent>().scale = entity["TransformComponent"]["Scale"].as<glm::vec3>();
+            }
+            if (entity["SpriteRenderComponent"])
+            {
+                auto& comp = sceneEnt.Add<SpriteRenderComponent>();
+                comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
+                comp.texture = entity["SpriteRenderComponent"]["Texture"].as<std::string>();
+            }
+        }
+    }
+
 } // namespace PEANUT

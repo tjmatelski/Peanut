@@ -14,6 +14,7 @@ public:
     Scene() = default;
     ~Scene() = default;
 
+    void Clear();
     Entity CreateEntity(const std::string& name = "Default Entity Name");
     template <typename Functor>
     void ForEachEntity(Functor func)

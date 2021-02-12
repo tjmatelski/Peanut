@@ -8,5 +8,6 @@ namespace PEANUT
     {
     public:
         static void Serialize(Scene& scene, const std::string& filepath);
+        static void Deserialize(const std::string& file, Scene& scene);
     };
 } // namespace PEANUT

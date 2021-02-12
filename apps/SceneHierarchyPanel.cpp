@@ -55,7 +55,15 @@ void SceneHierarchyPanel::UpdateMenuBar()
             if (ImGui::MenuItem("Open"))
             {
                 std::string sceneFile = CreateFileSelectorDialog()->SelectFile().value_or("");
-                LOG_INFO("Opening Scene: {}", sceneFile);
+                if (sceneFile.find(".peanut") != std::string::npos)
+                {
+                    LOG_INFO("Opening Scene: {}", sceneFile);
+                    SceneSerializer::Deserialize(sceneFile, *m_scene);
+                }
+                else
+                {
+                    LOG_ERROR("Invalid scene file: {}", sceneFile);
+                }
             }
             ImGui::EndMenu();
         }
