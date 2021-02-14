@@ -23,7 +23,20 @@ namespace PEANUT
     void OrthoCamera::SetPosition(float x, float y)
     {
         m_position = glm::vec3(x, y, 0.0f);
-        m_viewMatrix = glm::translate(glm::mat4(1.0f), -m_position);
+        FormViewMatrix();
     }
 
+    void OrthoCamera::ZoomBy(const float zoom)
+    {
+        m_scaleFactor += zoom;
+        if (m_scaleFactor <= 0.0f)
+            m_scaleFactor = 0.0f;
+        FormViewMatrix();
+    }
+
+    void OrthoCamera::FormViewMatrix()
+    {
+        m_viewMatrix = glm::translate(glm::mat4(1.0f), -m_position);
+        m_viewMatrix = glm::scale(m_viewMatrix, glm::vec3(m_scaleFactor));
+    }
 }

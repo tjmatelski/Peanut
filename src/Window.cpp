@@ -2,6 +2,7 @@
 #include <Log.h>
 #include <Events/KeyEvent.h>
 #include <Events/WindowEvents.h>
+#include <Events/MouseEvents.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -62,6 +63,12 @@ namespace PEANUT
             WindowCloseEvent windowCloseEvent;
             Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
             myWindow->m_eventCallback(windowCloseEvent);
+        });
+
+        glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset){
+            ScrollEvent event(xoffset, yoffset);
+            Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            myWindow->m_eventCallback(event);
         });
 
         ImGui::CreateContext();

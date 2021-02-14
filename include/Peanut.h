@@ -24,6 +24,7 @@
 // Events
 #include "Events/Event.h"
 #include "Events/KeyEvent.h"
+#include "Events/MouseEvents.h"
 #include "Events/WindowEvents.h"
 
 // Scene

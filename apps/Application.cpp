@@ -88,6 +88,10 @@ public:
             float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
             m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
         });
+
+        dispatcher.Dispatch<ScrollEvent>([&](ScrollEvent& e) {
+            m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
+        });
     }
 
 private:

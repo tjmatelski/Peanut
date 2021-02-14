@@ -13,6 +13,7 @@ public:
 
     void SetProjection(float left, float right, float bottom, float top);
     void SetPosition(float x, float y);
+    void ZoomBy(const float zoom);
 
     inline const glm::vec3& GetPosition() const { return m_position; }
     inline const glm::mat4& GetViewMatrix() const { return m_viewMatrix; }
@@ -22,6 +23,9 @@ private:
     glm::vec3 m_position;
     glm::mat4 m_viewMatrix;
     glm::mat4 m_projectionMatrix;
+    float m_scaleFactor = 1.0f;
+
+    void FormViewMatrix();
 };
 
 }
