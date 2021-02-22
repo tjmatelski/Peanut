@@ -33,25 +33,6 @@ public:
 
     virtual void OnUpdate(TimeStep timeStep) override
     {
-        // Temporary camera controller
-        float camSpeed = 1.0f * timeStep;
-        if (Input::IsKeyPressed(KeyCode::W))
-        {
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y + camSpeed);
-        }
-        if (Input::IsKeyPressed(KeyCode::A))
-        {
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - camSpeed, m_orthoCamera.GetPosition().y);
-        }
-        if (Input::IsKeyPressed(KeyCode::S))
-        {
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x, m_orthoCamera.GetPosition().y - camSpeed);
-        }
-        if (Input::IsKeyPressed(KeyCode::D))
-        {
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x + camSpeed, m_orthoCamera.GetPosition().y);
-        }
-
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
         Renderer2D::BeginScene(m_orthoCamera);
@@ -92,6 +73,21 @@ public:
         dispatcher.Dispatch<ScrollEvent>([&](ScrollEvent& e) {
             m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
         });
+
+        dispatcher.Dispatch<MouseButtonEvent>([&](MouseButtonEvent& event) {
+            m_leftMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_LEFT && event.Pressed();
+        });
+
+        dispatcher.Dispatch<MouseMovedEvent>([&](MouseMovedEvent& event) {
+            glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
+            if (m_leftMousePressed)
+            {
+                glm::vec2 diff = newPos - m_mousePosition;
+                diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
+                m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
+            }
+            m_mousePosition = newPos;
+        });
     }
 
 private:
@@ -101,6 +97,8 @@ private:
     SceneHierarchyPanel m_scenePanel;
     Entity m_entity;
     TextureLibrary m_textureLib;
+    bool m_leftMousePressed = false;
+    glm::vec2 m_mousePosition;
 };
 
 Application *GetApplication()

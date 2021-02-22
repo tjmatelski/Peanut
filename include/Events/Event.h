@@ -14,6 +14,8 @@ namespace PEANUT
     {
         None,
         KeyEvent,
+        MouseButtonEvent,
+        MouseMovedEvent,
         ScrollEvent,
         WindowCloseEvent,
         WindowResizeEvent

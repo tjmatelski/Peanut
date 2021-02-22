@@ -38,38 +38,7 @@ namespace PEANUT
 
         glfwSetWindowUserPointer(window, this);
 
-        glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window_, int width, int height) {
-            LOG_INFO("GLFW Framebuffer resize, width = {0}, height = {1}", width, height);
-            WindowResizeEvent event(width, height);
-            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
-            myWindow->m_width = width;
-            myWindow->m_height = height;
-            myWindow->m_eventCallback(event);
-        });
-
-        glfwSetErrorCallback([](int code, const char *message) {
-            LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
-        });
-
-        glfwSetKeyCallback(window, [](GLFWwindow *window_, int key, int scancode, int action, int mods) {
-            LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
-            KeyEvent event(static_cast<KeyCode>(key));
-            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
-            myWindow->m_eventCallback(event);
-        });
-
-        glfwSetWindowCloseCallback(window, [](GLFWwindow *window_) {
-            LOG_INFO("GLFW Window close callback");
-            WindowCloseEvent windowCloseEvent;
-            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
-            myWindow->m_eventCallback(windowCloseEvent);
-        });
-
-        glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset){
-            ScrollEvent event(xoffset, yoffset);
-            Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-            myWindow->m_eventCallback(event);
-        });
+        InitWindowCallbacks();
 
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -115,6 +84,55 @@ namespace PEANUT
     float Window::GetTime() const
     {
         return static_cast<float>(glfwGetTime());
+    }
+
+    void Window::InitWindowCallbacks()
+    {
+        GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
+        glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window_, int width, int height) {
+            LOG_INFO("GLFW Framebuffer resize, width = {0}, height = {1}", width, height);
+            WindowResizeEvent event(width, height);
+            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
+            myWindow->m_width = width;
+            myWindow->m_height = height;
+            myWindow->m_eventCallback(event);
+        });
+
+        glfwSetErrorCallback([](int code, const char *message) {
+            LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
+        });
+
+        glfwSetKeyCallback(window, [](GLFWwindow *window_, int key, int scancode, int action, int mods) {
+            LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
+            KeyEvent event(static_cast<KeyCode>(key));
+            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
+            myWindow->m_eventCallback(event);
+        });
+
+        glfwSetWindowCloseCallback(window, [](GLFWwindow *window_) {
+            LOG_INFO("GLFW Window close callback");
+            WindowCloseEvent windowCloseEvent;
+            Window *myWindow = static_cast<Window *>(glfwGetWindowUserPointer(window_));
+            myWindow->m_eventCallback(windowCloseEvent);
+        });
+
+        glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset){
+            ScrollEvent event(xoffset, yoffset);
+            Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            myWindow->m_eventCallback(event);
+        });
+
+        glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+            MouseMovedEvent event(xpos, ypos);
+            Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            myWindow->m_eventCallback(event);
+        });
+
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+            MouseButtonEvent event(static_cast<MouseCode>(button), action == GLFW_PRESS);
+            Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            myWindow->m_eventCallback(event);
+        });
     }
 
 } // namespace PEANUT

@@ -28,6 +28,8 @@ private:
     int m_width;
     int m_height;
     EventCallbackFn m_eventCallback;
+
+    void InitWindowCallbacks();
 };
 
 }
