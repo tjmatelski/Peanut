@@ -4,6 +4,12 @@
 #include <yaml-cpp/yaml.h>
 
 #include <fstream>
+#include <filesystem>
+
+namespace
+{
+    static const std::filesystem::path currentDir = std::filesystem::current_path();
+}
 
 namespace YAML
 {
@@ -72,7 +78,8 @@ namespace PEANUT
             out << YAML::Key << "SpriteRenderComponent" << YAML::Value << YAML::BeginMap;
             const SpriteRenderComponent& spriteRenderComp = ent.Get<SpriteRenderComponent>();
             out << YAML::Key << "Color" << YAML::Value << spriteRenderComp.color;
-            out << YAML::Key << "Texture" << YAML::Value << spriteRenderComp.texture;
+            std::filesystem::path texPath(spriteRenderComp.texture);
+            out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, currentDir).string();
             out << YAML::EndMap;
         }
 
@@ -117,7 +124,8 @@ namespace PEANUT
             {
                 auto& comp = sceneEnt.Add<SpriteRenderComponent>();
                 comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
-                comp.texture = entity["SpriteRenderComponent"]["Texture"].as<std::string>();
+                std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
+                comp.texture = (currentDir / relative).string();
             }
         }
     }
