@@ -65,32 +65,58 @@ public:
     virtual void OnEvent(Event& event)
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent &e) {
-            float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
-            m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
-        });
-
-        dispatcher.Dispatch<ScrollEvent>([&](ScrollEvent& e) {
-            m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
-        });
-
-        dispatcher.Dispatch<MouseButtonEvent>([&](MouseButtonEvent& event) {
-            m_leftMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_LEFT && event.Pressed();
-        });
-
-        dispatcher.Dispatch<MouseMovedEvent>([&](MouseMovedEvent& event) {
-            glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
-            if (m_leftMousePressed)
-            {
-                glm::vec2 diff = newPos - m_mousePosition;
-                diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
-                m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
-            }
-            m_mousePosition = newPos;
-        });
+        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent& e) { OnWindowResize(e); });
+        dispatcher.Dispatch<ScrollEvent>([&](ScrollEvent& e) { OnScroll(e); });
+        dispatcher.Dispatch<MouseButtonEvent>([&](MouseButtonEvent& e) { OnMouseButton(e); });
+        if (ImGui::GetIO().WantCaptureMouse == false)
+        {
+            dispatcher.Dispatch<MouseMovedEvent>([&](MouseMovedEvent& e) { OnMouseMove(e); });
+        }
+        dispatcher.Dispatch<KeyEvent>([&](KeyEvent& e) { OnKey(e); });
     }
 
 private:
+    void OnWindowResize(WindowResizeEvent& e)
+    {
+        float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
+        m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
+    }
+
+    void OnScroll(ScrollEvent& e)
+    {
+        m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
+    }
+
+    void OnMouseButton(MouseButtonEvent& event)
+    {
+        m_leftMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_LEFT && event.Pressed();
+    }
+
+    void OnMouseMove(MouseMovedEvent& event)
+    {
+        glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
+        if (m_leftMousePressed)
+        {
+            glm::vec2 diff = newPos - m_mousePosition;
+            diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
+        }
+        m_mousePosition = newPos;
+    }
+
+    void OnKey(KeyEvent& event)
+    {
+        switch (event.GetCode())
+        {
+        case KeyCode::ESCAPE:
+            Terminate();
+            break;
+
+        default:
+            break;
+        }
+    }
+
     glm::vec4 m_clearColor;
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;

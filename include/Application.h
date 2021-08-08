@@ -24,19 +24,20 @@ namespace PEANUT
         static inline const Application& Get() { return *s_application; }
         inline const Window& GetWindow() const { return *m_window; }
 
+    protected:
+        void Terminate();
+
     private:
         static Application* s_application;
         float m_lastFrameTime = 0.0f;
         bool m_shouldWindowClose;
         std::unique_ptr<Window> m_window;
 
-    private:
         friend int ::main(int argc, char **argv);
         void ImGuiBeginFrame();
         void ImGuiEndFrame();
         void Run();
         void OnApplicationEvent(Event& event);
-        void OnKeyEvent(KeyEvent& e);
         void OnWindowClose(WindowCloseEvent& e);
         void OnWindowResize(WindowResizeEvent& e);
         void UpdateWindow();

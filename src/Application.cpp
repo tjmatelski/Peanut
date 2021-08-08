@@ -46,7 +46,6 @@ namespace PEANUT
     void Application::OnApplicationEvent(Event &event)
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<KeyEvent>([this](KeyEvent &e) { this->OnKeyEvent(e); });
         dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent &e) { this->OnWindowClose(e); });
         dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent &e) { this->OnWindowResize(e); });
         OnEvent(event);
@@ -62,19 +61,6 @@ namespace PEANUT
         Renderer::SetViewport(e.GetWidth(), e.GetHeight());
     }
 
-    void Application::OnKeyEvent(KeyEvent &e)
-    {
-        switch (e.GetCode())
-        {
-        case KeyCode::ESCAPE:
-            m_shouldWindowClose = true;
-            break;
-
-        default:
-            break;
-        }
-    }
-
     void Application::ImGuiBeginFrame()
     {
         // Start the Dear ImGui frame
@@ -87,6 +73,11 @@ namespace PEANUT
     {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    void Application::Terminate()
+    {
+        m_shouldWindowClose = true;
     }
 } // namespace PEANUT
 
