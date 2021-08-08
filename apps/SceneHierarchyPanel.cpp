@@ -115,11 +115,11 @@ void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string &c
     ImGui::Separator();
     ImGui::Text(componentName.c_str());
     TransformComponent &transform = m_selectedEntity.Get<TransformComponent>();
-    ImGui::SliderFloat3("Translation", glm::value_ptr(transform.translation), -1.0f, 1.0f);
+    ImGui::DragFloat3("Translation", glm::value_ptr(transform.translation), 0.2f);
     transform.rotation = glm::degrees(transform.rotation);
-    ImGui::SliderFloat3("Rotation", glm::value_ptr(transform.rotation), 0.0f, 360.0f);
+    ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), 1.0f, 0.0f, 360.0f, "%.2f deg");
     transform.rotation = glm::radians(transform.rotation);
-    ImGui::SliderFloat3("Scale", glm::value_ptr(transform.scale), 0.0f, 2.0f);
+    ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.2, 0.0f, FLT_MAX);
 }
 
 template <typename Component>
