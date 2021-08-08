@@ -41,7 +41,7 @@ namespace PEANUT
             if (m_event.GetType() == T::GetStaticType())
             {
                 LOG_INFO("Dispatching {0}", m_event.ToString());
-                f(static_cast<T &>(m_event));
+                f(static_cast<const T&>(m_event));
             }
         }
 

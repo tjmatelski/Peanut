@@ -65,34 +65,35 @@ public:
     virtual void OnEvent(Event& event)
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowResizeEvent>([&](WindowResizeEvent& e) { OnWindowResize(e); });
-        dispatcher.Dispatch<ScrollEvent>([&](ScrollEvent& e) { OnScroll(e); });
-        dispatcher.Dispatch<MouseButtonEvent>([&](MouseButtonEvent& e) { OnMouseButton(e); });
+        dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
+        dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
+        dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
         if (ImGui::GetIO().WantCaptureMouse == false)
         {
-            dispatcher.Dispatch<MouseMovedEvent>([&](MouseMovedEvent& e) { OnMouseMove(e); });
+            dispatcher.Dispatch<MouseMovedEvent>([&](const MouseMovedEvent& e) { OnMouseMove(e); });
         }
-        dispatcher.Dispatch<KeyEvent>([&](KeyEvent& e) { OnKey(e); });
+        dispatcher.Dispatch<KeyEvent>([&](const KeyEvent& e) { OnKey(e); });
     }
 
 private:
-    void OnWindowResize(WindowResizeEvent& e)
+    void OnWindowResize(const WindowResizeEvent& e)
     {
+        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
         float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
     }
 
-    void OnScroll(ScrollEvent& e)
+    void OnScroll(const ScrollEvent& e)
     {
         m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
     }
 
-    void OnMouseButton(MouseButtonEvent& event)
+    void OnMouseButton(const MouseButtonEvent& event)
     {
         m_leftMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_LEFT && event.Pressed();
     }
 
-    void OnMouseMove(MouseMovedEvent& event)
+    void OnMouseMove(const MouseMovedEvent& event)
     {
         glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
         if (m_leftMousePressed)
@@ -104,7 +105,7 @@ private:
         m_mousePosition = newPos;
     }
 
-    void OnKey(KeyEvent& event)
+    void OnKey(const KeyEvent& event)
     {
         switch (event.GetCode())
         {

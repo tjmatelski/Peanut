@@ -46,19 +46,13 @@ namespace PEANUT
     void Application::OnApplicationEvent(Event &event)
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent &e) { this->OnWindowClose(e); });
-        dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent &e) { this->OnWindowResize(e); });
+        dispatcher.Dispatch<WindowCloseEvent>([this](const WindowCloseEvent &e) { this->OnWindowClose(e); });
         OnEvent(event);
     }
 
-    void Application::OnWindowClose(WindowCloseEvent &e)
+    void Application::OnWindowClose(const WindowCloseEvent &e)
     {
         m_shouldWindowClose = true;
-    }
-
-    void Application::OnWindowResize(WindowResizeEvent &e)
-    {
-        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
     }
 
     void Application::ImGuiBeginFrame()

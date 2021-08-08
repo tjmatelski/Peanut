@@ -38,8 +38,7 @@ namespace PEANUT
         void ImGuiEndFrame();
         void Run();
         void OnApplicationEvent(Event& event);
-        void OnWindowClose(WindowCloseEvent& e);
-        void OnWindowResize(WindowResizeEvent& e);
+        void OnWindowClose(const WindowCloseEvent& e);
         void UpdateWindow();
     };
 
