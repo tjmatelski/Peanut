@@ -21,9 +21,24 @@ public:
         m_scenePanel(m_scene),
         m_textureLib()
     {
-        m_entity = m_scene->CreateEntity("MyEntity");
+        m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
+        
+        class TestScript : public NativeScript
+        {
+        public:
+            virtual void OnUpdate(TimeStep ts) override
+            {
+                if (Input::IsKeyPressed(KeyCode::SPACE))
+                {
+                    auto& transform = GetComponent<TransformComponent>();
+                    transform.translation.y += 0.1;
+                }
+            }
+        };
+        ent.Add<NativeScriptComponent>(new TestScript()).m_script->m_entity = ent;
+        
         m_scene->CreateEntity("Another Entity");
     }
 
@@ -34,6 +49,14 @@ public:
     virtual void OnUpdate(TimeStep timeStep) override
     {
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<NativeScriptComponent>())
+            {
+                auto& script = ent.Get<NativeScriptComponent>();
+                script.OnUpdate(timeStep);
+            }
+        });
 
         Renderer2D::BeginScene(m_orthoCamera);
         m_scene->ForEachEntity([&](Entity ent){
@@ -122,7 +145,6 @@ private:
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
-    Entity m_entity;
     TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;

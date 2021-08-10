@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Math.h"
+#include "NativeScript.h"
+#include "../TimeStep.h"
 #include <string>
 
 namespace PEANUT
@@ -37,4 +39,17 @@ struct SpriteRenderComponent
     glm::vec3 color = {1.0f, 1.0f, 1.0f};
     std::string texture = "./res/textures/BlankSquare.png";
 };
+
+struct NativeScriptComponent
+{
+    NativeScript* m_script;
+    void OnUpdate(TimeStep ts)
+    {
+        if (m_script)
+        {
+            m_script->OnUpdate(ts);
+        }
+    }
+};
+
 }
