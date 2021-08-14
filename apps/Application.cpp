@@ -15,11 +15,12 @@ namespace PEANUT
 class MyApp : public Application
 {
 public:
-    MyApp() : Application(), m_clearColor(0.2f, 0.3f, 0.3f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
+    MyApp() : Application(), m_clearColor(0.1f, 0.1f, 0.1f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
             static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0),
         m_scene(std::make_shared<Scene>()),
         m_scenePanel(m_scene),
-        m_textureLib()
+        m_textureLib(),
+        m_runtime(false)
     {
         m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
@@ -50,13 +51,16 @@ public:
     {
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<NativeScriptComponent>())
-            {
-                auto& script = ent.Get<NativeScriptComponent>();
-                script.OnUpdate(timeStep);
-            }
-        });
+        if (m_runtime)
+        {
+            m_scene->ForEachEntity([&](Entity ent) {
+                if (ent.Has<NativeScriptComponent>())
+                {
+                    auto& script = ent.Get<NativeScriptComponent>();
+                    script.OnUpdate(timeStep);
+                }
+            });
+        }
 
         Renderer2D::BeginScene(m_orthoCamera);
         m_scene->ForEachEntity([&](Entity ent){
@@ -76,7 +80,18 @@ public:
     virtual void OnImGuiUpdate() override
     {
         ImGui::Begin("Peanut Editor", nullptr, ImGuiWindowFlags_MenuBar); // Create a window called "Hello, world!" and append into it.
-        ImGui::ColorEdit4("Clear Color", glm::value_ptr(m_clearColor));
+
+        if (ImGui::Button("Run"))
+        {
+            m_runtime = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Stop"))
+        {
+            m_runtime = false;
+        }
+        ImGui::SameLine();
+        (m_runtime) ? ImGui::Text("Running") : ImGui::Text("Stopped");
 
         ImGui::Separator();
 
@@ -148,6 +163,7 @@ private:
     TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
+    bool m_runtime;
 };
 
 Application *GetApplication()
