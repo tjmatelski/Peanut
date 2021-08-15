@@ -2,6 +2,7 @@
 #include <Peanut.h>
 
 #include "SceneHierarchyPanel.h"
+#include "ScriptLibrary.h"
 
 #include <iostream>
 #include <memory>
@@ -17,33 +18,26 @@ namespace PEANUT
 class MyApp : public Application
 {
 public:
-    MyApp() : Application(), m_clearColor(0.1f, 0.1f, 0.1f, 1.0f), m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
+    MyApp() : 
+        Application(),
+        m_clearColor(0.1f, 0.1f, 0.1f, 1.0f),
+        m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
             static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0),
         m_scene(std::make_shared<Scene>()),
         m_scenePanel(m_scene),
         m_textureLib(),
-        m_runtime(false)
+        m_runtime(false),
+        m_scripts()
     {
+        spdlog::set_level(spdlog::level::debug);
+
         m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
-
-        void* scriptLib = dlopen("./build/libTestScript.so", RTLD_NOW);
-        if (scriptLib == nullptr)
-        {
-            std::cout << dlerror() << std::endl;
-        }
-        typedef NativeScript* (*CreateScriptFunc)(void);
-        CreateScriptFunc getScript = (CreateScriptFunc) dlsym(scriptLib, "GetScript");
-        if (getScript == nullptr)
-        {
-            std::cout << dlerror() << std::endl;
-        }
+        ent.Add<NativeScriptComponent>(m_scripts.Load("./res/scripts/TestScript.cpp")).m_script->m_entity = ent;
         
-        ent.Add<NativeScriptComponent>(std::unique_ptr<NativeScript>(getScript()))
-            .m_script->m_entity = ent;
-        
-        m_scene->CreateEntity("Another Entity");
+        ent = m_scene->CreateEntity("Another Entity");
+        ent.Add<NativeScriptComponent>(m_scripts.Load("./res/scripts/TestScript.cpp")).m_script->m_entity = ent;
     }
 
     virtual void OnAttach() override
@@ -163,6 +157,7 @@ private:
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
+    ScriptLibrary m_scripts;
     TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
