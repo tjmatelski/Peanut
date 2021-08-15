@@ -33,3 +33,4 @@ target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
 target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui yaml-cpp
     PRIVATE ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
+target_compile_options(Peanut PUBLIC -fPIC)

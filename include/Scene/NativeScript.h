@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity.h"
-#include "../TimeStep.h"
+#include <TimeStep.h>
 
 namespace PEANUT
 {

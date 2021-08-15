@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <memory>
+#include <utility>
+#include <dlfcn.h>
 
 // Temporary
 #include "../src/OpenGLRenderer/GLDebug.h"
@@ -25,20 +27,21 @@ public:
         m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
-        
-        class TestScript : public NativeScript
+
+        void* scriptLib = dlopen("./build/libTestScript.so", RTLD_NOW);
+        if (scriptLib == nullptr)
         {
-        public:
-            virtual void OnUpdate(TimeStep ts) override
-            {
-                if (Input::IsKeyPressed(KeyCode::SPACE))
-                {
-                    auto& transform = GetComponent<TransformComponent>();
-                    transform.translation.y += 0.1;
-                }
-            }
-        };
-        ent.Add<NativeScriptComponent>(new TestScript()).m_script->m_entity = ent;
+            std::cout << dlerror() << std::endl;
+        }
+        typedef NativeScript* (*CreateScriptFunc)(void);
+        CreateScriptFunc getScript = (CreateScriptFunc) dlsym(scriptLib, "GetScript");
+        if (getScript == nullptr)
+        {
+            std::cout << dlerror() << std::endl;
+        }
+        
+        ent.Add<NativeScriptComponent>(std::unique_ptr<NativeScript>(getScript()))
+            .m_script->m_entity = ent;
         
         m_scene->CreateEntity("Another Entity");
     }

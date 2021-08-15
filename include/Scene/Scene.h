@@ -1,7 +1,6 @@
 #pragma once
 
 #include <entt.hpp>
-#include "../Log.h"
 
 namespace PEANUT
 {

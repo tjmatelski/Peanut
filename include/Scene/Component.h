@@ -3,6 +3,8 @@
 #include "../Math.h"
 #include "NativeScript.h"
 #include "../TimeStep.h"
+
+#include <memory>
 #include <string>
 
 namespace PEANUT
@@ -42,7 +44,12 @@ struct SpriteRenderComponent
 
 struct NativeScriptComponent
 {
-    NativeScript* m_script;
+    NativeScriptComponent(const NativeScriptComponent&) = delete;
+    NativeScriptComponent(NativeScriptComponent&&) = default;
+    NativeScriptComponent& operator=(const NativeScriptComponent&) = delete;
+    NativeScriptComponent& operator=(NativeScriptComponent&&) = default;
+
+    std::unique_ptr<NativeScript> m_script;
     void OnUpdate(TimeStep ts)
     {
         if (m_script)
