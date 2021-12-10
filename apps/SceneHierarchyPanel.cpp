@@ -1,4 +1,5 @@
 #include "SceneHierarchyPanel.h"
+#include "ScriptLibrary.h"
 
 namespace PEANUT
 {
@@ -76,9 +77,10 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
     ImGui::Begin("Properties Panel");
     if (m_selectedEntity)
     {
-        DrawComponent<TagComponent>("Tag Component");
+        DrawComponent<TagComponent>("Tag");
         DrawComponent<TransformComponent>("Transform");
-        DrawComponent<SpriteRenderComponent>("Sprite Render Component");
+        DrawComponent<SpriteRenderComponent>("Sprite Render");
+        DrawComponent<NativeScriptComponent>("Native Script");
 
         ImGui::Separator();
         if (ImGui::Button("Add Component"))
@@ -90,6 +92,14 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
             if (ImGui::MenuItem("Sprite Render Component"))
             {
                 m_selectedEntity.Add<SpriteRenderComponent>();
+            }
+            if (ImGui::MenuItem("Native Script Component"))
+            {
+                std::filesystem::path scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                if (!scriptFile.empty()) {
+                    m_selectedEntity.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile)
+                        .m_script->m_entity = m_selectedEntity;
+                }
             }
             ImGui::EndPopup();
         }
@@ -127,6 +137,7 @@ void SceneHierarchyPanel::DrawComponent(const std::string& componentName)
 {
     if (m_selectedEntity.Has<Component>())
     {
+        ImGui::PushID(componentName.c_str());
         ImGui::Separator();
         ImGui::Text(componentName.c_str());
         ImGui::SameLine();
@@ -138,6 +149,7 @@ void SceneHierarchyPanel::DrawComponent(const std::string& componentName)
         {
             DrawComponentSpecifics<Component>();
         }
+        ImGui::PopID();
     }
 }
 
@@ -153,4 +165,12 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
     }
 }
+
+template <>
+void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
+{
+    auto& script = m_selectedEntity.Get<NativeScriptComponent>();
+    ImGui::Text(script.filename.c_str());
+}
+
 }

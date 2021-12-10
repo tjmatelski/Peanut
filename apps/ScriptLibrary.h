@@ -23,7 +23,17 @@ public:
         }
     }
 
-    std::unique_ptr<NativeScript> Load(const std::filesystem::path& script)
+    static ScriptLibrary& GetInstance() {
+        static ScriptLibrary sl;
+        return sl;
+    }
+
+    static std::unique_ptr<NativeScript> Load(const std::filesystem::path& script) {
+        return GetInstance().LoadImpl(script);
+    }
+
+private:
+    std::unique_ptr<NativeScript> LoadImpl(const std::filesystem::path& script)
     {
         LOG_INFO("Loading script {}", script.string());
         auto fullPath = std::filesystem::canonical(script);
@@ -58,7 +68,6 @@ public:
         return std::unique_ptr<NativeScript>(lib.getScriptFunc());
     }
 
-private:
     using LibHandle = void*;
     struct ScriptLib
     {

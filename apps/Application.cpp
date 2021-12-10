@@ -34,10 +34,12 @@ public:
         m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
-        ent.Add<NativeScriptComponent>(m_scripts.Load("./res/scripts/TestScript.cpp")).m_script->m_entity = ent;
+        ent.Add<NativeScriptComponent>(ScriptLibrary::Load("./res/scripts/TestScript.cpp"), "./res/scripts/TestScript.cpp")
+            .m_script->m_entity = ent;
         
         ent = m_scene->CreateEntity("Another Entity");
-        ent.Add<NativeScriptComponent>(m_scripts.Load("./res/scripts/TestScript.cpp")).m_script->m_entity = ent;
+        ent.Add<NativeScriptComponent>(ScriptLibrary::Load("./res/scripts/TestScript.cpp"), "./res/scripts/TestScript.cpp")
+            .m_script->m_entity = ent;
     }
 
     virtual void OnAttach() override

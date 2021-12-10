@@ -4,6 +4,7 @@
 #include "NativeScript.h"
 #include "../TimeStep.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -50,6 +51,7 @@ struct NativeScriptComponent
     NativeScriptComponent& operator=(NativeScriptComponent&&) = default;
 
     std::unique_ptr<NativeScript> m_script;
+    std::filesystem::path filename;
     void OnUpdate(TimeStep ts)
     {
         if (m_script)
