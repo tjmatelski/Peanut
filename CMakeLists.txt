@@ -13,7 +13,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(extern/glfw)
 add_subdirectory(extern/glad)
 add_subdirectory(extern/imgui)
-option(SPDLOG_BUILD_SHARED "" ON)
+option(SPDLOG_BUILD_SHARED "" ${BUILD_SHARED_LIBS})
 add_subdirectory(extern/spdlog)
 add_subdirectory(extern/yaml-cpp)
 

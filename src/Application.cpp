@@ -1,3 +1,4 @@
+#include "Settings.h"
 #include <Application.h>
 #include <KeyCodes.h>
 #include <Log.h>
@@ -11,10 +12,13 @@ namespace PEANUT {
 Application* Application::s_application = nullptr;
 Application::Application()
 {
+    spdlog::set_level(spdlog::level::debug);
+
     s_application = this;
     m_window = std::make_unique<Window>("Peanut", 800, 600);
     m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
+    Settings::Initialize();
 }
 
 void Application::Run()

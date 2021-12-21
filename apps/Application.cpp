@@ -27,8 +27,6 @@ public:
         , m_runtime(false)
         , m_scripts()
     {
-        spdlog::set_level(spdlog::level::debug);
-
         m_scene->CreateEntity("MyEntity");
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);

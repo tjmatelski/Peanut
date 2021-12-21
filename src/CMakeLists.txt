@@ -1,5 +1,6 @@
-add_library(Peanut 
+add_library(Peanut STATIC
     Application.cpp
+    Settings.cpp
     Window.cpp
     WindowInput.cpp
     stb_image_impl.cpp
@@ -30,7 +31,15 @@ find_package(OpenGL REQUIRED)
 target_include_directories(Peanut PUBLIC ../include ../extern/entt
     PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
-target_link_libraries(Peanut PUBLIC glfw OpenGL::GL glad spdlog imgui yaml-cpp
-    PRIVATE ${GTKMM_LIBRARIES})
+target_link_libraries(Peanut
+    PUBLIC
+        glfw
+        OpenGL::GL
+        glad
+        spdlog
+        imgui
+    PRIVATE 
+        yaml-cpp
+        ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
 target_compile_options(Peanut PUBLIC -fPIC)

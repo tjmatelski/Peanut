@@ -1,5 +1,8 @@
 {
     "cmake.configureOnOpen": true,
+    "cmake.configureArgs": [
+        "-DBUILD_SHARED_LIBS=ON"
+    ],
     "files.associations": {
         "array": "cpp",
         "*.tcc": "cpp",
