@@ -40,12 +40,22 @@ private:
         auto search = m_loadedLibs.find(fullPath);
         if (search != m_loadedLibs.end())
         {
-            return std::unique_ptr<NativeScript>(search->second.getScriptFunc());
+            if (search->second.lastWriteTime != std::filesystem::last_write_time(fullPath))
+            {
+                dlclose(search->second.handle);
+                m_loadedLibs.erase(search);
+            }
+            else
+            {
+                return std::unique_ptr<NativeScript>(search->second.getScriptFunc());
+            }
         }
 
         std::string libName = "./build/res/scripts/lib" + script.stem().string() + ".so";
         LOG_DEBUG("Loading shared object {}", libName);
         ScriptLib lib;
+        lib.libObject = std::filesystem::path(libName);
+        lib.lastWriteTime = std::filesystem::last_write_time(lib.libObject);
         lib.handle = dlopen(libName.c_str(), RTLD_NOW);
         if (lib.handle == nullptr)
         {
@@ -71,7 +81,8 @@ private:
     using LibHandle = void*;
     struct ScriptLib
     {
-        //std::filesystem::path m_script;
+        std::filesystem::path libObject;
+        std::filesystem::file_time_type lastWriteTime;
         LibHandle handle;
         std::function<NativeScript *(void)> getScriptFunc;
     };

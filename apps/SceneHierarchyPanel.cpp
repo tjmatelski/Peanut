@@ -1,6 +1,8 @@
 #include "SceneHierarchyPanel.h"
 #include "ScriptLibrary.h"
 
+#include <cstdlib>
+
 namespace PEANUT
 {
 
@@ -161,7 +163,6 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     ImGui::Text(renderComp.texture.c_str());
     if (ImGui::Button("..."))
     {
-        //m_showSpriteRenderFileSelector = true;
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
     }
 }
@@ -171,6 +172,22 @@ void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
 {
     auto& script = m_selectedEntity.Get<NativeScriptComponent>();
     ImGui::Text(script.filename.c_str());
+    if (ImGui::Button("Reload Script"))
+    {
+        std::string command = "cmake --build \"./build/\" --target ";
+        command += script.filename.stem().string();
+        int result = std::system(command.c_str());
+        if (result != 0)
+        {
+            LOG_ERROR("Something went wrong with command: {}", command);
+        }
+        else
+        {
+            script.m_script = ScriptLibrary::Load(script.filename);
+            script.m_script->m_entity = m_selectedEntity;
+        }
+        
+    }
 }
 
 }
