@@ -4,11 +4,9 @@
 #include <functional>
 #include <memory>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class SceneHierarchyPanel
-{
+class SceneHierarchyPanel {
 public:
     SceneHierarchyPanel(std::shared_ptr<Scene> scene);
     void UpdateGui();
@@ -26,8 +24,8 @@ private:
 };
 
 template <>
-void SceneHierarchyPanel::DrawComponent<TagComponent>(const std::string &componentName);
+void SceneHierarchyPanel::DrawComponent<TagComponent>(const std::string& componentName);
 template <>
-void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string &componentName);
+void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string& componentName);
 
 }

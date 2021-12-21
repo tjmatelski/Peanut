@@ -1,24 +1,21 @@
 #pragma once
 
 #include "../Math.h"
-#include "NativeScript.h"
 #include "../TimeStep.h"
+#include "NativeScript.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-struct TagComponent
-{
+struct TagComponent {
     TagComponent() = default;
     std::string tag;
 };
 
-struct TransformComponent
-{
+struct TransformComponent {
     TransformComponent() = default;
 
     glm::vec3 translation;
@@ -33,18 +30,22 @@ struct TransformComponent
     }
 };
 
-struct SpriteRenderComponent
-{
+struct SpriteRenderComponent {
     SpriteRenderComponent() = default;
-    SpriteRenderComponent(float r, float g, float b) : color(r, g, b) {}
-    SpriteRenderComponent(const glm::vec3& rgb) : color(rgb) {}
+    SpriteRenderComponent(float r, float g, float b)
+        : color(r, g, b)
+    {
+    }
+    SpriteRenderComponent(const glm::vec3& rgb)
+        : color(rgb)
+    {
+    }
 
-    glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    glm::vec3 color = { 1.0f, 1.0f, 1.0f };
     std::string texture = "./res/textures/BlankSquare.png";
 };
 
-struct NativeScriptComponent
-{
+struct NativeScriptComponent {
     NativeScriptComponent(const NativeScriptComponent&) = delete;
     NativeScriptComponent(NativeScriptComponent&&) = default;
     NativeScriptComponent& operator=(const NativeScriptComponent&) = delete;
@@ -54,8 +55,7 @@ struct NativeScriptComponent
     std::filesystem::path filename;
     void OnUpdate(TimeStep ts)
     {
-        if (m_script)
-        {
+        if (m_script) {
             m_script->OnUpdate(ts);
         }
     }

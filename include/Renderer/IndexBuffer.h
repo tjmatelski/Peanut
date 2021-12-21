@@ -1,10 +1,8 @@
 #pragma once
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class IndexBuffer
-{
+class IndexBuffer {
 public:
     IndexBuffer(const unsigned int elements, const void* data);
     void Bind() const;

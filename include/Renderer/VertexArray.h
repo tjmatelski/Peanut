@@ -1,13 +1,11 @@
 #pragma once
 
-#include "VertexBuffer.h"
 #include "BufferLayout.h"
+#include "VertexBuffer.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class VertexArray
-{
+class VertexArray {
 public:
     VertexArray();
     void Bind() const;

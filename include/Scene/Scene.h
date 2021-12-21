@@ -2,13 +2,11 @@
 
 #include <entt.hpp>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
 class Entity;
 
-class Scene
-{
+class Scene {
 public:
     Scene() = default;
     ~Scene() = default;
@@ -18,7 +16,7 @@ public:
     template <typename Functor>
     void ForEachEntity(Functor func)
     {
-        m_registry.each([&](entt::entity ent){ func(Entity(ent, this));});
+        m_registry.each([&](entt::entity ent) { func(Entity(ent, this)); });
     }
 
 private:

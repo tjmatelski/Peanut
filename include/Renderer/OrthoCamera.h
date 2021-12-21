@@ -2,11 +2,9 @@
 
 #include "../Math.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class OrthoCamera
-{
+class OrthoCamera {
 public:
     OrthoCamera();
     OrthoCamera(float left, float right, float bottom, float top);

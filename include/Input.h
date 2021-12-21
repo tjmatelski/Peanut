@@ -2,11 +2,9 @@
 
 #include "KeyCodes.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class Input
-{
+class Input {
 public:
     static bool IsKeyPressed(const KeyCode key);
 };

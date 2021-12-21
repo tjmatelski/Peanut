@@ -1,83 +1,81 @@
 #include <Application.h>
-#include <Log.h>
 #include <KeyCodes.h>
+#include <Log.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-namespace PEANUT
+namespace PEANUT {
+Application* Application::s_application = nullptr;
+Application::Application()
 {
-    Application* Application::s_application = nullptr;
-    Application::Application()
-    {
-        s_application = this;
-        m_window = std::make_unique<Window>("Peanut", 800, 600);
-        m_window->SetEventCallback([this](Event &e) -> void { this->OnApplicationEvent(e); });
-        Renderer2D::Init();
+    s_application = this;
+    m_window = std::make_unique<Window>("Peanut", 800, 600);
+    m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
+    Renderer2D::Init();
+}
+
+void Application::Run()
+{
+    while (!m_shouldWindowClose) {
+        float currentFrameTime = m_window->GetTime();
+        TimeStep timeStep = currentFrameTime - m_lastFrameTime;
+        m_lastFrameTime = currentFrameTime;
+
+        ImGuiBeginFrame();
+
+        OnImGuiUpdate();
+        OnUpdate(timeStep);
+
+        ImGuiEndFrame();
+
+        UpdateWindow();
     }
+}
 
-    void Application::Run()
-    {
-        while (!m_shouldWindowClose)
-        {
-            float currentFrameTime = m_window->GetTime();
-            TimeStep timeStep = currentFrameTime - m_lastFrameTime;
-            m_lastFrameTime = currentFrameTime;
+void Application::UpdateWindow()
+{
+    m_window->SwapBuffers();
+    m_window->PollEvents();
+}
 
-            ImGuiBeginFrame();
+void Application::OnApplicationEvent(Event& event)
+{
+    Dispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowCloseEvent>([this](const WindowCloseEvent& e) { this->OnWindowClose(e); });
+    OnEvent(event);
+}
 
-            OnImGuiUpdate();
-            OnUpdate(timeStep);
+void Application::OnWindowClose(const WindowCloseEvent& e)
+{
+    m_shouldWindowClose = true;
+}
 
-            ImGuiEndFrame();
+void Application::ImGuiBeginFrame()
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
 
-            UpdateWindow();
-        }
-    }
+void Application::ImGuiEndFrame()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
-    void Application::UpdateWindow()
-    {
-        m_window->SwapBuffers();
-        m_window->PollEvents();
-    }
-
-    void Application::OnApplicationEvent(Event &event)
-    {
-        Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>([this](const WindowCloseEvent &e) { this->OnWindowClose(e); });
-        OnEvent(event);
-    }
-
-    void Application::OnWindowClose(const WindowCloseEvent &e)
-    {
-        m_shouldWindowClose = true;
-    }
-
-    void Application::ImGuiBeginFrame()
-    {
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-    }
-
-    void Application::ImGuiEndFrame()
-    {
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
-
-    void Application::Terminate()
-    {
-        m_shouldWindowClose = true;
-    }
+void Application::Terminate()
+{
+    m_shouldWindowClose = true;
+}
 } // namespace PEANUT
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    auto *app = PEANUT::GetApplication();
+    auto* app = PEANUT::GetApplication();
     app->OnAttach();
     LOG_INFO("Running Application");
     app->Run();

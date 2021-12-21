@@ -1,9 +1,8 @@
-#include <Scene/Scene.h>
-#include <Scene/Entity.h>
 #include <Scene/Component.h>
+#include <Scene/Entity.h>
+#include <Scene/Scene.h>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
 void Scene::Clear()
 {

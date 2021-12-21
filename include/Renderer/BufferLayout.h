@@ -2,19 +2,16 @@
 
 #include <vector>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class BufferLayout
-{
+class BufferLayout {
 public:
     BufferLayout();
-    template<typename T>
+    template <typename T>
     void Push(const unsigned int size);
     inline unsigned int GetStride() const { return m_stride; }
 
-    struct Element
-    {
+    struct Element {
         unsigned int size;
         unsigned int type;
         unsigned char normalized;

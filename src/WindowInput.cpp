@@ -1,9 +1,8 @@
 #include <Application.h>
-#include <Input.h>
 #include <GLFW/glfw3.h>
+#include <Input.h>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
 bool Input::IsKeyPressed(const KeyCode key)
 {

@@ -9,26 +9,25 @@
 #include <map>
 #include <memory>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class ScriptLibrary
-{
+class ScriptLibrary {
 public:
     ~ScriptLibrary()
     {
-        for (auto& [name, lib] : m_loadedLibs)
-        {
+        for (auto& [name, lib] : m_loadedLibs) {
             dlclose(lib.handle);
         }
     }
 
-    static ScriptLibrary& GetInstance() {
+    static ScriptLibrary& GetInstance()
+    {
         static ScriptLibrary sl;
         return sl;
     }
 
-    static std::unique_ptr<NativeScript> Load(const std::filesystem::path& script) {
+    static std::unique_ptr<NativeScript> Load(const std::filesystem::path& script)
+    {
         return GetInstance().LoadImpl(script);
     }
 
@@ -38,15 +37,11 @@ private:
         LOG_INFO("Loading script {}", script.string());
         auto fullPath = std::filesystem::canonical(script);
         auto search = m_loadedLibs.find(fullPath);
-        if (search != m_loadedLibs.end())
-        {
-            if (search->second.lastWriteTime != std::filesystem::last_write_time(fullPath))
-            {
+        if (search != m_loadedLibs.end()) {
+            if (search->second.lastWriteTime != std::filesystem::last_write_time(fullPath)) {
                 dlclose(search->second.handle);
                 m_loadedLibs.erase(search);
-            }
-            else
-            {
+            } else {
                 return std::unique_ptr<NativeScript>(search->second.getScriptFunc());
             }
         }
@@ -57,16 +52,14 @@ private:
         lib.libObject = std::filesystem::path(libName);
         lib.lastWriteTime = std::filesystem::last_write_time(lib.libObject);
         lib.handle = dlopen(libName.c_str(), RTLD_NOW);
-        if (lib.handle == nullptr)
-        {
-            LOG_ERROR("Failed to load script library object {}, dlerror: {}", libName,  dlerror());
+        if (lib.handle == nullptr) {
+            LOG_ERROR("Failed to load script library object {}, dlerror: {}", libName, dlerror());
             return std::unique_ptr<NativeScript>();
         }
 
-        typedef NativeScript *(*CreateScriptFunc)(void);
+        typedef NativeScript* (*CreateScriptFunc)(void);
         CreateScriptFunc getScript = (CreateScriptFunc)dlsym(lib.handle, "GetScript");
-        if (getScript == nullptr)
-        {
+        if (getScript == nullptr) {
             LOG_ERROR("Failed to load GetScript function from {}, dlerror: {}", libName, dlerror());
             dlclose(lib.handle);
             return std::unique_ptr<NativeScript>();
@@ -74,17 +67,16 @@ private:
         lib.getScriptFunc = getScript;
 
         m_loadedLibs.emplace(fullPath, lib);
-        
+
         return std::unique_ptr<NativeScript>(lib.getScriptFunc());
     }
 
     using LibHandle = void*;
-    struct ScriptLib
-    {
+    struct ScriptLib {
         std::filesystem::path libObject;
         std::filesystem::file_time_type lastWriteTime;
         LibHandle handle;
-        std::function<NativeScript *(void)> getScriptFunc;
+        std::function<NativeScript*(void)> getScriptFunc;
     };
     std::map<std::filesystem::path, ScriptLib> m_loadedLibs;
 };

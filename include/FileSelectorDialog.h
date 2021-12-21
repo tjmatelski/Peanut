@@ -4,11 +4,9 @@
 #include <optional>
 #include <string>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class FileSelectorDialog
-{
+class FileSelectorDialog {
 public:
     virtual std::optional<std::string> SelectFile() = 0;
 };

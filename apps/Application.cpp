@@ -1,33 +1,31 @@
-#include <glad/glad.h>
 #include <Peanut.h>
+#include <glad/glad.h>
 
 #include "SceneHierarchyPanel.h"
 #include "ScriptLibrary.h"
 
+#include <dlfcn.h>
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <dlfcn.h>
 
 // Temporary
 #include "../src/OpenGLRenderer/GLDebug.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class MyApp : public Application
-{
+class MyApp : public Application {
 public:
-    MyApp() : 
-        Application(),
-        m_clearColor(0.1f, 0.1f, 0.1f, 1.0f),
-        m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
-            static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0),
-        m_scene(std::make_shared<Scene>()),
-        m_scenePanel(m_scene),
-        m_textureLib(),
-        m_runtime(false),
-        m_scripts()
+    MyApp()
+        : Application()
+        , m_clearColor(0.1f, 0.1f, 0.1f, 1.0f)
+        , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
+              static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
+        , m_scene(std::make_shared<Scene>())
+        , m_scenePanel(m_scene)
+        , m_textureLib()
+        , m_runtime(false)
+        , m_scripts()
     {
         spdlog::set_level(spdlog::level::debug);
 
@@ -35,11 +33,13 @@ public:
         Entity ent = m_scene->CreateEntity("Entity 2");
         ent.Add<SpriteRenderComponent>(0.5f, 1.0f, 0.3f);
         ent.Add<NativeScriptComponent>(ScriptLibrary::Load("./res/scripts/TestScript.cpp"), "./res/scripts/TestScript.cpp")
-            .m_script->m_entity = ent;
-        
+            .m_script->m_entity
+            = ent;
+
         ent = m_scene->CreateEntity("Another Entity");
         ent.Add<NativeScriptComponent>(ScriptLibrary::Load("./res/scripts/TestScript.cpp"), "./res/scripts/TestScript.cpp")
-            .m_script->m_entity = ent;
+            .m_script->m_entity
+            = ent;
     }
 
     virtual void OnAttach() override
@@ -50,11 +50,9 @@ public:
     {
         Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
-        if (m_runtime)
-        {
+        if (m_runtime) {
             m_scene->ForEachEntity([&](Entity ent) {
-                if (ent.Has<NativeScriptComponent>())
-                {
+                if (ent.Has<NativeScriptComponent>()) {
                     auto& script = ent.Get<NativeScriptComponent>();
                     script.OnUpdate(timeStep);
                 }
@@ -62,9 +60,8 @@ public:
         }
 
         Renderer2D::BeginScene(m_orthoCamera);
-        m_scene->ForEachEntity([&](Entity ent){
-            if (ent.Has<SpriteRenderComponent>())
-            {
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<SpriteRenderComponent>()) {
                 const auto& spriteRender = ent.Get<SpriteRenderComponent>();
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, *m_textureLib.Load(spriteRender.texture));
             }
@@ -80,13 +77,11 @@ public:
     {
         ImGui::Begin("Peanut Editor", nullptr, ImGuiWindowFlags_MenuBar); // Create a window called "Hello, world!" and append into it.
 
-        if (ImGui::Button("Run"))
-        {
+        if (ImGui::Button("Run")) {
             m_runtime = true;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Stop"))
-        {
+        if (ImGui::Button("Stop")) {
             m_runtime = false;
         }
         ImGui::SameLine();
@@ -103,8 +98,7 @@ public:
     {
         Dispatcher dispatcher(event);
         dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
-        if (ImGui::GetIO().WantCaptureMouse == false)
-        {
+        if (ImGui::GetIO().WantCaptureMouse == false) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
             dispatcher.Dispatch<MouseMovedEvent>([&](const MouseMovedEvent& e) { OnMouseMove(e); });
@@ -133,8 +127,7 @@ private:
     void OnMouseMove(const MouseMovedEvent& event)
     {
         glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
-        if (m_leftMousePressed)
-        {
+        if (m_leftMousePressed) {
             glm::vec2 diff = newPos - m_mousePosition;
             diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
@@ -144,8 +137,7 @@ private:
 
     void OnKey(const KeyEvent& event)
     {
-        switch (event.GetCode())
-        {
+        switch (event.GetCode()) {
         case KeyCode::ESCAPE:
             Terminate();
             break;
@@ -166,7 +158,7 @@ private:
     bool m_runtime;
 };
 
-Application *GetApplication()
+Application* GetApplication()
 {
     return new MyApp();
 }

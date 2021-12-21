@@ -4,11 +4,9 @@
 
 #include <string>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class Shader
-{
+class Shader {
 public:
     Shader(const char* shaderFile);
     ~Shader();
@@ -19,8 +17,7 @@ public:
     void SetUniformVec3(const char* name, const glm::vec3& vec);
 
 private:
-    struct ShaderSources
-    {
+    struct ShaderSources {
         std::string vertex;
         std::string fragment;
     };

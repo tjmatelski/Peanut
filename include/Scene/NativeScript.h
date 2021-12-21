@@ -3,15 +3,14 @@
 #include "Entity.h"
 #include <TimeStep.h>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-struct NativeScript
-{
-    virtual ~NativeScript() {}
-    virtual void OnUpdate(TimeStep ts) {}
+struct NativeScript {
+    virtual ~NativeScript() { }
+    virtual void OnUpdate(TimeStep ts) { }
     template <typename T>
-    T& GetComponent() {
+    T& GetComponent()
+    {
         return m_entity.Get<T>();
     }
     Entity m_entity;

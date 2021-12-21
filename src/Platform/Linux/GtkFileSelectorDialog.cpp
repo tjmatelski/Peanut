@@ -3,8 +3,7 @@
 #include <gtkmm/application.h>
 #include <gtkmm/filechooserdialog.h>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
 std::unique_ptr<FileSelectorDialog> CreateFileSelectorDialog()
 {
@@ -13,36 +12,34 @@ std::unique_ptr<FileSelectorDialog> CreateFileSelectorDialog()
 
 std::optional<std::string> GtkFileSelectorDialog::SelectFile()
 {
-  int argc = 0;
-  char** argv;
-  std::string chosenFile("");
+    int argc = 0;
+    char** argv;
+    std::string chosenFile("");
 
-  auto app = Gtk::Application::create("org.gtkmm.examples.base");
-  Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
-  dialog.add_button("Ok", Gtk::ResponseType::RESPONSE_OK);
-  dialog.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
-  dialog.signal_response().connect([&](int response) {
-    switch (response)
-    {
-    case Gtk::ResponseType::RESPONSE_OK:
-      chosenFile = dialog.get_file().get()->get_path();
-      break;
+    auto app = Gtk::Application::create("org.gtkmm.examples.base");
+    Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
+    dialog.add_button("Ok", Gtk::ResponseType::RESPONSE_OK);
+    dialog.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
+    dialog.signal_response().connect([&](int response) {
+        switch (response) {
+        case Gtk::ResponseType::RESPONSE_OK:
+            chosenFile = dialog.get_file().get()->get_path();
+            break;
 
-    case Gtk::ResponseType::RESPONSE_CANCEL:
-      break;
+        case Gtk::ResponseType::RESPONSE_CANCEL:
+            break;
 
-    default:
-      break;
+        default:
+            break;
+        }
+        app->get_active_window()->hide();
+    });
+    int i = app->run(dialog, argc, argv);
+    app->quit();
+
+    if (chosenFile.empty()) {
+        return {};
     }
-    app->get_active_window()->hide();
-  });
-  int i = app->run(dialog, argc, argv);
-  app->quit();
-
-  if (chosenFile.empty())
-  {
-    return {};
-  }
-  return chosenFile;
-  }
+    return chosenFile;
+}
 }

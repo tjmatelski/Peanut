@@ -1,11 +1,10 @@
+#include "GLDebug.h"
 #include <Renderer/Renderer.h>
 #include <glad/glad.h>
-#include "GLDebug.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-Renderer::Renderer() {}
+Renderer::Renderer() { }
 
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
 {
@@ -18,7 +17,7 @@ void Renderer::SetViewport(const int width, const int height)
     GLCALL(glViewport(0, 0, width, height));
 }
 
-void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuffer, const Shader &shader)
+void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader)
 {
     vertexArray.Bind();
     indexBuffer.Bind();
@@ -33,11 +32,10 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     Draw(vertexArray, indexBuffer, shader);
 }
 
-void Renderer::Draw(const VertexArray &vertexArray, const IndexBuffer &indexBuffer, const Shader &shader, const std::vector<Texture*> &textures)
+void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const std::vector<Texture*>& textures)
 {
     int glTextureNumber = GL_TEXTURE0;
-    for (const auto texture : textures)
-    {
+    for (const auto texture : textures) {
         GLCALL(glActiveTexture(glTextureNumber++));
         texture->Bind();
     }

@@ -1,13 +1,10 @@
 #pragma once
 
-
 #include "Scene.h"
 
-namespace PEANUT
-{
-    
-class Entity
-{
+namespace PEANUT {
+
+class Entity {
 public:
     Entity() = default;
     Entity(const entt::entity entity, Scene* scene);
@@ -27,7 +24,7 @@ public:
     {
         m_scene->m_registry.remove<T>(m_entityID);
     }
-    
+
     template <typename T>
     T& Get()
     {

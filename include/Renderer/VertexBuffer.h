@@ -1,10 +1,8 @@
 #pragma once
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class VertexBuffer
-{
+class VertexBuffer {
 public:
     VertexBuffer(const unsigned int size, const void* data);
     void Bind() const;

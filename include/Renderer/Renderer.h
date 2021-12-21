@@ -1,17 +1,15 @@
 #pragma once
 
-#include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "VertexArray.h"
 
 #include <vector>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class Renderer
-{
+class Renderer {
 public:
     Renderer();
     static void ClearColor(const float r, const float g, const float b, const float a);

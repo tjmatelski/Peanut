@@ -3,11 +3,9 @@
 #include "Events/Event.h"
 #include <functional>
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class Window
-{
+class Window {
 public:
     Window(const char* title, const int width, const int height);
     ~Window();

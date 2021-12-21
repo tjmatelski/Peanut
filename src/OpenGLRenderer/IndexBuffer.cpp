@@ -3,10 +3,11 @@
 
 #include "GLDebug.h"
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-IndexBuffer::IndexBuffer(const unsigned int elements, const void* data) : m_ID(0), m_elementCount(elements)
+IndexBuffer::IndexBuffer(const unsigned int elements, const void* data)
+    : m_ID(0)
+    , m_elementCount(elements)
 {
     static_assert(sizeof(unsigned int) == sizeof(GLuint));
 
@@ -15,7 +16,7 @@ IndexBuffer::IndexBuffer(const unsigned int elements, const void* data) : m_ID(0
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements * sizeof(unsigned int), data, GL_STATIC_DRAW));
 }
 
-void IndexBuffer::Bind() const 
+void IndexBuffer::Bind() const
 {
     GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID));
 }

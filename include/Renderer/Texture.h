@@ -1,10 +1,8 @@
 #pragma once
 
-namespace PEANUT
-{
+namespace PEANUT {
 
-class Texture
-{
+class Texture {
 public:
     Texture(const char* textureFile);
     void Bind() const;
