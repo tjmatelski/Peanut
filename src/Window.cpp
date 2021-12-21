@@ -1,13 +1,16 @@
 #include <Events/KeyEvent.h>
 #include <Events/MouseEvents.h>
 #include <Events/WindowEvents.h>
-#include <GLFW/glfw3.h>
 #include <Log.h>
 #include <Window.h>
+
+// clang-format off
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+// clang-format on
 
 namespace PEANUT {
 
