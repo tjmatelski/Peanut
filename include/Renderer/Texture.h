@@ -1,10 +1,12 @@
 #pragma once
 
+#include <filesystem>
+
 namespace PEANUT {
 
 class Texture {
 public:
-    Texture(const char* textureFile);
+    Texture(const std::filesystem::path& textureFile);
     void Bind() const;
 
 private:

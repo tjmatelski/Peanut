@@ -24,6 +24,7 @@ void CheckForUpdateAndPopulateNode()
             std::filesystem::create_directories(settingsFile.parent_path());
             std::ofstream newSettingsFile(settingsFile);
             newSettingsFile << "ResourceDirectory: " << std::filesystem::current_path() << std::endl;
+            newSettingsFile << "BuildDirectory: " << std::filesystem::current_path() << std::endl;
         }
 
         settingsLastUpdated = std::filesystem::last_write_time(settingsFile);
@@ -60,5 +61,18 @@ std::filesystem::path Settings::GetResourceDir()
     }
 
     return std::filesystem::path(resourceDir);
+}
+
+std::filesystem::path Settings::GetBuildDir()
+{
+    CheckForUpdateAndPopulateNode();
+
+    std::filesystem::path buildDir(node["BuildDirectory"].as<std::string>());
+    if (!std::filesystem::exists(buildDir)) {
+        LOG_ERROR("Build directory '{}' doesn't exist", buildDir.c_str());
+        return {};
+    }
+
+    return buildDir;
 }
 }

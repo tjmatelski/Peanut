@@ -42,7 +42,7 @@ struct SpriteRenderComponent {
     }
 
     glm::vec3 color = { 1.0f, 1.0f, 1.0f };
-    std::string texture = "./res/textures/BlankSquare.png";
+    std::string texture = {};
 };
 
 struct NativeScriptComponent {

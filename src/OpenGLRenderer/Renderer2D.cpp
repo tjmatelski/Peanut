@@ -1,3 +1,4 @@
+#include "../Settings.h"
 #include "GLDebug.h"
 #include <Renderer/IndexBuffer.h>
 #include <Renderer/Renderer.h>
@@ -38,8 +39,8 @@ void Renderer2D::Init()
     s_quadRenderData.vertexArray->AddBuffer(quadIndexBuffer, layout);
     s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(6, indices);
 
-    s_quadRenderData.shader = std::make_unique<Shader>("./res/shaders/Generic2D.shader");
-    s_quadRenderData.blankTexture = std::make_unique<Texture>("./res/textures/BlankSquare.png");
+    s_quadRenderData.shader = std::make_unique<Shader>(Settings::GetResourceDir() / "shaders" / "Generic2D.shader");
+    s_quadRenderData.blankTexture = std::make_unique<Texture>(Settings::GetResourceDir() / "textures" / "BlankSquare.png");
 }
 
 void Renderer2D::BeginScene(const OrthoCamera& camera)

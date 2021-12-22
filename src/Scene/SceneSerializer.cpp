@@ -1,3 +1,4 @@
+#include "../Settings.h"
 #include <Scene/Component.h>
 #include <Scene/Entity.h>
 #include <Scene/SceneSerializer.h>
@@ -113,7 +114,7 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             auto& comp = sceneEnt.Add<SpriteRenderComponent>();
             comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
             std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
-            comp.texture = (currentDir / relative).string();
+            comp.texture = (Settings::GetResourceDir() / relative).string();
         }
     }
 }

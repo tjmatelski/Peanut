@@ -9,7 +9,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRenderComponent:
       Color: [1, 1, 1]
-      Texture: res/textures/container.jpg
+      Texture: textures/container.jpg
   - Entity: 123456789
     TagComponent:
       Tag: Entity 2
@@ -19,7 +19,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRenderComponent:
       Color: [0.5, 1, 0.300000012]
-      Texture: res/textures/BlankSquare.png
+      Texture: textures/BlankSquare.png
   - Entity: 123456789
     TagComponent:
       Tag: Awesome Face
@@ -29,7 +29,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRenderComponent:
       Color: [1, 1, 1]
-      Texture: res/textures/awesomeface.png
+      Texture: textures/awesomeface.png
   - Entity: 123456789
     TagComponent:
       Tag: Empty

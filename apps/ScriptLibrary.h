@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../src/Settings.h"
 #include <Log.h>
 
 #include <dlfcn.h>
@@ -46,12 +47,13 @@ private:
             }
         }
 
-        std::string libName = "./build/res/scripts/lib" + script.stem().string() + ".so";
-        LOG_DEBUG("Loading shared object {}", libName);
+        std::string libName = "lib" + script.stem().string() + ".so";
+        std::filesystem::path libObj = Settings::GetBuildDir() / "res" / "scripts" / libName;
+        LOG_DEBUG("Loading shared object {}", libObj.c_str());
         ScriptLib lib;
-        lib.libObject = std::filesystem::path(libName);
+        lib.libObject = libObj;
         lib.lastWriteTime = std::filesystem::last_write_time(lib.libObject);
-        lib.handle = dlopen(libName.c_str(), RTLD_NOW);
+        lib.handle = dlopen(libObj.c_str(), RTLD_NOW);
         if (lib.handle == nullptr) {
             LOG_ERROR("Failed to load script library object {}, dlerror: {}", libName, dlerror());
             return std::unique_ptr<NativeScript>();

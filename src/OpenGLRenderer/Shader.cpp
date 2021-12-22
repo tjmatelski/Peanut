@@ -12,7 +12,7 @@
 
 namespace PEANUT {
 
-Shader::Shader(const char* shaderFile)
+Shader::Shader(const std::filesystem::path& shaderFile)
 {
     ShaderSources shaderSources = ParseShaderFile(shaderFile);
     m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
@@ -28,7 +28,7 @@ void Shader::Use() const
     GLCALL(glUseProgram(m_ShaderProgramID));
 }
 
-Shader::ShaderSources Shader::ParseShaderFile(const char* file)
+Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
 {
     std::ifstream inputStream(file);
     std::string line;
@@ -41,7 +41,7 @@ Shader::ShaderSources Shader::ParseShaderFile(const char* file)
     };
 
     if (!inputStream.is_open()) {
-        LOG_ERROR("Failed to open shader {0}", file);
+        LOG_ERROR("Failed to open shader {0}", file.c_str());
         PN_ASSERT(false);
     } else {
         StreamType type = StreamType::NONE;

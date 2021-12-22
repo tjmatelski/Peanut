@@ -2,13 +2,14 @@
 
 #include "../Math.h"
 
+#include <filesystem>
 #include <string>
 
 namespace PEANUT {
 
 class Shader {
 public:
-    Shader(const char* shaderFile);
+    Shader(const std::filesystem::path& shaderFile);
     ~Shader();
     void Use() const;
     void SetUniform4f(const char* name, const float a, const float b, const float c, const float d);
@@ -24,7 +25,7 @@ private:
     unsigned int m_ShaderProgramID;
 
 private:
-    ShaderSources ParseShaderFile(const char* file);
+    ShaderSources ParseShaderFile(const std::filesystem::path& file);
     unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
     unsigned int CompileShader(const unsigned int type, const std::string& shaderSource);
     int GetUniformLocation(const char* name);

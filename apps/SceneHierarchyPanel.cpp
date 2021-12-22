@@ -1,4 +1,5 @@
 #include "SceneHierarchyPanel.h"
+#include "../src/Settings.h"
 #include "ScriptLibrary.h"
 
 #include <cstdlib>
@@ -80,7 +81,9 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
         }
         if (ImGui::BeginPopup("AddComponent")) {
             if (ImGui::MenuItem("Sprite Render Component")) {
-                m_selectedEntity.Add<SpriteRenderComponent>();
+                auto& comp = m_selectedEntity.Add<SpriteRenderComponent>();
+                comp.color = { 1.0, 1.0, 1.0 };
+                comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
             }
             if (ImGui::MenuItem("Native Script Component")) {
                 std::filesystem::path scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
