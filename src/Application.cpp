@@ -4,9 +4,6 @@
 #include <Log.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 
 namespace PEANUT {
 Application* Application::s_application = nullptr;
@@ -28,12 +25,7 @@ void Application::Run()
         TimeStep timeStep = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
-        ImGuiBeginFrame();
-
-        OnImGuiUpdate();
         OnUpdate(timeStep);
-
-        ImGuiEndFrame();
 
         UpdateWindow();
     }
@@ -55,20 +47,6 @@ void Application::OnApplicationEvent(Event& event)
 void Application::OnWindowClose(const WindowCloseEvent& e)
 {
     m_shouldWindowClose = true;
-}
-
-void Application::ImGuiBeginFrame()
-{
-    // Start the Dear ImGui frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-}
-
-void Application::ImGuiEndFrame()
-{
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Application::Terminate()

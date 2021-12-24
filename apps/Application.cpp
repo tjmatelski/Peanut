@@ -3,6 +3,9 @@
 
 #include "SceneHierarchyPanel.h"
 #include "ScriptLibrary.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 #include <dlfcn.h>
 #include <iostream>
@@ -18,25 +21,53 @@ class MyApp : public Application {
 public:
     MyApp()
         : Application()
-        , m_clearColor(0.1f, 0.1f, 0.1f, 1.0f)
         , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
         , m_scene(std::make_shared<Scene>())
         , m_scenePanel(m_scene)
         , m_textureLib()
+        , m_mousePosition(0.0f, 0.0f)
         , m_runtime(false)
-        , m_scripts()
     {
-        m_scene->CreateEntity("MyEntity");
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(GetWindow().GetRawWindow()), true);
+        const char* glsl_version = "#version 130";
+        ImGui_ImplOpenGL3_Init(glsl_version);
     }
 
     virtual void OnAttach() override
     {
     }
 
+    void ImGuiBeginFrame()
+    {
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+    }
+
+    void ImGuiEndFrame()
+    {
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
     virtual void OnUpdate(TimeStep timeStep) override
     {
-        Renderer::ClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+        ImGuiBeginFrame();
+        OnImGuiUpdate();
+        Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
 
         if (m_runtime) {
             m_scene->ForEachEntity([&](Entity ent) {
@@ -54,11 +85,17 @@ public:
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, *m_textureLib.Load(spriteRender.texture));
             }
         });
+
+        ImGuiEndFrame();
     }
 
     virtual void OnRemove() override
     {
         LOG_INFO("PEANUT!!!");
+        // Cleanup
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
     }
 
     virtual void OnImGuiUpdate() override
@@ -135,11 +172,9 @@ private:
         }
     }
 
-    glm::vec4 m_clearColor;
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
-    ScriptLibrary m_scripts;
     TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;

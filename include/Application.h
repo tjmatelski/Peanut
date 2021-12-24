@@ -32,8 +32,6 @@ private:
     std::unique_ptr<Window> m_window;
 
     friend int ::main(int argc, char** argv);
-    void ImGuiBeginFrame();
-    void ImGuiEndFrame();
     void Run();
     void OnApplicationEvent(Event& event);
     void OnWindowClose(const WindowCloseEvent& e);

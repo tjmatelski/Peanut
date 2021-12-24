@@ -37,7 +37,6 @@ target_link_libraries(Peanut
         OpenGL::GL
         glad
         spdlog
-        imgui
     PRIVATE 
         yaml-cpp
         ${GTKMM_LIBRARIES})
