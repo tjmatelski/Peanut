@@ -2,24 +2,11 @@ Scene: MyTempSceneName
 Entities:
   - Entity: 123456789
     TagComponent:
-      Tag: Container
+      Tag: Empty
     TransformComponent:
-      Translation: [-0.822000027, 0, 0]
+      Translation: [0, 0, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
-    SpriteRenderComponent:
-      Color: [1, 1, 1]
-      Texture: textures/container.jpg
-  - Entity: 123456789
-    TagComponent:
-      Tag: Entity 2
-    TransformComponent:
-      Translation: [0.643999994, -0.421999991, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRenderComponent:
-      Color: [0.5, 1, 0.300000012]
-      Texture: textures/BlankSquare.png
   - Entity: 123456789
     TagComponent:
       Tag: Awesome Face
@@ -32,8 +19,23 @@ Entities:
       Texture: textures/awesomeface.png
   - Entity: 123456789
     TagComponent:
-      Tag: Empty
+      Tag: Entity 2
     TransformComponent:
-      Translation: [0, 0, 0]
+      Translation: [0.643999994, -0.421999991, 0]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
+    SpriteRenderComponent:
+      Color: [0.5, 1, 0.300000012]
+      Texture: textures/BlankSquare.png
+  - Entity: 123456789
+    TagComponent:
+      Tag: Container
+    TransformComponent:
+      Translation: [-0.822000027, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRenderComponent:
+      Color: [1, 1, 1]
+      Texture: textures/container.jpg
+    NativeScriptComponent:
+      ScriptFile: scripts/TestScript.cpp

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../include/Scene/NativeScript.h"
 #include "../src/Settings.h"
 #include <Log.h>
 

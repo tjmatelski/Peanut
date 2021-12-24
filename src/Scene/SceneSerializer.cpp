@@ -1,3 +1,4 @@
+#include "../../apps/ScriptLibrary.h"
 #include "../Settings.h"
 #include <Scene/Component.h>
 #include <Scene/Entity.h>
@@ -72,7 +73,14 @@ static void SerializeEntity(YAML::Emitter& out, Entity ent)
         const SpriteRenderComponent& spriteRenderComp = ent.Get<SpriteRenderComponent>();
         out << YAML::Key << "Color" << YAML::Value << spriteRenderComp.color;
         std::filesystem::path texPath(spriteRenderComp.texture);
-        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, currentDir).string();
+        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, Settings::GetResourceDir());
+        out << YAML::EndMap;
+    }
+
+    if (ent.Has<NativeScriptComponent>()) {
+        out << YAML::Key << "NativeScriptComponent" << YAML::Value << YAML::BeginMap;
+        const NativeScriptComponent& script = ent.Get<NativeScriptComponent>();
+        out << YAML::Key << "ScriptFile" << YAML::Value << std::filesystem::relative(script.filename, Settings::GetResourceDir());
         out << YAML::EndMap;
     }
 
@@ -102,19 +110,28 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
     for (YAML::const_iterator it = node["Entities"].begin(); it != node["Entities"].end(); ++it) {
         const YAML::Node entity = *it;
         Entity sceneEnt = scene.CreateEntity();
+
         if (entity["TagComponent"]) {
             sceneEnt.Get<TagComponent>().tag = entity["TagComponent"]["Tag"].as<std::string>();
         }
+
         if (entity["TransformComponent"]) {
             sceneEnt.Get<TransformComponent>().translation = entity["TransformComponent"]["Translation"].as<glm::vec3>();
             sceneEnt.Get<TransformComponent>().rotation = entity["TransformComponent"]["Rotation"].as<glm::vec3>();
             sceneEnt.Get<TransformComponent>().scale = entity["TransformComponent"]["Scale"].as<glm::vec3>();
         }
+
         if (entity["SpriteRenderComponent"]) {
             auto& comp = sceneEnt.Add<SpriteRenderComponent>();
             comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
             std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
             comp.texture = (Settings::GetResourceDir() / relative).string();
+        }
+
+        if (entity["NativeScriptComponent"]) {
+            std::filesystem::path scriptFile = Settings::GetResourceDir() / entity["NativeScriptComponent"]["ScriptFile"].as<std::string>();
+            auto& script = sceneEnt.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile);
+            script.m_script->m_entity = sceneEnt;
         }
     }
 }
