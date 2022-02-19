@@ -1,5 +1,6 @@
 #include "GtkFileSelectorDialog.h"
 
+#include <Log.h>
 #include <gtkmm/application.h>
 #include <gtkmm/filechooserdialog.h>
 
@@ -13,7 +14,7 @@ std::unique_ptr<FileSelectorDialog> CreateFileSelectorDialog()
 std::optional<std::string> GtkFileSelectorDialog::SelectFile()
 {
     int argc = 0;
-    char** argv;
+    char** argv {};
     std::string chosenFile("");
 
     auto app = Gtk::Application::create("org.gtkmm.examples.base");
@@ -35,6 +36,9 @@ std::optional<std::string> GtkFileSelectorDialog::SelectFile()
         app->get_active_window()->hide();
     });
     int i = app->run(dialog, argc, argv);
+    if (i != 0) {
+        LOG_ERROR("Error Selecting file");
+    }
     app->quit();
 
     if (chosenFile.empty()) {

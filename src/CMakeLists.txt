@@ -41,4 +41,4 @@ target_link_libraries(Peanut
         yaml-cpp
         ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
-target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Werror)
+target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Wall -Werror)
