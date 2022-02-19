@@ -114,7 +114,7 @@ template <>
 void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string& componentName)
 {
     ImGui::Separator();
-    ImGui::Text(componentName.c_str());
+    ImGui::Text("%s", componentName.c_str());
     TransformComponent& transform = m_selectedEntity.Get<TransformComponent>();
     ImGui::DragFloat3("Translation", glm::value_ptr(transform.translation), 0.2f);
     transform.rotation = glm::degrees(transform.rotation);
@@ -129,7 +129,7 @@ void SceneHierarchyPanel::DrawComponent(const std::string& componentName)
     if (m_selectedEntity.Has<Component>()) {
         ImGui::PushID(componentName.c_str());
         ImGui::Separator();
-        ImGui::Text(componentName.c_str());
+        ImGui::Text("%s", componentName.c_str());
         ImGui::SameLine();
         if (ImGui::Button("X")) {
             m_selectedEntity.Remove<Component>();
@@ -145,7 +145,7 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
 {
     auto& renderComp = m_selectedEntity.Get<SpriteRenderComponent>();
     ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
-    ImGui::Text(renderComp.texture.c_str());
+    ImGui::Text("%s", renderComp.texture.c_str());
     if (ImGui::Button("...")) {
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
     }
@@ -155,7 +155,7 @@ template <>
 void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
 {
     auto& script = m_selectedEntity.Get<NativeScriptComponent>();
-    ImGui::Text(script.filename.c_str());
+    ImGui::Text("%s", script.filename.c_str());
     if (ImGui::Button("Reload Script")) {
         std::string command = "cmake --build \"./build/\" --target ";
         command += script.filename.stem().string();
