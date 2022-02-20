@@ -7,7 +7,7 @@ namespace PEANUT {
 
 struct NativeScript {
     virtual ~NativeScript() { }
-    virtual void OnUpdate(TimeStep ts) { }
+    virtual void OnUpdate([[maybe_unused]] TimeStep ts) { }
     template <typename T>
     T& GetComponent()
     {

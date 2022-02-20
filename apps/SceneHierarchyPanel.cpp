@@ -103,6 +103,7 @@ template <>
 void SceneHierarchyPanel::DrawComponent<TagComponent>(const std::string& componentName)
 {
     char buf[256] = { 0 };
+    ImGui::Text("%s", componentName.c_str());
     TagComponent& tag = m_selectedEntity.Get<TagComponent>();
     std::strncpy(buf, tag.tag.c_str(), 256);
     if (ImGui::InputText("Tag", buf, 256)) {

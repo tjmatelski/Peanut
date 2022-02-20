@@ -14,7 +14,7 @@ class Application {
 public:
     Application();
     virtual void OnAttach() = 0;
-    virtual void OnEvent(Event& event) { }
+    virtual void OnEvent(Event& event) = 0;
     virtual void OnImGuiUpdate() { }
     virtual void OnUpdate(TimeStep timeStep) = 0;
     virtual void OnRemove() = 0;
@@ -39,9 +39,9 @@ private:
 };
 
 /**
-     * Implement this function on the client side to return the custom
-     * application to run.
-     * @return Application to run the engine with.
-     */
+ * Implement this function on the client side to return the custom
+ * application to run.
+ * @return Application to run the engine with.
+ */
 extern Application* GetApplication();
 } // namespace PEANUT
