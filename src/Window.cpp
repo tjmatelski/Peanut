@@ -108,7 +108,7 @@ void Window::InitWindowCallbacks()
         myWindow->m_eventCallback(event);
     });
 
-    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) {
+    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, [[maybe_unused]] int mods) {
         MouseButtonEvent event(static_cast<MouseCode>(button), action == GLFW_PRESS);
         Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
         myWindow->m_eventCallback(event);

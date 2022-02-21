@@ -40,13 +40,10 @@ void Application::UpdateWindow()
 void Application::OnApplicationEvent(Event& event)
 {
     Dispatcher dispatcher(event);
-    dispatcher.Dispatch<WindowCloseEvent>([this](const WindowCloseEvent& e) { this->OnWindowClose(e); });
+    dispatcher.Dispatch<WindowCloseEvent>([=]([[maybe_unused]] const auto& e) {
+        Terminate();
+    });
     OnEvent(event);
-}
-
-void Application::OnWindowClose(const WindowCloseEvent& e)
-{
-    m_shouldWindowClose = true;
 }
 
 void Application::Terminate()
@@ -55,7 +52,7 @@ void Application::Terminate()
 }
 } // namespace PEANUT
 
-int main(int argc, char** argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     auto* app = PEANUT::GetApplication();
     app->OnAttach();

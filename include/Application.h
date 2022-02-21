@@ -34,7 +34,6 @@ private:
     friend int ::main(int argc, char** argv);
     void Run();
     void OnApplicationEvent(Event& event);
-    void OnWindowClose(const WindowCloseEvent& e);
     void UpdateWindow();
 };
 
