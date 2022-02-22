@@ -12,9 +12,9 @@ BufferLayout::BufferLayout()
 }
 
 template <typename T>
-void BufferLayout::Push(const unsigned int size)
+void BufferLayout::Push([[maybe_unused]] const unsigned int size)
 {
-    assert(false);
+    assert(false); // If you trigger this you need to make a specialization for the templated type. See below.
 }
 
 template <>

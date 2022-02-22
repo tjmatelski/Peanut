@@ -4,6 +4,8 @@ project(Peanut
     VERSION 0.1
     LANGUAGES CXX)
 
+set(LINT_WITH_CLANG_TIDY ON CACHE BOOL "Use clang-tidy to perform static analysis when building")
+
 add_subdirectory(apps)
 add_subdirectory(src)
 

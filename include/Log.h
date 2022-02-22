@@ -7,8 +7,8 @@
 #endif
 #include <spdlog/spdlog.h>
 
-#define LOG_ERROR(content, ...) SPDLOG_ERROR(content, ##__VA_ARGS__)
-#define LOG_WARN(content, ...) SPDLOG_WARN(content, ##__VA_ARGS__)
-#define LOG_INFO(content, ...) SPDLOG_INFO(content, ##__VA_ARGS__)
-#define LOG_DEBUG(content, ...) SPDLOG_DEBUG(content, ##__VA_ARGS__)
-#define LOG_TRACE(content, ...) SPDLOG_TRACE(content, ##__VA_ARGS__)
+#define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__)
+#define LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)
+#define LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__)
+#define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)

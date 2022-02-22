@@ -2,6 +2,7 @@
 #include "../Settings.h"
 #include <Scene/Component.h>
 #include <Scene/Entity.h>
+#include <Scene/Scene.h>
 #include <Scene/SceneSerializer.h>
 #include <yaml-cpp/yaml.h>
 

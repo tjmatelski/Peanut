@@ -16,7 +16,7 @@ public:
     template <typename Functor>
     void ForEachEntity(Functor func)
     {
-        m_registry.each([&](entt::entity ent) { func(Entity(ent, this)); });
+        m_registry.each([&](entt::entity ent) { func({ ent, this }); });
     }
 
 private:
