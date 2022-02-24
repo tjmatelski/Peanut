@@ -27,9 +27,6 @@ std::optional<std::string> GtkFileSelectorDialog::SelectFile()
             chosenFile = dialog.get_file().get()->get_path();
             break;
 
-        case Gtk::ResponseType::RESPONSE_CANCEL:
-            break;
-
         default:
             break;
         }

@@ -40,17 +40,18 @@ private:
 
 class MouseMovedEvent : public Event {
 public:
-    MouseMovedEvent(float x, float y)
+    MouseMovedEvent(double x, double y)
         : m_horizontalPos(x)
         , m_verticalPos(y)
     {
     }
     PN_EVENT_FUNCTIONS(MouseMovedEvent);
-    inline float HorizontalPosition() const { return m_horizontalPos; }
-    inline float VerticalPosition() const { return m_verticalPos; }
+    inline double HorizontalPosition() const { return m_horizontalPos; }
+    inline double VerticalPosition() const { return m_verticalPos; }
 
 private:
-    float m_horizontalPos, m_verticalPos;
+    double m_horizontalPos;
+    double m_verticalPos;
 };
 
 }

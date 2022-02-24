@@ -69,8 +69,7 @@ float Window::GetTime() const
 void Window::InitWindowCallbacks()
 {
     GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window_, int width, int height) {
-        LOG_INFO("GLFW Framebuffer resize, width = {0}, height = {1}", width, height);
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window_, int width, int height) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
         WindowResizeEvent event(width, height);
         Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
         myWindow->m_width = width;
@@ -79,18 +78,16 @@ void Window::InitWindowCallbacks()
     });
 
     glfwSetErrorCallback([](int code, const char* message) {
-        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
+        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message); // NOLINT(bugprone-lambda-function-name)
     });
 
-    glfwSetKeyCallback(window, [](GLFWwindow* window_, int key, int scancode, int action, int mods) {
-        LOG_INFO("Key Event | Key: {0} | Scancode: {1} | action: {2} | Mods: {3}", key, scancode, action, mods);
+    glfwSetKeyCallback(window, [](GLFWwindow* window_, int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action, [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
         KeyEvent event(static_cast<KeyCode>(key));
         Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
         myWindow->m_eventCallback(event);
     });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow* window_) {
-        LOG_INFO("GLFW Window close callback");
         WindowCloseEvent windowCloseEvent;
         Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
         myWindow->m_eventCallback(windowCloseEvent);
@@ -108,7 +105,7 @@ void Window::InitWindowCallbacks()
         myWindow->m_eventCallback(event);
     });
 
-    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, [[maybe_unused]] int mods) {
+    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
         MouseButtonEvent event(static_cast<MouseCode>(button), action == GLFW_PRESS);
         Window* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
         myWindow->m_eventCallback(event);

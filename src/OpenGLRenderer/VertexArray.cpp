@@ -31,7 +31,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const BufferLayout& bl)
         GLCALL(glVertexAttribPointer(attribute, element.size, element.type, element.normalized, stride, static_cast<void*>(offset)));
         GLCALL(glEnableVertexAttribArray(attribute));
         ++attribute;
-        offset += element.size * BufferLayout::Element::GetSizeOfGLType(element.type);
+        offset += static_cast<std::size_t>(element.size * BufferLayout::Element::GetSizeOfGLType(element.type));
     }
 }
 
