@@ -78,7 +78,7 @@ void Window::InitWindowCallbacks()
     });
 
     glfwSetErrorCallback([](int code, const char* message) {
-        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message); // NOLINT(bugprone-lambda-function-name)
+        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
     });
 
     glfwSetKeyCallback(window, [](GLFWwindow* window_, int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action, [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API

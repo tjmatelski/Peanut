@@ -1,7 +1,3 @@
-if ("${LINT_WITH_CLANG_TIDY}")
-    set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++17)
-endif()
-
 add_library(Peanut STATIC
     Application.cpp
     Settings.cpp

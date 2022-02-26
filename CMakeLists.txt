@@ -6,8 +6,12 @@ project(Peanut
 
 set(LINT_WITH_CLANG_TIDY ON CACHE BOOL "Use clang-tidy to perform static analysis when building")
 
+if ("${LINT_WITH_CLANG_TIDY}")
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++17)
+endif()
 add_subdirectory(apps)
 add_subdirectory(src)
+unset(CMAKE_CXX_CLANG_TIDY)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)

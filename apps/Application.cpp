@@ -33,8 +33,8 @@ public:
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -119,7 +119,7 @@ public:
         ImGui::End();
     }
 
-    virtual void OnEvent(Event& event)
+    void OnEvent(Event& event) override
     {
         Dispatcher dispatcher(event);
         dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
@@ -141,7 +141,7 @@ private:
 
     void OnScroll(const ScrollEvent& e)
     {
-        m_orthoCamera.ZoomBy(e.GetVerticalScroll() / 100.0);
+        m_orthoCamera.ZoomBy(static_cast<float>(e.GetVerticalScroll() / 100.0));
     }
 
     void OnMouseButton(const MouseButtonEvent& event)

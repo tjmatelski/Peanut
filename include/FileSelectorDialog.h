@@ -8,6 +8,7 @@ namespace PEANUT {
 
 class FileSelectorDialog {
 public:
+    virtual ~FileSelectorDialog() { }
     virtual std::optional<std::string> SelectFile() = 0;
 };
 
