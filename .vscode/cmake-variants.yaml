@@ -1,0 +1,25 @@
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize generated code
+      buildType: Release
+
+staticAnalysis:
+  default: none
+  choices:
+    none:
+      short: No Static Analysis
+      long: Don't enable static analysis while building
+      settings:
+        LINT_WITH_CLANG_TIDY: OFF
+    clang-tidy:
+      short: clang-tidy
+      long: Use clang-tidy for static analysis while building
+      settings:
+        LINT_WITH_CLANG_TIDY: ON
