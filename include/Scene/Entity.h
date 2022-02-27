@@ -34,7 +34,7 @@ public:
     template <typename T>
     bool Has()
     {
-        return m_scene->m_registry.has<T>(m_entityID);
+        return m_scene->m_registry.any_of<T>(m_entityID);
     }
 
 private:

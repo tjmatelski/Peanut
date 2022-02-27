@@ -28,7 +28,8 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 
 find_package(OpenGL REQUIRED)
 
-target_include_directories(Peanut PUBLIC ../include ../extern/entt
+target_include_directories(Peanut
+    PUBLIC ../include
     PRIVATE ${GTKMM_INCLUDE_DIRS})
 target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
 target_link_libraries(Peanut
@@ -37,6 +38,7 @@ target_link_libraries(Peanut
         OpenGL::GL
         glad
         spdlog
+        EnTT
     PRIVATE 
         yaml-cpp
         ${GTKMM_LIBRARIES})
