@@ -1,6 +1,5 @@
 ---
-#Checks:          'clang-diagnostic-*,clang-analyzer-*,-*,bugprone-*'
-Checks:          '-*, bugprone-*, -bugprone-lambda-function-name'
+Checks: '-*, bugprone-*, -bugprone-lambda-function-name, clang-analyzer-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
