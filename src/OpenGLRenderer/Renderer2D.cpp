@@ -20,24 +20,24 @@ static QuadRenderData s_quadRenderData;
 
 void Renderer2D::Init()
 {
-    constexpr float vertices[] = {
+    constexpr std::array vertices = {
         0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // top right
         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
         -0.5f, 0.5f, 0.0f, 0.0f, 1.0f // top left
     };
-    constexpr unsigned int indices[] = {
+    constexpr std::array<unsigned int, 6> indices = {
         0, 1, 3, // first triangle
         1, 2, 3 // second triangle
     };
 
     s_quadRenderData.vertexArray = std::make_shared<VertexArray>();
-    VertexBuffer quadIndexBuffer(sizeof(vertices), vertices);
+    VertexBuffer quadIndexBuffer(vertices.size() * sizeof(decltype(vertices[0])), vertices.data());
     BufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(2);
     s_quadRenderData.vertexArray->AddBuffer(quadIndexBuffer, layout);
-    s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(6, indices);
+    s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(6, indices.data());
 
     s_quadRenderData.shader = std::make_unique<Shader>(Settings::GetResourceDir() / "shaders" / "Generic2D.shader");
     s_quadRenderData.blankTexture = std::make_unique<Texture>(Settings::GetResourceDir() / "textures" / "BlankSquare.png");

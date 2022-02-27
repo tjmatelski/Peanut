@@ -32,7 +32,7 @@ Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
 {
     std::ifstream inputStream(file);
     std::string line;
-    std::stringstream ss[2];
+    std::array<std::stringstream, 2> ss;
 
     enum class StreamType {
         NONE = -1,
@@ -79,9 +79,9 @@ unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const 
     int success = 0;
     GLCALL(glGetProgramiv(programID, GL_LINK_STATUS, &success));
     if (!success) {
-        char infoLog[512];
-        GLCALL(glGetProgramInfoLog(programID, 512, NULL, infoLog));
-        LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog);
+        std::array<char, 512> infoLog;
+        GLCALL(glGetProgramInfoLog(programID, infoLog.size(), nullptr, infoLog.data()));
+        LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog.data());
         PN_ASSERT(false);
     }
     GLCALL(glDeleteShader(vertexID));
@@ -95,17 +95,17 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
     const char* source = shaderSource.c_str();
     shaderID = glCreateShader(type);
     GL_CHECK_ERROR();
-    GLCALL(glShaderSource(shaderID, 1, &source, NULL));
+    GLCALL(glShaderSource(shaderID, 1, &source, nullptr));
     GLCALL(glCompileShader(shaderID));
     // // // Check for shader compile errors
     int success = 0;
     GLCALL(glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success));
     if (!success) {
-        char infoLog[512];
-        GLCALL(glGetShaderInfoLog(shaderID, 512, NULL, infoLog));
+        std::array<char, 512> infoLog;
+        GLCALL(glGetShaderInfoLog(shaderID, infoLog.size(), nullptr, infoLog.data()));
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog << "\nSource: " << shaderSource << std::endl;
-        LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog, shaderSource);
+                  << infoLog.data() << "\nSource: " << shaderSource << std::endl;
+        LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog.data(), shaderSource);
         PN_ASSERT(false);
     }
     return shaderID;

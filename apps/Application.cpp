@@ -27,7 +27,6 @@ public:
         , m_scenePanel(m_scene)
         , m_textureLib()
         , m_mousePosition(0.0f, 0.0f)
-        , m_runtime(false)
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -45,7 +44,7 @@ public:
         ImGui_ImplOpenGL3_Init(glsl_version);
     }
 
-    virtual void OnAttach() override
+    void OnAttach() override
     {
     }
 
@@ -63,7 +62,7 @@ public:
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    virtual void OnUpdate(TimeStep timeStep) override
+    void OnUpdate(TimeStep timeStep) override
     {
         ImGuiBeginFrame();
         OnImGuiUpdate();
@@ -89,7 +88,7 @@ public:
         ImGuiEndFrame();
     }
 
-    virtual void OnRemove() override
+    void OnRemove() override
     {
         LOG_INFO("PEANUT!!!");
         // Cleanup
@@ -98,7 +97,7 @@ public:
         ImGui::DestroyContext();
     }
 
-    virtual void OnImGuiUpdate() override
+    void OnImGuiUpdate() override
     {
         ImGui::Begin("Peanut Editor", nullptr, ImGuiWindowFlags_MenuBar); // Create a window called "Hello, world!" and append into it.
 
@@ -178,7 +177,7 @@ private:
     TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
-    bool m_runtime;
+    bool m_runtime = false;
 };
 
 Application* GetApplication()

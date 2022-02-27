@@ -7,7 +7,7 @@
 namespace PEANUT {
 
 SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene)
-    : m_scene(scene)
+    : m_scene(std::move(scene))
     , m_selectedEntity()
 {
 }
@@ -20,7 +20,7 @@ void SceneHierarchyPanel::UpdateGui()
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
         constexpr int treeNodeFlags = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
-        TagComponent& tag = ent.Get<TagComponent>();
+        auto& tag = ent.Get<TagComponent>();
         if (ImGui::TreeNodeEx(tag.tag.c_str(), treeNodeFlags)) {
             if (ImGui::TreeNodeEx("Test Sub Entity", treeNodeFlags)) {
                 ImGui::TreePop();
@@ -102,12 +102,12 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
 template <>
 void SceneHierarchyPanel::DrawComponent<TagComponent>(const std::string& componentName)
 {
-    char buf[256] = { 0 };
     ImGui::Text("%s", componentName.c_str());
-    TagComponent& tag = m_selectedEntity.Get<TagComponent>();
-    std::strncpy(buf, tag.tag.c_str(), 256);
-    if (ImGui::InputText("Tag", buf, 256)) {
-        tag.tag = buf;
+    auto& tag = m_selectedEntity.Get<TagComponent>();
+    std::array<char, 256> buf;
+    std::strncpy(buf.data(), tag.tag.c_str(), buf.size());
+    if (ImGui::InputText("Tag", buf.data(), buf.size())) {
+        tag.tag = buf.data();
     }
 }
 
@@ -116,7 +116,7 @@ void SceneHierarchyPanel::DrawComponent<TransformComponent>(const std::string& c
 {
     ImGui::Separator();
     ImGui::Text("%s", componentName.c_str());
-    TransformComponent& transform = m_selectedEntity.Get<TransformComponent>();
+    auto& transform = m_selectedEntity.Get<TransformComponent>();
     ImGui::DragFloat3("Translation", glm::value_ptr(transform.translation), 0.2f);
     transform.rotation = glm::degrees(transform.rotation);
     ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), 1.0f, 0.0f, 360.0f, "%.2f deg");

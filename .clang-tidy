@@ -1,5 +1,5 @@
 ---
-Checks: '-*, bugprone-*, -bugprone-lambda-function-name, clang-analyzer-*'
+Checks: '-*, bugprone-*, clang-analyzer-*, modernize-*, -bugprone-lambda-function-name, -modernize-use-trailing-return-type'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

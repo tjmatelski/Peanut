@@ -60,7 +60,7 @@ std::filesystem::path Settings::GetResourceDir()
         return {};
     }
 
-    return std::filesystem::path(resourceDir);
+    return { resourceDir };
 }
 
 std::filesystem::path Settings::GetBuildDir()

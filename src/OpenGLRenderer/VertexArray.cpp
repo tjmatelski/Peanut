@@ -25,7 +25,7 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const BufferLayout& bl)
     unsigned int attribute = 0;
     const unsigned int stride = bl.GetStride();
     const auto& elements = bl.GetElements();
-    unsigned char* offset = 0;
+    unsigned char* offset = nullptr;
 
     for (const auto& element : elements) {
         GLCALL(glVertexAttribPointer(attribute, element.size, element.type, element.normalized, stride, static_cast<void*>(offset)));

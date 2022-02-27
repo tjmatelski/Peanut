@@ -4,6 +4,10 @@
     "cmake.configureArgs": [
         "-DBUILD_SHARED_LIBS=ON"
     ],
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.codeAnalysis.clangTidy.args": [
+        "-std=c++17",
+    ],
     "files.associations": {
         "array": "cpp",
         "*.tcc": "cpp",

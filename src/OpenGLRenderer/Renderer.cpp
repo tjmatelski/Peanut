@@ -4,8 +4,6 @@
 
 namespace PEANUT {
 
-Renderer::Renderer() { }
-
 void Renderer::ClearColor(const float r, const float g, const float b, const float a)
 {
     GLCALL(glClearColor(r, g, b, a));
@@ -23,7 +21,7 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     indexBuffer.Bind();
     shader.Use();
 
-    GLCALL(glDrawElements(GL_TRIANGLES, indexBuffer.GetElementCount(), GL_UNSIGNED_INT, 0));
+    GLCALL(glDrawElements(GL_TRIANGLES, indexBuffer.GetElementCount(), GL_UNSIGNED_INT, nullptr));
 }
 
 void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture)
