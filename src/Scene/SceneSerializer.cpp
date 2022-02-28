@@ -9,10 +9,6 @@
 #include <filesystem>
 #include <fstream>
 
-namespace {
-static const std::filesystem::path currentDir = std::filesystem::current_path();
-}
-
 namespace YAML {
 template <>
 struct convert<glm::vec3> {
