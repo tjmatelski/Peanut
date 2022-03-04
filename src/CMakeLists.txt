@@ -40,6 +40,7 @@ target_link_libraries(Peanut
         glad
         spdlog
         EnTT
+        glm
     PRIVATE 
         yaml-cpp
         ${GTKMM_LIBRARIES})

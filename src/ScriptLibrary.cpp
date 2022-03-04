@@ -34,9 +34,16 @@ void ScriptLibrary::BuildLibrary(const std::filesystem::path& script)
 
     auto pathToSource = script.parent_path();
     auto pathToBuild = Settings::GetApplicationDir() / "script-build";
+
+    if (std::filesystem::exists(pathToBuild)) {
+        LOG_DEBUG("Removing existing build directory '{}'", pathToBuild.c_str());
+        std::filesystem::remove_all(pathToBuild);
+    }
+
     std::string configureCommand = "cmake -S ";
     configureCommand += pathToSource.string();
     configureCommand += " -B " + pathToBuild.string();
+    configureCommand += " -DPEANUT_INCLUDE_DIR=" + (Settings::GetApplicationDir() / "include").string();
 
     LOG_DEBUG("Configuring script with command '{}'", configureCommand);
 
@@ -66,6 +73,11 @@ void ScriptLibrary::BuildLibrary(const std::filesystem::path& script)
         LOG_ERROR("Failed to install script {}", script.c_str());
         return;
     }
+
+    if (std::filesystem::exists(pathToBuild)) {
+        LOG_DEBUG("Removing existing build directory '{}'", pathToBuild.c_str());
+        std::filesystem::remove_all(pathToBuild);
+    }
 }
 
 std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::path& script)
@@ -93,15 +105,15 @@ std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::pat
     lib.handle = dlopen(libObj.c_str(), RTLD_NOW);
     if (lib.handle == nullptr) {
         LOG_ERROR("Failed to load script library object {}, dlerror: {}", libName, dlerror());
-        return std::unique_ptr<NativeScript>();
+        return {};
     }
 
-    typedef NativeScript* (*CreateScriptFunc)(void);
-    CreateScriptFunc getScript = (CreateScriptFunc)dlsym(lib.handle, "GetScript");
+    using CreateScriptFunc = NativeScript* (*)();
+    auto getScript = (CreateScriptFunc)dlsym(lib.handle, "GetScript");
     if (getScript == nullptr) {
         LOG_ERROR("Failed to load GetScript function from {}, dlerror: {}", libName, dlerror());
         dlclose(lib.handle);
-        return std::unique_ptr<NativeScript>();
+        return {};
     }
     lib.getScriptFunc = getScript;
 

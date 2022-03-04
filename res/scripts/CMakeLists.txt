@@ -5,7 +5,7 @@ project(PeanutScript
     LANGUAGES CXX)
 
 add_library(TestScript SHARED TestScript.cpp)
-target_include_directories(TestScript PRIVATE ../../include ../../extern/entt/single_include)
+target_include_directories(TestScript PRIVATE ${PEANUT_INCLUDE_DIR})
 target_compile_options(TestScript PRIVATE -fPIC)
 
 install(TARGETS TestScript DESTINATION lib)
