@@ -1,9 +1,10 @@
-add_library(Peanut STATIC
+add_library(Peanut SHARED
     Application.cpp
+    ScriptLibrary.cpp
     Settings.cpp
+    stb_image_impl.cpp
     Window.cpp
     WindowInput.cpp
-    stb_image_impl.cpp
     # OpenGL Renderer
     OpenGLRenderer/Shader.cpp
     OpenGLRenderer/GLDebug.cpp
@@ -44,3 +45,4 @@ target_link_libraries(Peanut
         ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
 target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Wall -Wextra -Wpedantic -Werror)
+
