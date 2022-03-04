@@ -15,7 +15,6 @@ Application::Application()
     m_window = std::make_unique<Window>("Peanut", 800, 600);
     m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
-    Settings::Initialize();
 }
 
 void Application::Run()
@@ -54,6 +53,10 @@ void Application::Terminate()
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
+    spdlog::set_level(static_cast<spdlog::level::level_enum>(SPDLOG_ACTIVE_LEVEL));
+    LOG_INFO("Starting Application: {}", argv[0]);
+    PEANUT::Settings::SetApplication(argv[0]);
+
     auto* app = PEANUT::GetApplication();
     app->OnAttach();
     LOG_INFO("Running Application");

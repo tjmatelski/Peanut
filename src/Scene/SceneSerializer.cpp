@@ -102,6 +102,7 @@ void SceneSerializer::Serialize(Scene& scene, const std::string& filepath)
 
 void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
 {
+    const auto projectDir = std::filesystem::path(file).parent_path();
     scene.Clear();
     YAML::Node node = YAML::LoadFile(file);
     for (YAML::const_iterator it = node["Entities"].begin(); it != node["Entities"].end(); ++it) {
@@ -122,11 +123,11 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             auto& comp = sceneEnt.Add<SpriteRenderComponent>();
             comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
             std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
-            comp.texture = (Settings::GetResourceDir() / relative).string();
+            comp.texture = (projectDir / relative).string();
         }
 
         if (entity["NativeScriptComponent"]) {
-            std::filesystem::path scriptFile = Settings::GetResourceDir() / entity["NativeScriptComponent"]["ScriptFile"].as<std::string>();
+            std::filesystem::path scriptFile = projectDir / entity["NativeScriptComponent"]["ScriptFile"].as<std::string>();
             auto& script = sceneEnt.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile);
             script.m_script->m_entity = sceneEnt;
         }

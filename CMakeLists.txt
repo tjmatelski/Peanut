@@ -23,5 +23,3 @@ option(SPDLOG_BUILD_SHARED "" ${BUILD_SHARED_LIBS})
 add_subdirectory(extern/spdlog)
 add_subdirectory(extern/yaml-cpp)
 add_subdirectory(extern/entt)
-
-add_subdirectory(res/scripts)
