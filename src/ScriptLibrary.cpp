@@ -44,6 +44,8 @@ void ScriptLibrary::BuildLibrary(const std::filesystem::path& script)
     configureCommand += pathToSource.string();
     configureCommand += " -B " + pathToBuild.string();
     configureCommand += " -DPEANUT_INCLUDE_DIR=" + (Settings::GetApplicationDir() / "include").string();
+    configureCommand += " -DPEANUT_SCRIPT_NAME=" + script.stem().string();
+    configureCommand += " -DPEANUT_SCRIPT_FILE=" + std::filesystem::relative(script, pathToSource).string();
 
     LOG_DEBUG("Configuring script with command '{}'", configureCommand);
 

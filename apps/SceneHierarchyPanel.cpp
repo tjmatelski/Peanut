@@ -158,13 +158,9 @@ void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
     auto& script = m_selectedEntity.Get<NativeScriptComponent>();
     ImGui::Text("%s", script.filename.c_str());
     if (ImGui::Button("Reload Script")) {
-        std::string command = "cmake --build \"./build/\" --target ";
-        command += script.filename.stem().string();
-        int result = std::system(command.c_str());
-        if (result != 0) {
-            LOG_ERROR("Something went wrong with command: {}", command);
-        } else {
-            script.m_script = ScriptLibrary::Load(script.filename);
+        auto newScript = ScriptLibrary::Load(script.filename);
+        if (newScript) {
+            script.m_script = std::move(newScript);
             script.m_script->m_entity = m_selectedEntity;
         }
     }
