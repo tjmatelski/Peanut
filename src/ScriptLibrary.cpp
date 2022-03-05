@@ -4,13 +4,35 @@
 #include <Log.h>
 
 #include <dlfcn.h>
+#include <string_view>
+
+namespace {
+void* OpenLib(std::string_view lib)
+{
+    void* handle = nullptr;
+    handle = dlopen(lib.data(), RTLD_NOW);
+    if (handle == nullptr) {
+        LOG_ERROR("Failed to load script library object {}, dlerror: {}", lib, dlerror());
+    }
+    LOG_DEBUG("Opened lib handle {}", handle);
+    return handle;
+}
+void CloseLib(void* handle)
+{
+    LOG_DEBUG("Closing lib handle {}", handle);
+    auto result = dlclose(handle);
+    if (result != 0) {
+        LOG_ERROR("Failed to close library handle {}", handle);
+    }
+}
+}
 
 namespace PEANUT {
 
 ScriptLibrary::~ScriptLibrary()
 {
     for (auto& [name, lib] : m_loadedLibs) {
-        dlclose(lib.handle);
+        CloseLib(lib.handle);
     }
 }
 
@@ -92,10 +114,7 @@ std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::pat
     if (search != m_loadedLibs.end()) {
         if (search->second.lastWriteTime != std::filesystem::last_write_time(fullPath)) {
             LOG_DEBUG("Script lib {} has been updated, removing from cache", search->first.c_str());
-            auto result = dlclose(search->second.handle);
-            if (result != 0) {
-                LOG_ERROR("Failed to close library {}", search->first.c_str());
-            }
+            CloseLib(search->second.handle);
             m_loadedLibs.erase(search);
         } else {
             LOG_DEBUG("Script lib {} has not been update, using cached lib", search->first.c_str());
@@ -109,9 +128,8 @@ std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::pat
     ScriptLib lib;
     lib.libObject = libObj;
     lib.lastWriteTime = std::filesystem::last_write_time(lib.libObject);
-    lib.handle = dlopen(libObj.c_str(), RTLD_NOW);
+    lib.handle = OpenLib(libObj.c_str());
     if (lib.handle == nullptr) {
-        LOG_ERROR("Failed to load script library object {}, dlerror: {}", libName, dlerror());
         return {};
     }
 
@@ -119,7 +137,7 @@ std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::pat
     auto getScript = (CreateScriptFunc)dlsym(lib.handle, "GetScript");
     if (getScript == nullptr) {
         LOG_ERROR("Failed to load GetScript function from {}, dlerror: {}", libName, dlerror());
-        dlclose(lib.handle);
+        CloseLib(lib.handle);
         return {};
     }
     lib.getScriptFunc = getScript;

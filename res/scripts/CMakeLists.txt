@@ -6,6 +6,6 @@ project(PeanutScript
 
 add_library(${PEANUT_SCRIPT_NAME} SHARED ${PEANUT_SCRIPT_FILE})
 target_include_directories(${PEANUT_SCRIPT_NAME} PRIVATE ${PEANUT_INCLUDE_DIR})
-target_compile_options(${PEANUT_SCRIPT_NAME} PRIVATE -fPIC)
+target_compile_options(${PEANUT_SCRIPT_NAME} PRIVATE -fPIC -fvisibility=hidden)
 
 install(TARGETS ${PEANUT_SCRIPT_NAME} DESTINATION lib)

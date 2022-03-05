@@ -21,7 +21,7 @@ public:
 
 }
 
-extern "C" PEANUT::NativeScript* GetScript()
+extern "C" __attribute__((visibility("default"))) PEANUT::NativeScript* GetScript()
 {
     return new PEANUT::TestScript();
 }
