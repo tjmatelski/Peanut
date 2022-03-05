@@ -91,9 +91,14 @@ std::unique_ptr<NativeScript> ScriptLibrary::LoadImpl(const std::filesystem::pat
     auto search = m_loadedLibs.find(fullPath);
     if (search != m_loadedLibs.end()) {
         if (search->second.lastWriteTime != std::filesystem::last_write_time(fullPath)) {
-            dlclose(search->second.handle);
+            LOG_DEBUG("Script lib {} has been updated, removing from cache", search->first.c_str());
+            auto result = dlclose(search->second.handle);
+            if (result != 0) {
+                LOG_ERROR("Failed to close library {}", search->first.c_str());
+            }
             m_loadedLibs.erase(search);
         } else {
+            LOG_DEBUG("Script lib {} has not been update, using cached lib", search->first.c_str());
             return std::unique_ptr<NativeScript>(search->second.getScriptFunc());
         }
     }
