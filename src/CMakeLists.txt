@@ -6,20 +6,22 @@ add_library(Peanut SHARED
     Window.cpp
     WindowInput.cpp
     # OpenGL Renderer
-    OpenGLRenderer/Shader.cpp
-    OpenGLRenderer/GLDebug.cpp
-    OpenGLRenderer/VertexBuffer.cpp
-    OpenGLRenderer/IndexBuffer.cpp
     OpenGLRenderer/BufferLayout.cpp
-    OpenGLRenderer/VertexArray.cpp
+    OpenGLRenderer/GLDebug.cpp
+    OpenGLRenderer/IndexBuffer.cpp
+    OpenGLRenderer/Mesh.cpp
+    OpenGLRenderer/OrthoCamera.cpp
+    OpenGLRenderer/PerspectiveCamera.cpp
     OpenGLRenderer/Renderer.cpp
     OpenGLRenderer/Renderer2D.cpp
+    OpenGLRenderer/Shader.cpp
     OpenGLRenderer/Texture.cpp
     OpenGLRenderer/TextureLibrary.cpp
-    OpenGLRenderer/OrthoCamera.cpp
+    OpenGLRenderer/VertexArray.cpp
+    OpenGLRenderer/VertexBuffer.cpp
     # Scene
-    Scene/Scene.cpp
     Scene/Entity.cpp
+    Scene/Scene.cpp
     Scene/SceneSerializer.cpp
     # Platform Linux
     Platform/Linux/GtkFileSelectorDialog.cpp)

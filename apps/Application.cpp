@@ -25,7 +25,6 @@ public:
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
         , m_scene(std::make_shared<Scene>())
         , m_scenePanel(m_scene)
-        , m_textureLib()
         , m_mousePosition(0.0f, 0.0f)
     {
         ImGui::CreateContext();
@@ -42,6 +41,8 @@ public:
         ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(GetWindow().GetRawWindow()), true);
         const char* glsl_version = "#version 130";
         ImGui_ImplOpenGL3_Init(glsl_version);
+
+        Renderer::EnableDepthTest();
     }
 
     void OnAttach() override
@@ -67,6 +68,7 @@ public:
         ImGuiBeginFrame();
         OnImGuiUpdate();
         Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+        Renderer::ClearBuffers();
 
         if (m_runtime) {
             m_scene->ForEachEntity([&](Entity ent) {
@@ -81,7 +83,7 @@ public:
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<SpriteRenderComponent>()) {
                 const auto& spriteRender = ent.Get<SpriteRenderComponent>();
-                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, *m_textureLib.Load(spriteRender.texture));
+                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
             }
         });
 
@@ -174,7 +176,6 @@ private:
     OrthoCamera m_orthoCamera;
     std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
-    TextureLibrary m_textureLib;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
     bool m_runtime = false;

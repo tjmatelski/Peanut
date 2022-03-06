@@ -28,7 +28,6 @@ GLenum glCheckError_(const char* file, int line)
             error = "INVALID_FRAMEBUFFER_OPERATION";
             break;
         }
-        std::cout << error << " | " << file << " (" << line << ")" << std::endl;
         LOG_ERROR("OPENGL ERROR: {0} File: {1} Line: {2}", error, file, line);
     }
     return errorCode;

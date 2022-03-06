@@ -1,15 +1,35 @@
 #include <Renderer/TextureLibrary.h>
 
+#include <Log.h>
+
+namespace fs = std::filesystem;
+
 namespace PEANUT {
 
-std::shared_ptr<Texture> TextureLibrary::Load(const std::string& textureName)
+TextureLibrary& TextureLibrary::GetInstance()
 {
-    if (m_savedTextures.count(textureName) != 0) {
-        return m_savedTextures.at(textureName);
-    }
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>(textureName.c_str());
-    m_savedTextures[textureName] = texture;
-    return texture;
+    static TextureLibrary s_library;
+    return s_library;
 }
 
-} // namespace PEANUT
+Texture TextureLibrary::Load(const fs::path& textureName, const Texture::Type type)
+{
+    return GetInstance().LoadImpl(textureName, type);
+}
+
+Texture TextureLibrary::LoadImpl(const fs::path& textureName, const Texture::Type type)
+{
+    if (fs::exists(textureName) == false) {
+        LOG_ERROR("Texture File '{}' does not exist", textureName.string());
+    }
+
+    std::string fullPath = fs::canonical(textureName).string();
+    if (m_savedTextures.count(fullPath) != 0) {
+        return Texture(m_savedTextures.at(fullPath), type);
+    }
+
+    m_savedTextures.emplace(std::make_pair(fullPath, Texture(fullPath)));
+    return Texture(m_savedTextures.at(fullPath), type);
+}
+
+} // namespace Rhino

@@ -1,9 +1,9 @@
-#include <Log.h>
 #include <Renderer/Shader.h>
-#include <Util.h>
-#include <glad/glad.h>
 
 #include "GLDebug.h"
+#include <Log.h>
+#include <Util.h>
+#include <glad/glad.h>
 
 #include <fstream>
 #include <iostream>
@@ -103,8 +103,6 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
     if (!success) {
         std::array<char, 512> infoLog;
         GLCALL(glGetShaderInfoLog(shaderID, infoLog.size(), nullptr, infoLog.data()));
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infoLog.data() << "\nSource: " << shaderSource << std::endl;
         LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog.data(), shaderSource);
         PN_ASSERT(false);
     }
@@ -121,30 +119,42 @@ int Shader::GetUniformLocation(const char* name)
     return location;
 }
 
-void Shader::SetUniform4f(const char* name, const float a, const float b, const float c, const float d)
+void Shader::SetUniform1b(const std::string& name, const bool b)
 {
-    int uniformLocation = GetUniformLocation(name);
+    SetUniform1i(name, static_cast<int>(b));
+}
+
+void Shader::SetUniform1f(const std::string& name, const float f)
+{
+    int uniformLocation = GetUniformLocation(name.c_str());
+    GLCALL(glUseProgram(m_ShaderProgramID));
+    GLCALL(glUniform1f(uniformLocation, f));
+}
+
+void Shader::SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d)
+{
+    int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform4f(uniformLocation, a, b, c, d));
 }
 
-void Shader::SetUniform1i(const char* name, const int i)
+void Shader::SetUniform1i(const std::string& name, const int i)
 {
-    int uniformLocation = GetUniformLocation(name);
+    int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform1i(uniformLocation, i));
 }
 
-void Shader::SetUniformMat4(const char* name, const glm::mat4& matrix)
+void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
 {
-    int uniformLocation = GetUniformLocation(name);
+    int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 
-void Shader::SetUniformVec3(const char* name, const glm::vec3& vec)
+void Shader::SetUniformVec3(const std::string& name, const glm::vec3& vec)
 {
-    int uniformLocation = GetUniformLocation(name);
+    int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform3f(uniformLocation, vec.x, vec.y, vec.z));
 }

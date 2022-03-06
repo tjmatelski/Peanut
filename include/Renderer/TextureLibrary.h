@@ -2,7 +2,7 @@
 
 #include "Texture.h"
 
-#include <memory>
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 
@@ -10,11 +10,14 @@ namespace PEANUT {
 
 class TextureLibrary {
 public:
-    TextureLibrary() = default;
-    std::shared_ptr<Texture> Load(const std::string& textureName);
+    static Texture Load(const std::filesystem::path& textureName, const Texture::Type type = Texture::Type::None);
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<Texture>> m_savedTextures;
+    TextureLibrary() = default;
+    std::unordered_map<std::string, Texture> m_savedTextures;
+
+    static TextureLibrary& GetInstance();
+    Texture LoadImpl(const std::filesystem::path& textureName, const Texture::Type type);
 };
 
-} // namespace PEANUT
+} // namespace Rhino
