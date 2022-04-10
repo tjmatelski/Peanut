@@ -5,6 +5,10 @@
         "-DBUILD_SHARED_LIBS=ON",
         "-DCMAKE_INSTALL_PREFIX=${workspaceFolder}/build/install"
     ],
+    "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
     "C_Cpp.codeAnalysis.clangTidy.args": [
         "-std=c++17",
