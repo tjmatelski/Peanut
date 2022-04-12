@@ -10,6 +10,7 @@ add_library(Peanut SHARED
     OpenGLRenderer/GLDebug.cpp
     OpenGLRenderer/IndexBuffer.cpp
     OpenGLRenderer/Mesh.cpp
+    OpenGLRenderer/Model.cpp
     OpenGLRenderer/OrthoCamera.cpp
     OpenGLRenderer/PerspectiveCamera.cpp
     OpenGLRenderer/Renderer.cpp
@@ -45,6 +46,7 @@ target_link_libraries(Peanut
         glm
     PRIVATE 
         yaml-cpp
+        assimp
         ${GTKMM_LIBRARIES})
 target_compile_features(Peanut PUBLIC cxx_std_17)
 target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Wall -Wextra -Wpedantic -Werror)
