@@ -1,6 +1,5 @@
 add_library(Peanut SHARED
     Application.cpp
-    ScriptLibrary.cpp
     Settings.cpp
     stb_image_impl.cpp
     Window.cpp

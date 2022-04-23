@@ -1,6 +1,5 @@
 #include "SceneHierarchyPanel.h"
 #include "../src/Settings.h"
-#include "ScriptLibrary.h"
 
 #include <cstdlib>
 
@@ -73,7 +72,6 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
         DrawComponent<TagComponent>("Tag");
         DrawComponent<TransformComponent>("Transform");
         DrawComponent<SpriteRenderComponent>("Sprite Render");
-        DrawComponent<NativeScriptComponent>("Native Script");
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -84,14 +82,6 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
                 auto& comp = m_selectedEntity.Add<SpriteRenderComponent>();
                 comp.color = { 1.0, 1.0, 1.0 };
                 comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
-            }
-            if (ImGui::MenuItem("Native Script Component")) {
-                std::filesystem::path scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
-                if (!scriptFile.empty()) {
-                    m_selectedEntity.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile)
-                        .m_script->m_entity
-                        = m_selectedEntity;
-                }
             }
             ImGui::EndPopup();
         }
@@ -149,20 +139,6 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     ImGui::Text("%s", renderComp.texture.c_str());
     if (ImGui::Button("...")) {
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
-    }
-}
-
-template <>
-void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
-{
-    auto& script = m_selectedEntity.Get<NativeScriptComponent>();
-    ImGui::Text("%s", script.filename.c_str());
-    if (ImGui::Button("Reload Script")) {
-        auto newScript = ScriptLibrary::Load(script.filename);
-        if (newScript) {
-            script.m_script = std::move(newScript);
-            script.m_script->m_entity = m_selectedEntity;
-        }
     }
 }
 

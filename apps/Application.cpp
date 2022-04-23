@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 
 #include "SceneHierarchyPanel.h"
-#include "ScriptLibrary.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -63,21 +62,12 @@ public:
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void OnUpdate(TimeStep timeStep) override
+    void OnUpdate(TimeStep timeStep [[maybe_unused]]) override
     {
         ImGuiBeginFrame();
         OnImGuiUpdate();
         Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         Renderer::ClearBuffers();
-
-        if (m_runtime) {
-            m_scene->ForEachEntity([&](Entity ent) {
-                if (ent.Has<NativeScriptComponent>()) {
-                    auto& script = ent.Get<NativeScriptComponent>();
-                    script.OnUpdate(timeStep);
-                }
-            });
-        }
 
         Renderer2D::BeginScene(m_orthoCamera);
         m_scene->ForEachEntity([&](Entity ent) {
