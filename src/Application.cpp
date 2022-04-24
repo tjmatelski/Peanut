@@ -1,9 +1,12 @@
-#include "Settings.h"
 #include <Application.h>
+
+#include "Settings.h"
 #include <KeyCodes.h>
 #include <Log.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
+
+#include <sol/sol.hpp>
 
 namespace PEANUT {
 Application* Application::s_application = nullptr;
