@@ -1,7 +1,10 @@
 #include "SceneHierarchyPanel.h"
 #include "../src/Settings.h"
+#include "Scene/Component.h"
+#include "imgui.h"
 
 #include <cstdlib>
+#include <filesystem>
 
 namespace PEANUT {
 
@@ -72,6 +75,7 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
         DrawComponent<TagComponent>("Tag");
         DrawComponent<TransformComponent>("Transform");
         DrawComponent<SpriteRenderComponent>("Sprite Render");
+        DrawComponent<LuaScriptComponent>("LUA Script Component");
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -82,6 +86,13 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
                 auto& comp = m_selectedEntity.Add<SpriteRenderComponent>();
                 comp.color = { 1.0, 1.0, 1.0 };
                 comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
+            }
+            if (ImGui::MenuItem("LUA Script")) {
+                auto scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                if (std::filesystem::exists(scriptFile)) {
+                    auto& comp = m_selectedEntity.Add<LuaScriptComponent>();
+                    comp.script = scriptFile;
+                }
             }
             ImGui::EndPopup();
         }
@@ -139,6 +150,16 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     ImGui::Text("%s", renderComp.texture.c_str());
     if (ImGui::Button("...")) {
         renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
+    }
+}
+
+template <>
+void SceneHierarchyPanel::DrawComponentSpecifics<LuaScriptComponent>()
+{
+    auto& scriptComp = m_selectedEntity.Get<LuaScriptComponent>();
+    ImGui::Text("%s", scriptComp.script.c_str());
+    if (ImGui::Button("...")) {
+        scriptComp.script = CreateFileSelectorDialog()->SelectFile().value_or(scriptComp.script);
     }
 }
 

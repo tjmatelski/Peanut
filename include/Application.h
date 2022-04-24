@@ -2,6 +2,7 @@
 
 #include "Events/KeyEvent.h"
 #include "Events/WindowEvents.h"
+#include "Scene/Scene.h"
 #include "TimeStep.h"
 #include "Window.h"
 
@@ -24,6 +25,8 @@ public:
 
 protected:
     void Terminate();
+    bool m_runtime = false;
+    std::shared_ptr<Scene> m_scene;
 
 private:
     static Application* s_application;

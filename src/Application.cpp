@@ -1,16 +1,20 @@
 #include <Application.h>
 
+#include "Scene/Component.h"
+#include "Scene/Entity.h"
 #include "Settings.h"
 #include <KeyCodes.h>
 #include <Log.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
 
+#include <filesystem>
 #include <sol/sol.hpp>
 
 namespace PEANUT {
 Application* Application::s_application = nullptr;
 Application::Application()
+    : m_scene(std::make_shared<Scene>())
 {
     spdlog::set_level(spdlog::level::debug);
 
@@ -28,6 +32,17 @@ void Application::Run()
         m_lastFrameTime = currentFrameTime;
 
         OnUpdate(timeStep);
+
+        if (m_runtime) {
+            sol::state lua;
+            lua.open_libraries(sol::lib::base);
+            m_scene->ForEachEntity([&](Entity ent) {
+                if (ent.Has<LuaScriptComponent>()) {
+                    const auto& scriptComp = ent.Get<LuaScriptComponent>();
+                    lua.script_file(std::filesystem::absolute(scriptComp.script));
+                }
+            });
+        }
 
         UpdateWindow();
     }

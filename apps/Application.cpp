@@ -22,7 +22,6 @@ public:
         : Application()
         , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
-        , m_scene(std::make_shared<Scene>())
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
     {
@@ -164,11 +163,9 @@ private:
     }
 
     OrthoCamera m_orthoCamera;
-    std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
-    bool m_runtime = false;
 };
 
 Application* GetApplication()

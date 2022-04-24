@@ -44,4 +44,8 @@ struct SpriteRenderComponent {
     std::string texture = {};
 };
 
+struct LuaScriptComponent {
+    std::filesystem::path script;
+};
+
 }
