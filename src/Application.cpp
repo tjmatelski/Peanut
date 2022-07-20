@@ -36,8 +36,10 @@ void Application::Run()
         if (m_runtime) {
             sol::state lua;
             lua.open_libraries(sol::lib::base);
+            lua.new_usertype<glm::vec3>("glm::vec3", "x", &glm::vec3::x, "y", &glm::vec3::y, "z", &glm::vec3::z);
             m_scene->ForEachEntity([&](Entity ent) {
                 if (ent.Has<LuaScriptComponent>()) {
+                    lua["pos"] = &ent.Get<TransformComponent>().translation;
                     const auto& scriptComp = ent.Get<LuaScriptComponent>();
                     lua.script_file(std::filesystem::absolute(scriptComp.script));
                 }

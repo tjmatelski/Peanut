@@ -1,1 +1,1 @@
-print('This is LUAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!')
+pos.x = pos.x + 0.01
