@@ -75,7 +75,7 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
         DrawComponent<TagComponent>("Tag");
         DrawComponent<TransformComponent>("Transform");
         DrawComponent<SpriteRenderComponent>("Sprite Render");
-        DrawComponent<LuaScriptComponent>("LUA Script Component");
+        DrawComponent<LuaScriptComponent>("LUA Script");
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -157,7 +157,7 @@ template <>
 void SceneHierarchyPanel::DrawComponentSpecifics<LuaScriptComponent>()
 {
     auto& scriptComp = m_selectedEntity.Get<LuaScriptComponent>();
-    ImGui::Text("%s", scriptComp.script.c_str());
+    ImGui::Text("%s", scriptComp.script.filename().c_str());
     if (ImGui::Button("...")) {
         scriptComp.script = CreateFileSelectorDialog()->SelectFile().value_or(scriptComp.script);
     }
