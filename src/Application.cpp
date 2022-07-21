@@ -3,6 +3,7 @@
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include "Settings.h"
+#include "TimeStep.h"
 #include <KeyCodes.h>
 #include <Log.h>
 #include <Renderer/Renderer.h>
@@ -34,16 +35,7 @@ void Application::Run()
         OnUpdate(timeStep);
 
         if (m_runtime) {
-            sol::state lua;
-            lua.open_libraries(sol::lib::base);
-            lua.new_usertype<glm::vec3>("glm::vec3", "x", &glm::vec3::x, "y", &glm::vec3::y, "z", &glm::vec3::z);
-            m_scene->ForEachEntity([&](Entity ent) {
-                if (ent.Has<LuaScriptComponent>()) {
-                    lua["pos"] = &ent.Get<TransformComponent>().translation;
-                    const auto& scriptComp = ent.Get<LuaScriptComponent>();
-                    lua.script_file(std::filesystem::absolute(scriptComp.script));
-                }
-            });
+            UpdateLuaScripts(timeStep);
         }
 
         UpdateWindow();
@@ -54,6 +46,29 @@ void Application::UpdateWindow()
 {
     m_window->SwapBuffers();
     m_window->PollEvents();
+}
+
+void Application::UpdateLuaScripts(TimeStep ts)
+{
+    sol::state lua;
+    lua.open_libraries(sol::lib::base);
+    lua.new_usertype<TransformComponent>("TransformComponent",
+        "position", &TransformComponent::translation,
+        "rotation", &TransformComponent::rotation,
+        "scale", &TransformComponent::scale);
+    lua.new_usertype<glm::vec3>("glm::vec3",
+        "x", &glm::vec3::x,
+        "y", &glm::vec3::y,
+        "z", &glm::vec3::z);
+
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<LuaScriptComponent>()) {
+            lua["transform"] = &ent.Get<TransformComponent>();
+            const auto& scriptComp = ent.Get<LuaScriptComponent>();
+            lua.script_file(std::filesystem::absolute(scriptComp.script));
+            lua["OnUpdate"](ts);
+        }
+    });
 }
 
 void Application::OnApplicationEvent(Event& event)

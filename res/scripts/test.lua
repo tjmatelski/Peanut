@@ -1,1 +1,3 @@
-pos.x = pos.x + 0.01
+function OnUpdate (timestep)
+    transform.position.x = transform.position.x + 0.01
+end

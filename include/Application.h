@@ -38,6 +38,7 @@ private:
     void Run();
     void OnApplicationEvent(Event& event);
     void UpdateWindow();
+    void UpdateLuaScripts(TimeStep ts);
 };
 
 /**
