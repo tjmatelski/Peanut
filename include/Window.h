@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Events/Event.h"
+#include "KeyCodes.h"
+#include "MouseCodes.h"
+
 #include <functional>
 
 namespace PEANUT {
@@ -17,6 +20,8 @@ public:
     inline int GetHeight() const { return m_height; }
     inline void* GetRawWindow() const { return m_window; }
     float GetTime() const;
+    bool IsKeyPressed(KeyCode key) const;
+    bool IsMousePressed(MouseCode button) const;
 
     using EventCallbackFn = std::function<void(Event& e)>;
     void SetEventCallback(const EventCallbackFn& func) { m_eventCallback = func; }

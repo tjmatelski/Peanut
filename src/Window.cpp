@@ -112,4 +112,14 @@ void Window::InitWindowCallbacks()
     });
 }
 
+bool Window::IsKeyPressed(KeyCode key) const
+{
+    return glfwGetKey(static_cast<GLFWwindow*>(m_window), static_cast<int>(key)) == GLFW_PRESS;
+}
+
+bool Window::IsMousePressed(MouseCode button) const
+{
+    return glfwGetMouseButton(static_cast<GLFWwindow*>(m_window), static_cast<int>(button)) == GLFW_PRESS;
+}
+
 } // namespace PEANUT
