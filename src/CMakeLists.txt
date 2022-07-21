@@ -1,6 +1,5 @@
 add_library(Peanut SHARED
     Application.cpp
-    ScriptLibrary.cpp
     Settings.cpp
     stb_image_impl.cpp
     Window.cpp
@@ -25,7 +24,8 @@ add_library(Peanut SHARED
     Scene/Scene.cpp
     Scene/SceneSerializer.cpp
     # Platform Linux
-    Platform/Linux/GtkFileSelectorDialog.cpp)
+    Platform/Linux/GtkFileSelectorDialog.cpp
+)
 
 find_package(PkgConfig)
 pkg_check_modules(GTKMM gtkmm-3.0)
@@ -34,8 +34,11 @@ find_package(OpenGL REQUIRED)
 
 target_include_directories(Peanut
     PUBLIC ../include
-    PRIVATE ${GTKMM_INCLUDE_DIRS})
+    PRIVATE ${GTKMM_INCLUDE_DIRS}
+)
+
 target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
+
 target_link_libraries(Peanut
     PUBLIC
         glfw
@@ -47,7 +50,9 @@ target_link_libraries(Peanut
     PRIVATE 
         yaml-cpp
         assimp
-        ${GTKMM_LIBRARIES})
+        ${GTKMM_LIBRARIES}
+        sol2
+        lua
+)
 target_compile_features(Peanut PUBLIC cxx_std_17)
 target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Wall -Wextra -Wpedantic -Werror)
-

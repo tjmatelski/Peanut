@@ -20,3 +20,6 @@
 [submodule "extern/assimp"]
 	path = extern/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "extern/sol2"]
+	path = extern/sol2
+	url = https://github.com/ThePhD/sol2.git

@@ -2,7 +2,6 @@
 
 #include "../Math.h"
 #include "../TimeStep.h"
-#include "NativeScript.h"
 
 #include <filesystem>
 #include <memory>
@@ -45,20 +44,8 @@ struct SpriteRenderComponent {
     std::string texture = {};
 };
 
-struct NativeScriptComponent {
-    NativeScriptComponent(const NativeScriptComponent&) = delete;
-    NativeScriptComponent(NativeScriptComponent&&) = default;
-    NativeScriptComponent& operator=(const NativeScriptComponent&) = delete;
-    NativeScriptComponent& operator=(NativeScriptComponent&&) = default;
-
-    std::unique_ptr<NativeScript> m_script;
-    std::filesystem::path filename;
-    void OnUpdate(TimeStep ts)
-    {
-        if (m_script) {
-            m_script->OnUpdate(ts);
-        }
-    }
+struct LuaScriptComponent {
+    std::filesystem::path script;
 };
 
 }

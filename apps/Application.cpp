@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 
 #include "SceneHierarchyPanel.h"
-#include "ScriptLibrary.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -23,7 +22,6 @@ public:
         : Application()
         , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
-        , m_scene(std::make_shared<Scene>())
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
     {
@@ -63,21 +61,12 @@ public:
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void OnUpdate(TimeStep timeStep) override
+    void OnUpdate(TimeStep timeStep [[maybe_unused]]) override
     {
         ImGuiBeginFrame();
         OnImGuiUpdate();
         Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         Renderer::ClearBuffers();
-
-        if (m_runtime) {
-            m_scene->ForEachEntity([&](Entity ent) {
-                if (ent.Has<NativeScriptComponent>()) {
-                    auto& script = ent.Get<NativeScriptComponent>();
-                    script.OnUpdate(timeStep);
-                }
-            });
-        }
 
         Renderer2D::BeginScene(m_orthoCamera);
         m_scene->ForEachEntity([&](Entity ent) {
@@ -174,11 +163,9 @@ private:
     }
 
     OrthoCamera m_orthoCamera;
-    std::shared_ptr<Scene> m_scene;
     SceneHierarchyPanel m_scenePanel;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
-    bool m_runtime = false;
 };
 
 Application* GetApplication()

@@ -3,7 +3,6 @@
 #include <Scene/Entity.h>
 #include <Scene/Scene.h>
 #include <Scene/SceneSerializer.h>
-#include <ScriptLibrary.h>
 #include <yaml-cpp/yaml.h>
 
 #include <filesystem>
@@ -74,13 +73,6 @@ static void SerializeEntity(YAML::Emitter& out, Entity ent)
         out << YAML::EndMap;
     }
 
-    if (ent.Has<NativeScriptComponent>()) {
-        out << YAML::Key << "NativeScriptComponent" << YAML::Value << YAML::BeginMap;
-        const NativeScriptComponent& script = ent.Get<NativeScriptComponent>();
-        out << YAML::Key << "ScriptFile" << YAML::Value << std::filesystem::relative(script.filename, Settings::GetResourceDir());
-        out << YAML::EndMap;
-    }
-
     out << YAML::EndMap;
 }
 
@@ -124,12 +116,6 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
             std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
             comp.texture = (projectDir / relative).string();
-        }
-
-        if (entity["NativeScriptComponent"]) {
-            std::filesystem::path scriptFile = projectDir / entity["NativeScriptComponent"]["ScriptFile"].as<std::string>();
-            auto& script = sceneEnt.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile);
-            script.m_script->m_entity = sceneEnt;
         }
     }
 }

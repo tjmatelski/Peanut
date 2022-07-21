@@ -1,8 +1,10 @@
 #include "SceneHierarchyPanel.h"
 #include "../src/Settings.h"
-#include "ScriptLibrary.h"
+#include "Scene/Component.h"
+#include "imgui.h"
 
 #include <cstdlib>
+#include <filesystem>
 
 namespace PEANUT {
 
@@ -73,7 +75,7 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
         DrawComponent<TagComponent>("Tag");
         DrawComponent<TransformComponent>("Transform");
         DrawComponent<SpriteRenderComponent>("Sprite Render");
-        DrawComponent<NativeScriptComponent>("Native Script");
+        DrawComponent<LuaScriptComponent>("LUA Script");
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -85,12 +87,11 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
                 comp.color = { 1.0, 1.0, 1.0 };
                 comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
             }
-            if (ImGui::MenuItem("Native Script Component")) {
-                std::filesystem::path scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
-                if (!scriptFile.empty()) {
-                    m_selectedEntity.Add<NativeScriptComponent>(ScriptLibrary::Load(scriptFile), scriptFile)
-                        .m_script->m_entity
-                        = m_selectedEntity;
+            if (ImGui::MenuItem("LUA Script")) {
+                auto scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                if (std::filesystem::exists(scriptFile)) {
+                    auto& comp = m_selectedEntity.Add<LuaScriptComponent>();
+                    comp.script = scriptFile;
                 }
             }
             ImGui::EndPopup();
@@ -153,16 +154,12 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
 }
 
 template <>
-void SceneHierarchyPanel::DrawComponentSpecifics<NativeScriptComponent>()
+void SceneHierarchyPanel::DrawComponentSpecifics<LuaScriptComponent>()
 {
-    auto& script = m_selectedEntity.Get<NativeScriptComponent>();
-    ImGui::Text("%s", script.filename.c_str());
-    if (ImGui::Button("Reload Script")) {
-        auto newScript = ScriptLibrary::Load(script.filename);
-        if (newScript) {
-            script.m_script = std::move(newScript);
-            script.m_script->m_entity = m_selectedEntity;
-        }
+    auto& scriptComp = m_selectedEntity.Get<LuaScriptComponent>();
+    ImGui::Text("%s", scriptComp.script.filename().c_str());
+    if (ImGui::Button("...")) {
+        scriptComp.script = CreateFileSelectorDialog()->SelectFile().value_or(scriptComp.script);
     }
 }
 
