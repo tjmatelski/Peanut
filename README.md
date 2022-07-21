@@ -3,6 +3,12 @@ Game engine written in C++ for fun and educational purposes.
 
 ![Picture of Peanut UI](res/PeanutScreen.png)
 
+## Features
+
+- Editor to add and modify components
+- Lua scripting to modify game behavior
+- Basic 2D rendering
+
 ## Building
 
 Peanut is built using the CMake build manager and has only been tested on Ubuntu based linux distros. The only dependency not inlcuded as a submodule is the OpenGL library for your distribution. That will need to be installed with the package manager.
