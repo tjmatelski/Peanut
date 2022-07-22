@@ -50,11 +50,16 @@ void SceneHierarchyPanel::UpdateMenuBar()
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Save")) {
-                LOG_INFO("Saving Scene...");
-                SceneSerializer::Serialize(*m_scene, "./test.peanut");
+                auto saveFile = CreateFileSelectorDialog()->SaveFile().value_or("");
+                if (!saveFile.empty()) {
+                    LOG_INFO("Saving Scene to '{0}'", saveFile);
+                    SceneSerializer::Serialize(*m_scene, saveFile);
+                } else {
+                    LOG_WARN("Failed to select save file. Not saving scene.");
+                }
             }
             if (ImGui::MenuItem("Open")) {
-                std::string sceneFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                std::string sceneFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                 if (sceneFile.find(".peanut") != std::string::npos) {
                     LOG_INFO("Opening Scene: {}", sceneFile);
                     SceneSerializer::Deserialize(sceneFile, *m_scene);
@@ -88,7 +93,7 @@ void SceneHierarchyPanel::UpdatePropertiesPanel()
                 comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
             }
             if (ImGui::MenuItem("LUA Script")) {
-                auto scriptFile = CreateFileSelectorDialog()->SelectFile().value_or("");
+                auto scriptFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                 if (std::filesystem::exists(scriptFile)) {
                     auto& comp = m_selectedEntity.Add<LuaScriptComponent>();
                     comp.script = scriptFile;
@@ -149,7 +154,7 @@ void SceneHierarchyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
     ImGui::Text("%s", renderComp.texture.c_str());
     if (ImGui::Button("...")) {
-        renderComp.texture = CreateFileSelectorDialog()->SelectFile().value_or(renderComp.texture);
+        renderComp.texture = CreateFileSelectorDialog()->OpenFile().value_or(renderComp.texture);
     }
 }
 
@@ -159,7 +164,7 @@ void SceneHierarchyPanel::DrawComponentSpecifics<LuaScriptComponent>()
     auto& scriptComp = m_selectedEntity.Get<LuaScriptComponent>();
     ImGui::Text("%s", scriptComp.script.filename().c_str());
     if (ImGui::Button("...")) {
-        scriptComp.script = CreateFileSelectorDialog()->SelectFile().value_or(scriptComp.script);
+        scriptComp.script = CreateFileSelectorDialog()->OpenFile().value_or(scriptComp.script);
     }
 }
 

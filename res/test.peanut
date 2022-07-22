@@ -2,21 +2,16 @@ Scene: MyTempSceneName
 Entities:
   - Entity: 123456789
     TagComponent:
-      Tag: Empty
+      Tag: Container
     TransformComponent:
-      Translation: [0, 0, 0]
+      Translation: [-0.822000027, 0, 0]
       Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-  - Entity: 123456789
-    TagComponent:
-      Tag: Awesome Face
-    TransformComponent:
-      Translation: [0, 0.421999991, 0]
-      Rotation: [0, 0, 2.65290046]
       Scale: [1, 1, 1]
     SpriteRenderComponent:
       Color: [1, 1, 1]
-      Texture: textures/awesomeface.png
+      Texture: textures/container.jpg
+    LuaScriptComponent:
+      Script: scripts/test.lua
   - Entity: 123456789
     TagComponent:
       Tag: Entity 2
@@ -29,13 +24,18 @@ Entities:
       Texture: textures/BlankSquare.png
   - Entity: 123456789
     TagComponent:
-      Tag: Container
+      Tag: Awesome Face
     TransformComponent:
-      Translation: [-0.822000027, 0, 0]
-      Rotation: [0, 0, 0]
+      Translation: [0, 0.421999991, 0]
+      Rotation: [0, 0, 2.65290046]
       Scale: [1, 1, 1]
     SpriteRenderComponent:
       Color: [1, 1, 1]
-      Texture: textures/container.jpg
-    NativeScriptComponent:
-      ScriptFile: scripts/TestScript.cpp
+      Texture: textures/awesomeface.png
+  - Entity: 123456789
+    TagComponent:
+      Tag: Empty
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]

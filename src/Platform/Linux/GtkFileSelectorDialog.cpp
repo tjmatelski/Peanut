@@ -3,22 +3,18 @@
 #include <Log.h>
 #include <gtkmm/application.h>
 #include <gtkmm/filechooserdialog.h>
+#include <optional>
+#include <string>
 
-namespace PEANUT {
-
-std::unique_ptr<FileSelectorDialog> CreateFileSelectorDialog()
-{
-    return std::make_unique<GtkFileSelectorDialog>();
-}
-
-std::optional<std::string> GtkFileSelectorDialog::SelectFile()
+namespace {
+std::optional<std::string> SelectFile(Gtk::FileChooserAction action)
 {
     int argc = 0;
     char** argv {};
     std::string chosenFile("");
 
     auto app = Gtk::Application::create("org.gtkmm.examples.base");
-    Gtk::FileChooserDialog dialog("Choose a file", Gtk::FILE_CHOOSER_ACTION_OPEN);
+    Gtk::FileChooserDialog dialog("Choose a file", action);
     dialog.add_button("Ok", Gtk::ResponseType::RESPONSE_OK);
     dialog.add_button("Cancel", Gtk::ResponseType::RESPONSE_CANCEL);
     dialog.signal_response().connect([&](int response) {
@@ -43,4 +39,22 @@ std::optional<std::string> GtkFileSelectorDialog::SelectFile()
     }
     return chosenFile;
 }
+}
+namespace PEANUT {
+
+std::unique_ptr<FileSelectorDialog> CreateFileSelectorDialog()
+{
+    return std::make_unique<GtkFileSelectorDialog>();
+}
+
+std::optional<std::string> GtkFileSelectorDialog::OpenFile()
+{
+    return SelectFile(Gtk::FILE_CHOOSER_ACTION_OPEN);
+}
+
+std::optional<std::string> GtkFileSelectorDialog::SaveFile()
+{
+    return SelectFile(Gtk::FILE_CHOOSER_ACTION_SAVE);
+}
+
 }
