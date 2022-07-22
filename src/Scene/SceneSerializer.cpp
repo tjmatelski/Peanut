@@ -35,7 +35,7 @@ struct convert<glm::vec3> {
 };
 } // namespace YAML
 
-namespace PEANUT {
+namespace {
 static YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec)
 {
     out << YAML::Flow;
@@ -43,8 +43,10 @@ static YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& vec)
     return out;
 }
 
-static void SerializeEntity(YAML::Emitter& out, Entity ent)
+static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesystem::path sceneFile)
 {
+    using namespace PEANUT;
+
     out << YAML::BeginMap;
     out << YAML::Key << "Entity" << YAML::Value << 123456789;
 
@@ -69,13 +71,22 @@ static void SerializeEntity(YAML::Emitter& out, Entity ent)
         const SpriteRenderComponent& spriteRenderComp = ent.Get<SpriteRenderComponent>();
         out << YAML::Key << "Color" << YAML::Value << spriteRenderComp.color;
         std::filesystem::path texPath(spriteRenderComp.texture);
-        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, Settings::GetResourceDir());
+        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, sceneFile.parent_path());
+        out << YAML::EndMap;
+    }
+
+    if (ent.Has<LuaScriptComponent>()) {
+        auto scriptPath = ent.Get<LuaScriptComponent>().script;
+        out << YAML::Key << "LuaScriptComponent" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Script" << YAML::Value << std::filesystem::relative(scriptPath, sceneFile.parent_path());
         out << YAML::EndMap;
     }
 
     out << YAML::EndMap;
 }
+}
 
+namespace PEANUT {
 void SceneSerializer::Serialize(Scene& scene, const std::string& filepath)
 {
     YAML::Emitter out;
@@ -83,7 +94,7 @@ void SceneSerializer::Serialize(Scene& scene, const std::string& filepath)
     out << YAML::Key << "Scene" << YAML::Value << "MyTempSceneName";
     out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
     scene.ForEachEntity([&](Entity ent) {
-        SerializeEntity(out, ent);
+        SerializeEntity(out, ent, filepath);
     });
     out << YAML::EndSeq;
     out << YAML::EndMap;
@@ -116,6 +127,12 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             comp.color = entity["SpriteRenderComponent"]["Color"].as<glm::vec3>();
             std::filesystem::path relative(entity["SpriteRenderComponent"]["Texture"].as<std::string>());
             comp.texture = (projectDir / relative).string();
+        }
+
+        if (entity["LuaScriptComponent"]) {
+            auto& component = sceneEnt.Add<LuaScriptComponent>();
+            std::filesystem::path relative(entity["LuaScriptComponent"]["Script"].as<std::string>());
+            component.script = projectDir / relative;
         }
     }
 }
