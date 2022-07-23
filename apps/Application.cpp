@@ -24,6 +24,7 @@ public:
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
+        , m_frameBuffer()
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -65,6 +66,9 @@ public:
     {
         ImGuiBeginFrame();
         OnImGuiUpdate();
+
+        m_frameBuffer.Bind();
+
         Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         Renderer::ClearBuffers();
 
@@ -75,6 +79,8 @@ public:
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
             }
         });
+
+        m_frameBuffer.Unbind();
 
         ImGuiEndFrame();
     }
@@ -107,7 +113,7 @@ public:
         m_scenePanel.UpdateGui();
 
         ImGui::Begin("Viewport");
-        ImGui::Image(reinterpret_cast<void*>(TextureLibrary::Load("res/textures/awesomeface.png").GetID()), { 50, 50 });
+        ImGui::Image(reinterpret_cast<void*>(m_frameBuffer.GetColorbufferTextureID()), { 320, 180 });
         ImGui::End();
 
         ImGui::End();
@@ -170,6 +176,7 @@ private:
     SceneHierarchyPanel m_scenePanel;
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
+    FrameBuffer m_frameBuffer;
 };
 
 Application* GetApplication()

@@ -6,6 +6,7 @@ add_library(Peanut SHARED
     WindowInput.cpp
     # OpenGL Renderer
     OpenGLRenderer/BufferLayout.cpp
+    OpenGLRenderer/FrameBuffer.cpp
     OpenGLRenderer/GLDebug.cpp
     OpenGLRenderer/IndexBuffer.cpp
     OpenGLRenderer/Mesh.cpp

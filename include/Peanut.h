@@ -11,6 +11,7 @@
 
 // Renderer
 #include "Renderer/BufferLayout.h"
+#include "Renderer/FrameBuffer.h"
 #include "Renderer/IndexBuffer.h"
 #include "Renderer/OrthoCamera.h"
 #include "Renderer/Renderer.h"
