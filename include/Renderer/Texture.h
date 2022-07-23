@@ -23,6 +23,7 @@ public:
 
     void Bind() const;
     inline Type GetType() const { return m_type; }
+    [[nodiscard]] unsigned int GetID() const { return m_ID; }
 
 private:
     unsigned int m_ID;

@@ -106,6 +106,10 @@ public:
 
         m_scenePanel.UpdateGui();
 
+        ImGui::Begin("Viewport");
+        ImGui::Image(reinterpret_cast<void*>(TextureLibrary::Load("res/textures/awesomeface.png").GetID()), { 50, 50 });
+        ImGui::End();
+
         ImGui::End();
     }
 
