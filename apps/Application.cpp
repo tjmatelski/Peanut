@@ -17,6 +17,7 @@
 namespace PEANUT {
 
 void UpdatePropertiesPanel(Entity selectedEntity);
+void UpdateViewportPanel(const FrameBuffer& framebuffer);
 
 class MyApp : public Application {
 public:
@@ -130,10 +131,7 @@ public:
         UpdateMenuBar();
         m_scenePanel.UpdateGui();
         UpdatePropertiesPanel(m_scenePanel.GetSelectedEntity());
-
-        ImGui::Begin("Viewport");
-        ImGui::Image(reinterpret_cast<void*>(m_frameBuffer.GetColorbufferTextureID()), { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() });
-        ImGui::End();
+        UpdateViewportPanel(m_frameBuffer);
 
         ImGui::End();
     }
