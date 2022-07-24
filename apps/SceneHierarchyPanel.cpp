@@ -16,8 +16,6 @@ SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene)
 
 void SceneHierarchyPanel::UpdateGui()
 {
-    UpdateMenuBar();
-
     ImGui::Begin("Scene");
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
@@ -41,34 +39,6 @@ void SceneHierarchyPanel::UpdateGui()
         ImGui::EndPopup();
     }
     ImGui::End();
-}
-
-void SceneHierarchyPanel::UpdateMenuBar()
-{
-    if (ImGui::BeginMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Save")) {
-                auto saveFile = CreateFileSelectorDialog()->SaveFile().value_or("");
-                if (!saveFile.empty()) {
-                    LOG_INFO("Saving Scene to '{0}'", saveFile);
-                    SceneSerializer::Serialize(*m_scene, saveFile);
-                } else {
-                    LOG_WARN("Failed to select save file. Not saving scene.");
-                }
-            }
-            if (ImGui::MenuItem("Open")) {
-                std::string sceneFile = CreateFileSelectorDialog()->OpenFile().value_or("");
-                if (sceneFile.find(".peanut") != std::string::npos) {
-                    LOG_INFO("Opening Scene: {}", sceneFile);
-                    SceneSerializer::Deserialize(sceneFile, *m_scene);
-                } else {
-                    LOG_ERROR("Invalid scene file: {}", sceneFile);
-                }
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
 }
 
 }

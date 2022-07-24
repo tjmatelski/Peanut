@@ -15,8 +15,6 @@ public:
 private:
     std::shared_ptr<Scene> m_scene;
     Entity m_selectedEntity;
-
-    void UpdateMenuBar();
 };
 
 }
