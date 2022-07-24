@@ -16,6 +16,8 @@
 
 namespace PEANUT {
 
+void UpdatePropertiesPanel(Entity selectedEntity);
+
 class MyApp : public Application {
 public:
     MyApp()
@@ -126,6 +128,7 @@ public:
         ImGui::DockSpace(ImGui::GetID("MyDockspace"));
 
         m_scenePanel.UpdateGui();
+        UpdatePropertiesPanel(m_scenePanel.GetSelectedEntity());
 
         ImGui::Begin("Viewport");
         ImGui::Image(reinterpret_cast<void*>(m_frameBuffer.GetColorbufferTextureID()), { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() });
