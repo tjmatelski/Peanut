@@ -18,7 +18,7 @@ void SceneHierarchyPanel::UpdateGui()
 {
     UpdateMenuBar();
 
-    ImGui::BeginChild("Scene");
+    ImGui::Begin("Scene");
     ImGui::Text("Scene Heirarchy");
     m_scene->ForEachEntity([&](Entity ent) {
         constexpr int treeNodeFlags = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
@@ -40,7 +40,7 @@ void SceneHierarchyPanel::UpdateGui()
         }
         ImGui::EndPopup();
     }
-    ImGui::EndChild();
+    ImGui::End();
 }
 
 void SceneHierarchyPanel::UpdateMenuBar()
