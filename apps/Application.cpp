@@ -96,7 +96,20 @@ public:
 
     void OnImGuiUpdate() override
     {
-        ImGui::Begin("Peanut Editor", nullptr, ImGuiWindowFlags_MenuBar); // Create a window called "Hello, world!" and append into it.
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar
+            | ImGuiWindowFlags_NoDocking
+            | ImGuiWindowFlags_NoTitleBar
+            | ImGuiWindowFlags_NoCollapse
+            | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoMove
+            | ImGuiWindowFlags_NoBringToFrontOnFocus
+            | ImGuiWindowFlags_NoNavFocus;
+
+        auto windowViewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowSize(windowViewport->Size);
+        ImGui::SetNextWindowPos(windowViewport->Pos);
+        ImGui::SetNextWindowViewport(windowViewport->ID);
+        ImGui::Begin("Peanut Editor", nullptr, windowFlags);
 
         if (ImGui::Button("Run")) {
             m_runtime = true;
@@ -110,10 +123,12 @@ public:
 
         ImGui::Separator();
 
+        ImGui::DockSpace(ImGui::GetID("MyDockspace"));
+
         m_scenePanel.UpdateGui();
 
         ImGui::Begin("Viewport");
-        ImGui::Image(reinterpret_cast<void*>(m_frameBuffer.GetColorbufferTextureID()), { 320, 180 });
+        ImGui::Image(reinterpret_cast<void*>(m_frameBuffer.GetColorbufferTextureID()), { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() });
         ImGui::End();
 
         ImGui::End();
