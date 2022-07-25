@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 
 #include "SceneHierarchyPanel.h"
+#include "ViewportPanel.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -17,7 +18,6 @@
 namespace PEANUT {
 
 void UpdatePropertiesPanel(Entity selectedEntity);
-void UpdateViewportPanel(const FrameBuffer& framebuffer);
 
 class MyApp : public Application {
 public:
@@ -28,6 +28,7 @@ public:
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
         , m_frameBuffer()
+        , m_viewportPanel()
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -69,6 +70,7 @@ public:
     {
         ImGuiBeginFrame();
         OnImGuiUpdate();
+        AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
 
         m_frameBuffer.Bind();
 
@@ -131,7 +133,7 @@ public:
         UpdateMenuBar();
         m_scenePanel.UpdateGui();
         UpdatePropertiesPanel(m_scenePanel.GetSelectedEntity());
-        UpdateViewportPanel(m_frameBuffer);
+        m_viewportPanel.Update(m_frameBuffer);
 
         ImGui::End();
     }
@@ -139,7 +141,6 @@ public:
     void OnEvent(Event& event) override
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
         if (ImGui::GetIO().WantCaptureMouse == false) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
@@ -149,10 +150,9 @@ public:
     }
 
 private:
-    void OnWindowResize(const WindowResizeEvent& e)
+    void AdjustRenderViewport(float width, float height)
     {
-        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
-        float aspectRatio = static_cast<float>(e.GetWidth()) / static_cast<float>(e.GetHeight());
+        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
     }
 
@@ -222,6 +222,7 @@ private:
     bool m_leftMousePressed = false;
     glm::vec2 m_mousePosition;
     FrameBuffer m_frameBuffer;
+    ViewportPanel m_viewportPanel;
 };
 
 Application* GetApplication()
