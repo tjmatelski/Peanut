@@ -141,7 +141,7 @@ public:
     void OnEvent(Event& event) override
     {
         Dispatcher dispatcher(event);
-        if (ImGui::GetIO().WantCaptureMouse == false) {
+        if (m_viewportPanel.IsHovered()) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
             dispatcher.Dispatch<MouseMovedEvent>([&](const MouseMovedEvent& e) { OnMouseMove(e); });
@@ -172,7 +172,7 @@ private:
         if (m_leftMousePressed) {
             glm::vec2 diff = newPos - m_mousePosition;
             diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
+            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y - diff.y);
         }
         m_mousePosition = newPos;
     }
