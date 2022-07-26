@@ -27,7 +27,7 @@ public:
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
-        , m_frameBuffer()
+        , m_frameBuffer({ GetWindow().GetWidth(), GetWindow().GetHeight() })
         , m_viewportPanel()
     {
         ImGui::CreateContext();
@@ -137,6 +137,7 @@ public:
     void OnEvent(Event& event) override
     {
         Dispatcher dispatcher(event);
+        dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
         if (m_viewportPanel.IsHovered()) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
@@ -150,6 +151,12 @@ private:
     {
         float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
+    }
+
+    void OnWindowResize(const WindowResizeEvent& e)
+    {
+        m_frameBuffer.Resize(e.GetWidth(), e.GetHeight());
+        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
     }
 
     void OnScroll(const ScrollEvent& e)
