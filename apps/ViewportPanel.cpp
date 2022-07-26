@@ -9,7 +9,7 @@ void ViewportPanel::Update(const FrameBuffer& framebuffer)
     m_height = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
     m_focused = ImGui::IsWindowFocused();
     m_hovered = ImGui::IsWindowHovered();
-    ImGui::Image(reinterpret_cast<void*>(framebuffer.GetColorbufferTextureID()), { m_width, m_height });
+    ImGui::Image(reinterpret_cast<void*>(framebuffer.GetColorbufferTextureID()), { m_width, m_height }, { 0, 1 }, { 1, 0 });
     ImGui::End();
 }
 }
