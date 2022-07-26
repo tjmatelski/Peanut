@@ -33,7 +33,9 @@ void Application::Run()
         TimeStep timeStep = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
+        OnPreUpdate();
         OnUpdate(timeStep);
+        OnPostUpdate();
 
         if (m_runtime) {
             UpdateLuaScripts(timeStep);

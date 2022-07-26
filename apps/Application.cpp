@@ -52,7 +52,7 @@ public:
     {
     }
 
-    void ImGuiBeginFrame()
+    void OnPreUpdate() override
     {
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -60,15 +60,8 @@ public:
         ImGui::NewFrame();
     }
 
-    void ImGuiEndFrame()
-    {
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    }
-
     void OnUpdate(TimeStep timeStep [[maybe_unused]]) override
     {
-        ImGuiBeginFrame();
         OnImGuiUpdate();
         AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
 
@@ -86,20 +79,25 @@ public:
         });
 
         m_frameBuffer.Unbind();
+    }
 
-        ImGuiEndFrame();
+    void OnPostUpdate() override
+    {
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     void OnRemove() override
     {
-        LOG_INFO("PEANUT!!!");
+        LOG_INFO("Closing Application");
+
         // Cleanup
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
 
-    void OnImGuiUpdate() override
+    void OnImGuiUpdate()
     {
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar
             | ImGuiWindowFlags_NoDocking

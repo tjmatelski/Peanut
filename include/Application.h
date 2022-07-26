@@ -16,12 +16,13 @@ public:
     Application();
     virtual void OnAttach() = 0;
     virtual void OnEvent(Event& event) = 0;
-    virtual void OnImGuiUpdate() { }
+    virtual void OnPreUpdate() { }
     virtual void OnUpdate(TimeStep timeStep) = 0;
+    virtual void OnPostUpdate() { }
     virtual void OnRemove() = 0;
 
     static inline const Application& Get() { return *s_application; }
-    inline const Window& GetWindow() const { return *m_window; }
+    [[nodiscard]] inline const Window& GetWindow() const { return *m_window; }
 
 protected:
     void Terminate();
