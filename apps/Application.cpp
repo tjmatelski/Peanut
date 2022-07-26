@@ -34,8 +34,6 @@ public:
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -139,7 +137,6 @@ public:
     void OnEvent(Event& event) override
     {
         Dispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
         if (m_viewportPanel.IsHovered()) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
@@ -153,11 +150,6 @@ private:
     {
         float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
-    }
-
-    void OnWindowResize(const WindowResizeEvent& e)
-    {
-        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
     }
 
     void OnScroll(const ScrollEvent& e)
