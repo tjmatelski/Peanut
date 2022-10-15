@@ -5,6 +5,7 @@
         "assimp",
         "entt",
         "glm",
-        "spdlog"
+        "spdlog",
+        "yaml-cpp"
     ]
 }
