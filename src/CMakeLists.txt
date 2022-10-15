@@ -35,6 +35,7 @@ find_package(OpenGL REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 target_include_directories(Peanut
     PUBLIC ../include
@@ -48,7 +49,7 @@ target_link_libraries(Peanut
         glfw
         OpenGL::GL
         glad
-        spdlog
+        spdlog::spdlog
         EnTT::EnTT
         glm::glm
     PRIVATE 
