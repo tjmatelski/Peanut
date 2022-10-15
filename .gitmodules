@@ -14,9 +14,6 @@
 [submodule "extern/yaml-cpp"]
 	path = extern/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "extern/entt"]
-	path = extern/entt
-	url = https://github.com/skypjack/entt.git
 [submodule "extern/sol2"]
 	path = extern/sol2
 	url = https://github.com/ThePhD/sol2.git
