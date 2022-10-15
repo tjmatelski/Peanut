@@ -17,9 +17,9 @@
 [submodule "extern/entt"]
 	path = extern/entt
 	url = https://github.com/skypjack/entt.git
-[submodule "extern/assimp"]
-	path = extern/assimp
-	url = https://github.com/assimp/assimp.git
 [submodule "extern/sol2"]
 	path = extern/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "extern/vcpkg"]
+	path = extern/vcpkg
+	url = https://github.com/Microsoft/vcpkg.git

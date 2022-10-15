@@ -1,0 +1,7 @@
+{
+    "name": "peanut",
+    "version": "0.1",
+    "dependencies": [
+        "assimp"
+    ]
+}
