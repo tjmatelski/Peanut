@@ -34,6 +34,7 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 find_package(OpenGL REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
 target_include_directories(Peanut
     PUBLIC ../include
@@ -49,7 +50,7 @@ target_link_libraries(Peanut
         glad
         spdlog
         EnTT::EnTT
-        glm
+        glm::glm
     PRIVATE 
         yaml-cpp
         assimp::assimp
