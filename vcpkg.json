@@ -4,6 +4,7 @@
     "dependencies": [
         "assimp",
         "entt",
+        "glad",
         "glm",
         "spdlog",
         "yaml-cpp"

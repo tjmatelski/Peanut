@@ -34,6 +34,7 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 find_package(OpenGL REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
@@ -49,7 +50,7 @@ target_link_libraries(Peanut
     PUBLIC
         glfw
         OpenGL::GL
-        glad
+        glad::glad
         spdlog::spdlog
         EnTT::EnTT
         glm::glm
