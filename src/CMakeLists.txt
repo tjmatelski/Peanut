@@ -37,6 +37,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(Lua REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
@@ -46,7 +47,7 @@ target_include_directories(Peanut
     PRIVATE ${GTKMM_INCLUDE_DIRS}
 )
 
-target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS})
+target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS} ${LUA_INCLUDE_DIRS})
 
 target_link_libraries(Peanut
     PUBLIC
@@ -61,7 +62,7 @@ target_link_libraries(Peanut
         assimp::assimp
         ${GTKMM_LIBRARIES}
         sol2
-        lua
+        ${LUA_LIBRARIES}
 )
 target_compile_features(Peanut PUBLIC cxx_std_17)
 target_compile_options(Peanut PUBLIC -fPIC PRIVATE -Wall -Wextra -Wpedantic -Werror)
