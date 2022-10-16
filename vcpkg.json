@@ -5,6 +5,7 @@
         "assimp",
         "entt",
         "glad",
+        "glfw3",
         "glm",
         "spdlog",
         "yaml-cpp"

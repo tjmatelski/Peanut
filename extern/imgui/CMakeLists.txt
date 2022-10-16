@@ -11,5 +11,6 @@ add_library(imgui SHARED
 target_include_directories(imgui PUBLIC imgui imgui/backends)
 find_package(OpenGL REQUIRED)
 find_package(glad CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(imgui PRIVATE glfw OpenGL::GL glad::glad)
 target_compile_definitions(imgui PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
