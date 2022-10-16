@@ -15,5 +15,4 @@ unset(CMAKE_CXX_CLANG_TIDY)
 
 add_subdirectory(extern/imgui)
 option(SPDLOG_BUILD_SHARED "" ${BUILD_SHARED_LIBS})
-add_subdirectory(extern/sol2)
 add_subdirectory(extern/lua)

@@ -2,9 +2,6 @@
 	path = extern/imgui/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
-[submodule "extern/sol2"]
-	path = extern/sol2
-	url = https://github.com/ThePhD/sol2.git
 [submodule "extern/vcpkg"]
 	path = extern/vcpkg
 	url = https://github.com/Microsoft/vcpkg.git
