@@ -12,5 +12,3 @@ endif()
 add_subdirectory(apps)
 add_subdirectory(src)
 unset(CMAKE_CXX_CLANG_TIDY)
-
-add_subdirectory(extern/imgui)
