@@ -28,9 +28,6 @@ add_library(Peanut SHARED
     Platform/Linux/GtkFileSelectorDialog.cpp
 )
 
-find_package(PkgConfig)
-pkg_check_modules(GTKMM gtkmm-3.0)
-
 find_package(OpenGL REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
@@ -42,13 +39,17 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 
+file(GLOB VCPKG_PKG_CONFIG_DIRS LIST_DIRECTORIES true ${CMAKE_SOURCE_DIR}/extern/vcpkg/packages/*/lib/pkgconfig/)
+list(JOIN VCPKG_PKG_CONFIG_DIRS ":" VCPKG_PKG_CONFIG_DIRS)
+message(${VCPKG_PKG_CONFIG_DIRS})
+find_package(PkgConfig REQUIRED)
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}":"${VCPKG_PKG_CONFIG_DIRS})
+pkg_check_modules(GTKMM_LIB REQUIRED IMPORTED_TARGET gtkmm-4.0)
+
 target_include_directories(Peanut
     PUBLIC ../include
-    PRIVATE ${GTKMM_INCLUDE_DIRS}
+    PRIVATE ${LUA_INCLUDE_DIRS} ${GTKMM_INCLUDE_DIRS_DEBUG}
 )
-
-target_link_directories(Peanut PRIVATE ${GTKMM_LIBRARY_DIRS} ${LUA_INCLUDE_DIRS})
-
 target_link_libraries(Peanut
     PUBLIC
         glfw
@@ -60,7 +61,7 @@ target_link_libraries(Peanut
     PRIVATE 
         yaml-cpp
         assimp::assimp
-        ${GTKMM_LIBRARIES}
+        PkgConfig::GTKMM_LIB
         sol2
         ${LUA_LIBRARIES}
 )
