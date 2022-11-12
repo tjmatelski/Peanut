@@ -5,6 +5,7 @@ project(Peanut
     LANGUAGES CXX)
 
 set(LINT_WITH_CLANG_TIDY OFF CACHE BOOL "Use clang-tidy to perform static analysis when building")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if ("${LINT_WITH_CLANG_TIDY}")
     set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++17)
