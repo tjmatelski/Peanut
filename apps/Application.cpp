@@ -1,6 +1,9 @@
 #include <Peanut.h>
 #include <glad/glad.h>
 
+#include "Renderer/Model.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/Shader.h"
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
 #include <imgui.h>
@@ -29,6 +32,8 @@ public:
         , m_mousePosition(0.0f, 0.0f)
         , m_frameBuffer({ GetWindow().GetWidth(), GetWindow().GetHeight() })
         , m_viewportPanel()
+        , m_backpack("./res/models/backpack/backpack.obj")
+        , m_lightingShader("./res/shaders/Lighting.shader")
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -75,6 +80,12 @@ public:
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
             }
         });
+        m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
+        m_lightingShader.SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
+        m_lightingShader.SetUniformVec3("viewPos", m_orthoCamera.GetPosition());
+        m_lightingShader.SetUniformMat4("model", glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, 0.0f }));
+        Renderer::SetDirectionalLight({ { -0.2, -1.0, -0.3 } }, m_lightingShader);
+        Renderer::Draw(m_backpack, m_lightingShader);
 
         m_frameBuffer.Unbind();
     }
@@ -226,6 +237,8 @@ private:
     glm::vec2 m_mousePosition;
     FrameBuffer m_frameBuffer;
     ViewportPanel m_viewportPanel;
+    Model m_backpack;
+    Shader m_lightingShader;
 };
 
 Application* GetApplication()
