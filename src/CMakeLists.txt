@@ -11,6 +11,7 @@ add_library(Peanut SHARED
     OpenGLRenderer/IndexBuffer.cpp
     OpenGLRenderer/Mesh.cpp
     OpenGLRenderer/Model.cpp
+    OpenGLRenderer/ModelLibrary.cpp
     OpenGLRenderer/OrthoCamera.cpp
     OpenGLRenderer/PerspectiveCamera.cpp
     OpenGLRenderer/Renderer.cpp
