@@ -82,6 +82,13 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         out << YAML::EndMap;
     }
 
+    if (ent.Has<ModelFileComponent>()) {
+        auto scriptPath = ent.Get<ModelFileComponent>().file;
+        out << YAML::Key << "ModelFileComponent" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "File" << YAML::Value << std::filesystem::relative(scriptPath, sceneFile.parent_path());
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 }
@@ -133,6 +140,12 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             auto& component = sceneEnt.Add<LuaScriptComponent>();
             std::filesystem::path relative(entity["LuaScriptComponent"]["Script"].as<std::string>());
             component.script = projectDir / relative;
+        }
+
+        if (entity["ModelFileComponent"]) {
+            auto& component = sceneEnt.Add<ModelFileComponent>();
+            std::filesystem::path relative(entity["ModelFileComponent"]["File"].as<std::string>());
+            component.file = projectDir / relative;
         }
     }
 }

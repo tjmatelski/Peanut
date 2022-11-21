@@ -5,6 +5,7 @@
 #include "Renderer/ModelLibrary.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
+#include "Scene/Component.h"
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
 #include <imgui.h>
@@ -80,12 +81,16 @@ public:
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
             }
         });
-        m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
-        m_lightingShader.SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
-        m_lightingShader.SetUniformVec3("viewPos", m_orthoCamera.GetPosition());
-        m_lightingShader.SetUniformMat4("model", glm::translate(glm::mat4(1.0f), { 0.0f, 0.0f, 0.0f }));
-        Renderer::SetDirectionalLight({ { -0.2, -1.0, -0.3 } }, m_lightingShader);
-        Renderer::Draw(ModelLibrary::Get("./res/models/backpack/backpack.obj"), m_lightingShader);
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<ModelFileComponent>()) {
+                m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
+                m_lightingShader.SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
+                m_lightingShader.SetUniformVec3("viewPos", m_orthoCamera.GetPosition());
+                m_lightingShader.SetUniformMat4("model", ent.Get<TransformComponent>());
+                Renderer::SetDirectionalLight({ { -0.2, -1.0, -0.3 } }, m_lightingShader);
+                Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), m_lightingShader);
+            }
+        });
 
         m_frameBuffer.Unbind();
     }

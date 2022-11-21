@@ -18,7 +18,7 @@ Application* Application::s_application = nullptr;
 Application::Application()
     : m_scene(std::make_shared<Scene>())
 {
-    spdlog::set_level(spdlog::level::debug);
+    spdlog::set_level(spdlog::level::trace);
 
     s_application = this;
     m_window = std::make_unique<Window>("Peanut", 800, 600);

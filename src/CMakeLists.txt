@@ -40,12 +40,8 @@ find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 
-file(GLOB VCPKG_PKG_CONFIG_DIRS LIST_DIRECTORIES true ${CMAKE_SOURCE_DIR}/extern/vcpkg/packages/*/lib/pkgconfig/)
-list(JOIN VCPKG_PKG_CONFIG_DIRS ":" VCPKG_PKG_CONFIG_DIRS)
-message(${VCPKG_PKG_CONFIG_DIRS})
-find_package(PkgConfig REQUIRED)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}":"${VCPKG_PKG_CONFIG_DIRS})
-pkg_check_modules(GTKMM_LIB REQUIRED IMPORTED_TARGET gtkmm-4.0)
+find_package(PkgConfig)
+pkg_check_modules(GTKMM_LIB REQUIRED IMPORTED_TARGET gtkmm-3.0)
 
 target_include_directories(Peanut
     PUBLIC ../include

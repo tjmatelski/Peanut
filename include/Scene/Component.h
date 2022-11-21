@@ -48,4 +48,8 @@ struct LuaScriptComponent {
     std::filesystem::path script;
 };
 
+struct ModelFileComponent {
+    std::filesystem::path file;
+};
+
 }

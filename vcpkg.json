@@ -7,7 +7,6 @@
         "glad",
         "glfw3",
         "glm",
-        "gtkmm",
         {
             "name": "imgui",
             "features": [

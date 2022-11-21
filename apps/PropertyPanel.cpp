@@ -1,4 +1,6 @@
 #include "../src/Settings.h" // TODO: Handle settings properly.
+#include "FileSelectorDialog.h"
+#include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include <Peanut.h>
 
@@ -74,6 +76,16 @@ void DrawComponentSpecifics<LuaScriptComponent>(Entity m_selectedEntity)
     }
 }
 
+template <>
+void DrawComponentSpecifics<ModelFileComponent>(Entity ent)
+{
+    auto& comp = ent.Get<ModelFileComponent>();
+    ImGui::Text("%s", comp.file.c_str());
+    if (ImGui::Button("...")) {
+        comp.file = CreateFileSelectorDialog()->OpenFile().value_or(comp.file);
+    }
+}
+
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 {
     ImGui::Begin("Properties Panel");
@@ -82,6 +94,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<TransformComponent>("Transform", m_selectedEntity);
         DrawComponent<SpriteRenderComponent>("Sprite Render", m_selectedEntity);
         DrawComponent<LuaScriptComponent>("LUA Script", m_selectedEntity);
+        DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -98,6 +111,13 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                 if (std::filesystem::exists(scriptFile)) {
                     auto& comp = m_selectedEntity.Add<LuaScriptComponent>();
                     comp.script = scriptFile;
+                }
+            }
+            if (ImGui::MenuItem("Model File")) {
+                auto file = CreateFileSelectorDialog()->OpenFile().value_or("");
+                if (std::filesystem::exists(file)) {
+                    auto& comp = m_selectedEntity.Add<ModelFileComponent>();
+                    comp.file = file;
                 }
             }
             ImGui::EndPopup();
