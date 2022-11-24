@@ -84,7 +84,12 @@ public:
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<DirectionalLightComponent>()) {
                 auto& comp = ent.Get<DirectionalLightComponent>();
-                Renderer::SetDirectionalLight({ comp.direction }, m_lightingShader);
+                Renderer::SetDirectionalLight(
+                    { comp.direction,
+                        { comp.ambient, comp.ambient, comp.ambient },
+                        { comp.diffuse, comp.diffuse, comp.diffuse },
+                        { comp.specular, comp.specular, comp.specular } },
+                    m_lightingShader);
             }
         });
         m_scene->ForEachEntity([&](Entity ent) {

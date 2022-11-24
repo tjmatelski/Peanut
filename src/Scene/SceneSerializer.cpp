@@ -95,6 +95,9 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         auto& light = ent.Get<DirectionalLightComponent>();
         out << YAML::Key << "DirectionalLightComponent" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "Direction" << YAML::Value << light.direction;
+        out << YAML::Key << "Ambient" << YAML::Value << light.ambient;
+        out << YAML::Key << "Diffuse" << YAML::Value << light.diffuse;
+        out << YAML::Key << "Specular" << YAML::Value << light.specular;
         out << YAML::EndMap;
     }
 
@@ -160,6 +163,9 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
         if (entity["DirectionalLightComponent"]) {
             auto& comp = sceneEnt.Add<DirectionalLightComponent>();
             comp.direction = entity["DirectionalLightComponent"]["Direction"].as<glm::vec3>();
+            comp.ambient = entity["DirectionalLightComponent"]["Ambient"].as<float>();
+            comp.diffuse = entity["DirectionalLightComponent"]["Diffuse"].as<float>();
+            comp.specular = entity["DirectionalLightComponent"]["Specular"].as<float>();
         }
     }
 }

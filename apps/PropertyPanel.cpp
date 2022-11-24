@@ -92,6 +92,9 @@ void DrawComponentSpecifics<DirectionalLightComponent>(Entity ent)
 {
     auto& comp = ent.Get<DirectionalLightComponent>();
     ImGui::DragFloat3("Direction", glm::value_ptr(comp.direction), 0.01f, -1.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Ambient", &comp.ambient, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Diffuse", &comp.diffuse, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Specular", &comp.specular, 0.01f, 0.0f, 1.0f, "%.2f");
 }
 
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)

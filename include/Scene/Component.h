@@ -53,7 +53,10 @@ struct ModelFileComponent {
 };
 
 struct DirectionalLightComponent {
-    glm::vec3 direction;
+    glm::vec3 direction = { 0.0f, -1.0f, 0.0f };
+    float ambient = 0.05f;
+    float diffuse = 0.4f;
+    float specular = 0.5f;
 };
 
 }
