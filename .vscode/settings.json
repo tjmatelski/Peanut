@@ -15,7 +15,10 @@
         "-std=c++17",
     ],
     "clangd.arguments": [
-        "--query-driver=/usr/bin/c++"
+        "--query-driver=/usr/bin/c++",
+        "--background-index",
+        "--clang-tidy",
+        "--compile-commands-dir=${workspaceFolder}/build"
     ],
     "files.associations": {
         "array": "cpp",
