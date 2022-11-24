@@ -3,6 +3,7 @@
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include <Peanut.h>
+#include <imgui.h>
 
 namespace {
 
@@ -86,6 +87,13 @@ void DrawComponentSpecifics<ModelFileComponent>(Entity ent)
     }
 }
 
+template <>
+void DrawComponentSpecifics<DirectionalLightComponent>(Entity ent)
+{
+    auto& comp = ent.Get<DirectionalLightComponent>();
+    ImGui::DragFloat3("Direction", glm::value_ptr(comp.direction), 0.01f, -1.0f, 1.0f, "%.2f");
+}
+
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 {
     ImGui::Begin("Properties Panel");
@@ -95,6 +103,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<SpriteRenderComponent>("Sprite Render", m_selectedEntity);
         DrawComponent<LuaScriptComponent>("LUA Script", m_selectedEntity);
         DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
+        DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -119,6 +128,9 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                     auto& comp = m_selectedEntity.Add<ModelFileComponent>();
                     comp.file = file;
                 }
+            }
+            if (ImGui::MenuItem("Directional Light")) {
+                m_selectedEntity.Add<DirectionalLightComponent>();
             }
             ImGui::EndPopup();
         }

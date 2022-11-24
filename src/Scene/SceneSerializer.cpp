@@ -3,6 +3,8 @@
 #include <Scene/Entity.h>
 #include <Scene/Scene.h>
 #include <Scene/SceneSerializer.h>
+#include <glm/fwd.hpp>
+#include <yaml-cpp/emittermanip.h>
 #include <yaml-cpp/yaml.h>
 
 #include <filesystem>
@@ -89,6 +91,13 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         out << YAML::EndMap;
     }
 
+    if (ent.Has<DirectionalLightComponent>()) {
+        auto& light = ent.Get<DirectionalLightComponent>();
+        out << YAML::Key << "DirectionalLightComponent" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Direction" << YAML::Value << light.direction;
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 }
@@ -146,6 +155,11 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             auto& component = sceneEnt.Add<ModelFileComponent>();
             std::filesystem::path relative(entity["ModelFileComponent"]["File"].as<std::string>());
             component.file = projectDir / relative;
+        }
+
+        if (entity["DirectionalLightComponent"]) {
+            auto& comp = sceneEnt.Add<DirectionalLightComponent>();
+            comp.direction = entity["DirectionalLightComponent"]["Direction"].as<glm::vec3>();
         }
     }
 }

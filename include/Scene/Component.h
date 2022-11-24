@@ -52,4 +52,8 @@ struct ModelFileComponent {
     std::filesystem::path file;
 };
 
+struct DirectionalLightComponent {
+    glm::vec3 direction;
+};
+
 }

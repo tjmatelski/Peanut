@@ -82,12 +82,17 @@ public:
             }
         });
         m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<DirectionalLightComponent>()) {
+                auto& comp = ent.Get<DirectionalLightComponent>();
+                Renderer::SetDirectionalLight({ comp.direction }, m_lightingShader);
+            }
+        });
+        m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<ModelFileComponent>()) {
                 m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
                 m_lightingShader.SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
                 m_lightingShader.SetUniformVec3("viewPos", m_orthoCamera.GetPosition());
                 m_lightingShader.SetUniformMat4("model", ent.Get<TransformComponent>());
-                Renderer::SetDirectionalLight({ { -0.2, -1.0, -0.3 } }, m_lightingShader);
                 Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), m_lightingShader);
             }
         });
