@@ -101,6 +101,19 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         out << YAML::EndMap;
     }
 
+    if (ent.Has<PointLightComponent>()) {
+        auto& light = ent.Get<PointLightComponent>();
+        out << YAML::Key << "PointLightComponent" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Color" << YAML::Value << light.color;
+        out << YAML::Key << "Ambient" << YAML::Value << light.ambient;
+        out << YAML::Key << "Diffuse" << YAML::Value << light.diffuse;
+        out << YAML::Key << "Specular" << YAML::Value << light.specular;
+        out << YAML::Key << "Constant" << YAML::Value << light.constant;
+        out << YAML::Key << "Linear" << YAML::Value << light.linear;
+        out << YAML::Key << "Quadratic" << YAML::Value << light.quadratic;
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 }
@@ -166,6 +179,17 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             comp.ambient = entity["DirectionalLightComponent"]["Ambient"].as<float>();
             comp.diffuse = entity["DirectionalLightComponent"]["Diffuse"].as<float>();
             comp.specular = entity["DirectionalLightComponent"]["Specular"].as<float>();
+        }
+
+        if (entity["PointLightComponent"]) {
+            auto& comp = sceneEnt.Add<PointLightComponent>();
+            comp.color = entity["PointLightComponent"]["Color"].as<glm::vec3>();
+            comp.ambient = entity["PointLightComponent"]["Ambient"].as<float>();
+            comp.diffuse = entity["PointLightComponent"]["Diffuse"].as<float>();
+            comp.specular = entity["PointLightComponent"]["Specular"].as<float>();
+            comp.constant = entity["PointLightComponent"]["Constant"].as<float>();
+            comp.linear = entity["PointLightComponent"]["Linear"].as<float>();
+            comp.quadratic = entity["PointLightComponent"]["Quadratic"].as<float>();
         }
     }
 }

@@ -1,6 +1,7 @@
 #include <Peanut.h>
 #include <glad/glad.h>
 
+#include "Renderer/Lights.h"
 #include "Renderer/Model.h"
 #include "Renderer/ModelLibrary.h"
 #include "Renderer/Renderer.h"
@@ -16,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <vector>
 
 // Temporary
 #include "../src/OpenGLRenderer/GLDebug.h"
@@ -75,12 +77,14 @@ public:
         Renderer::ClearBuffers();
 
         Renderer2D::BeginScene(m_orthoCamera);
+
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<SpriteRenderComponent>()) {
                 const auto& spriteRender = ent.Get<SpriteRenderComponent>();
                 Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
             }
         });
+
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<DirectionalLightComponent>()) {
                 auto& comp = ent.Get<DirectionalLightComponent>();
@@ -92,6 +96,25 @@ public:
                     m_lightingShader);
             }
         });
+
+        std::vector<PointLight> pointLights;
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<PointLightComponent>()) {
+                auto& comp = ent.Get<PointLightComponent>();
+                PointLight pl;
+                pl.active = true;
+                pl.position = ent.Get<TransformComponent>().translation;
+                pl.ambient = comp.ambient * comp.color;
+                pl.diffuse = comp.diffuse * comp.color;
+                pl.specular = comp.specular * comp.color;
+                pl.constant = comp.constant;
+                pl.linear = comp.linear;
+                pl.quadratic = comp.quadratic;
+                pointLights.push_back(pl);
+            }
+        });
+        Renderer::SetPointLights(pointLights, m_lightingShader);
+
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<ModelFileComponent>()) {
                 m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());

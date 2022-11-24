@@ -97,6 +97,19 @@ void DrawComponentSpecifics<DirectionalLightComponent>(Entity ent)
     ImGui::DragFloat("Specular", &comp.specular, 0.01f, 0.0f, 1.0f, "%.2f");
 }
 
+template <>
+void DrawComponentSpecifics<PointLightComponent>(Entity ent)
+{
+    auto& comp = ent.Get<PointLightComponent>();
+    ImGui::DragFloat3("Color", glm::value_ptr(comp.color), 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Ambient", &comp.ambient, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Diffuse", &comp.diffuse, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Specular", &comp.specular, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Constant", &comp.constant, 0.01f, 0.0f, 1.0f, "%.2f");
+    ImGui::DragFloat("Linear", &comp.linear, 0.001f, 0.0f, 1.0f, "%.3f");
+    ImGui::DragFloat("Quadratic", &comp.quadratic, 0.001f, 0.0f, 2.0f, "%.3f");
+}
+
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 {
     ImGui::Begin("Properties Panel");
@@ -107,6 +120,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<LuaScriptComponent>("LUA Script", m_selectedEntity);
         DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
         DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
+        DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -134,6 +148,9 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
             }
             if (ImGui::MenuItem("Directional Light")) {
                 m_selectedEntity.Add<DirectionalLightComponent>();
+            }
+            if (ImGui::MenuItem("Point Light")) {
+                m_selectedEntity.Add<PointLightComponent>();
             }
             ImGui::EndPopup();
         }

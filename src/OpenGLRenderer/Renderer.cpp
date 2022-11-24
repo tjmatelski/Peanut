@@ -146,11 +146,11 @@ void Renderer::SetDirectionalLight(const DirectionalLight& dirLight, Shader& sha
 void Renderer::SetPointLights(const std::vector<PointLight>& lights, Shader& shader)
 {
     for (int i = 0; i < MAX_POINT_LIGHTS; ++i) {
-        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].active", false);
+        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].is_active", false);
     }
     unsigned int i = 0;
     for (const auto& light : lights) {
-        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].active", light.active);
+        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].is_active", light.active);
         shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].position", light.position);
         shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].ambient", light.ambient);
         shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].diffuse", light.diffuse);
