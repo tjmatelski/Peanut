@@ -1,4 +1,3 @@
-#include "../src/Settings.h" // TODO: Handle settings properly.
 #include "FileSelectorDialog.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
@@ -130,7 +129,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
             if (ImGui::MenuItem("Sprite Render Component")) {
                 auto& comp = m_selectedEntity.Add<SpriteRenderComponent>();
                 comp.color = { 1.0, 1.0, 1.0 };
-                comp.texture = Settings::GetResourceDir() / "textures" / "BlankSquare.png";
+                comp.texture = "textures/BlankSquare.png";
             }
             if (ImGui::MenuItem("LUA Script")) {
                 auto scriptFile = CreateFileSelectorDialog()->OpenFile().value_or("");

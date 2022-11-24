@@ -1,5 +1,6 @@
 #include "../Settings.h"
 #include "GLDebug.h"
+#include "Renderer/TextureLibrary.h"
 #include <Renderer/IndexBuffer.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
@@ -13,7 +14,6 @@ struct QuadRenderData {
     std::shared_ptr<VertexArray> vertexArray;
     std::shared_ptr<IndexBuffer> indexBuffer;
     std::shared_ptr<Shader> shader;
-    std::shared_ptr<Texture> blankTexture;
 };
 
 static QuadRenderData s_quadRenderData;
@@ -40,7 +40,6 @@ void Renderer2D::Init()
     s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(indices.size(), indices.data());
 
     s_quadRenderData.shader = std::make_unique<Shader>(Settings::GetResourceDir() / "shaders" / "Generic2D.shader");
-    s_quadRenderData.blankTexture = std::make_unique<Texture>(Settings::GetResourceDir() / "textures" / "BlankSquare.png");
 }
 
 void Renderer2D::BeginScene(const OrthoCamera& camera)
@@ -51,7 +50,7 @@ void Renderer2D::BeginScene(const OrthoCamera& camera)
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec3& color)
 {
-    DrawQuad(transform, color, *s_quadRenderData.blankTexture);
+    DrawQuad(transform, color, TextureLibrary::Load("textures/BlankSquare.png"));
 }
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const Texture& texture)

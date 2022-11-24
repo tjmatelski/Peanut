@@ -6,12 +6,6 @@
 
 namespace PEANUT {
 
-std::filesystem::path Settings::GetBuildDir()
-{
-    LOG_ERROR("Build directory is not supported yet");
-    return {};
-}
-
 void Settings::SetApplication(std::filesystem::path path)
 {
     path = path.parent_path();

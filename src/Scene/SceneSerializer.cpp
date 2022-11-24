@@ -73,7 +73,7 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         const SpriteRenderComponent& spriteRenderComp = ent.Get<SpriteRenderComponent>();
         out << YAML::Key << "Color" << YAML::Value << spriteRenderComp.color;
         std::filesystem::path texPath(spriteRenderComp.texture);
-        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, sceneFile.parent_path());
+        out << YAML::Key << "Texture" << YAML::Value << std::filesystem::relative(texPath, Settings::GetResourceDir());
         out << YAML::EndMap;
     }
 
@@ -87,7 +87,7 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
     if (ent.Has<ModelFileComponent>()) {
         auto scriptPath = ent.Get<ModelFileComponent>().file;
         out << YAML::Key << "ModelFileComponent" << YAML::Value << YAML::BeginMap;
-        out << YAML::Key << "File" << YAML::Value << std::filesystem::relative(scriptPath, sceneFile.parent_path());
+        out << YAML::Key << "File" << YAML::Value << std::filesystem::relative(scriptPath, Settings::GetResourceDir());
         out << YAML::EndMap;
     }
 

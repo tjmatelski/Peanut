@@ -6,7 +6,6 @@ namespace PEANUT {
 class Settings {
 public:
     static std::filesystem::path GetResourceDir() { return GetApplicationDir() / "res"; }
-    static std::filesystem::path GetBuildDir();
     static void SetApplication(std::filesystem::path path);
     static std::filesystem::path GetApplicationDir() { return GetInstance().m_applicationDir; }
 
