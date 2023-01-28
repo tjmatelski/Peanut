@@ -3,10 +3,13 @@ add_executable(Application
     SceneHierarchyPanel.cpp
     PropertyPanel.cpp
     ViewportPanel.cpp
+    ${CMAKE_SOURCE_DIR}/build/imgui_impl_glfw.cpp
+    ${CMAKE_SOURCE_DIR}/build/imgui_impl_opengl3.cpp
     )
 
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(Application PRIVATE Peanut dl imgui::imgui)
+target_include_directories(Application PRIVATE ${CMAKE_SOURCE_DIR}/build)
 target_compile_options(Application PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_features(Application PRIVATE cxx_std_17)
 add_dependencies(Application copy-res)

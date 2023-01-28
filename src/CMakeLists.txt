@@ -35,7 +35,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-find_package(Lua REQUIRED)
+find_package(Lua CONFIG REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
@@ -59,7 +59,7 @@ target_link_libraries(Peanut
         yaml-cpp
         assimp::assimp
         PkgConfig::GTKMM_LIB
-        sol2
+        sol2::sol2
         ${LUA_LIBRARIES}
 )
 target_compile_features(Peanut PUBLIC cxx_std_17)

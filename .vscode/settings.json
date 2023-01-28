@@ -4,12 +4,16 @@
     "cmake.configureSettings": {
         "BUILD_SHARED_LIBS": "ON",
         "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build/install",
-        "CMAKE_TOOLCHAIN_FILE": "${workspaceFolder}/extern/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_MODULE_PATH": "${workspaceFolder}/build",
+        "CMAKE_PREFIX_PATH": "${workspaceFolder}/build",
     },
+    "cmake.configureArgs": [
+        //"--trace"
+    ],
     "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
-    "C_Cpp.intelliSenseEngine": "Disabled",
-    "C_Cpp.autocomplete": "Disabled",
-    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "C_Cpp.autocomplete": "disabled",
+    "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
     "C_Cpp.codeAnalysis.clangTidy.args": [
         "-std=c++17",

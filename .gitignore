@@ -37,3 +37,4 @@ build/
 .cache/
 
 imgui.ini
+conan_imports_manifest.txt
