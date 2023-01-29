@@ -13,10 +13,11 @@ yaml-cpp/0.7.0
 
 [generators]
 cmake_find_package_multi
+CMakeToolchain
 
 [imports]
-res/bindings, imgui_impl_glfw.cpp -> ./build
-res/bindings, imgui_impl_opengl3.cpp -> ./build
-res/bindings, imgui_impl_glfw.h -> ./build
-res/bindings, imgui_impl_opengl3.h -> ./build
-res/bindings, imgui_impl_opengl3_loader.h -> ./build
+res/bindings, imgui_impl_glfw.cpp -> ./imports
+res/bindings, imgui_impl_opengl3.cpp -> ./imports
+res/bindings, imgui_impl_glfw.h -> ./imports
+res/bindings, imgui_impl_opengl3.h -> ./imports
+res/bindings, imgui_impl_opengl3_loader.h -> ./imports
