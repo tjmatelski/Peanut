@@ -32,9 +32,10 @@
 *.app
 
 # Build Directory
-build/
+build*/
 .vscode/c_cpp_properties.json
 .cache/
 
 imgui.ini
 conan_imports_manifest.txt
+CMakeUserPresets.json
