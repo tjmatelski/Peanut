@@ -170,7 +170,7 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
         if (entity["ModelFileComponent"]) {
             auto& component = sceneEnt.Add<ModelFileComponent>();
             std::filesystem::path relative(entity["ModelFileComponent"]["File"].as<std::string>());
-            component.file = projectDir / relative;
+            component.file = Settings::GetResourceDir() / relative;
         }
 
         if (entity["DirectionalLightComponent"]) {
