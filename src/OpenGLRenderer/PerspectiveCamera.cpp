@@ -14,7 +14,7 @@ PerspectiveCamera::PerspectiveCamera(const glm::vec3& position)
     UpdateProjection();
 }
 
-glm::mat4 PerspectiveCamera::GetView() const
+glm::mat4 PerspectiveCamera::GetViewMatrix() const
 {
     return glm::lookAt(m_position, m_position + m_front, m_up);
 }

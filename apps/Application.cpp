@@ -1,9 +1,11 @@
 #include <Peanut.h>
 #include <glad/glad.h>
 
+#include "KeyCodes.h"
 #include "Renderer/Lights.h"
 #include "Renderer/Model.h"
 #include "Renderer/ModelLibrary.h"
+#include "Renderer/PerspectiveCamera.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Scene/Component.h"
@@ -32,6 +34,7 @@ public:
         : Application()
         , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
+        , m_perspectiveCam({ 0.0, 0.0, 0.0 })
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
         , m_frameBuffer({ GetWindow().GetWidth(), GetWindow().GetHeight() })
@@ -66,8 +69,9 @@ public:
         ImGui::NewFrame();
     }
 
-    void OnUpdate(TimeStep timeStep [[maybe_unused]]) override
+    void OnUpdate(TimeStep timeStep) override
     {
+        UpdateCameraPosition(timeStep);
         OnImGuiUpdate();
         AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
 
@@ -117,9 +121,9 @@ public:
 
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<ModelFileComponent>()) {
-                m_lightingShader.SetUniformMat4("view", m_orthoCamera.GetViewMatrix());
-                m_lightingShader.SetUniformMat4("projection", m_orthoCamera.GetProjectionMatrix());
-                m_lightingShader.SetUniformVec3("viewPos", m_orthoCamera.GetPosition());
+                m_lightingShader.SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
+                m_lightingShader.SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+                m_lightingShader.SetUniformVec3("viewPos", m_perspectiveCam.GetPosition());
                 m_lightingShader.SetUniformMat4("model", ent.Get<TransformComponent>());
                 Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), m_lightingShader);
             }
@@ -200,6 +204,7 @@ private:
     {
         float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
+        m_perspectiveCam.SetAspectRatio(width, height);
     }
 
     void OnWindowResize(const WindowResizeEvent& e)
@@ -216,15 +221,21 @@ private:
     void OnMouseButton(const MouseButtonEvent& event)
     {
         m_leftMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_LEFT && event.Pressed();
+        m_rightMousePressed = event.GetButton() == MouseCode::MOUSE_BUTTON_RIGHT && event.Pressed();
     }
 
     void OnMouseMove(const MouseMovedEvent& event)
     {
         glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
+        glm::vec2 diff = newPos - m_mousePosition;
+        diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
         if (m_leftMousePressed) {
-            glm::vec2 diff = newPos - m_mousePosition;
-            diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
+        }
+        if (m_rightMousePressed) {
+            constexpr float rotateScale = 25.0;
+            m_perspectiveCam.PitchBy(-diff.y * rotateScale);
+            m_perspectiveCam.YawBy(diff.x * rotateScale);
         }
         m_mousePosition = newPos;
     }
@@ -269,9 +280,33 @@ private:
         }
     }
 
+    void UpdateCameraPosition(double dt)
+    {
+        if (Input::IsKeyPressed(KeyCode::W)) {
+            m_perspectiveCam.MoveForward(dt);
+        }
+        if (Input::IsKeyPressed(KeyCode::A)) {
+            m_perspectiveCam.MoveLeft(dt);
+        }
+        if (Input::IsKeyPressed(KeyCode::S)) {
+            m_perspectiveCam.MoveBackward(dt);
+        }
+        if (Input::IsKeyPressed(KeyCode::D)) {
+            m_perspectiveCam.MoveRight(dt);
+        }
+        if (Input::IsKeyPressed(KeyCode::LEFT_SHIFT)) {
+            m_perspectiveCam.MoveUp(dt);
+        }
+        if (Input::IsKeyPressed(KeyCode::LEFT_CONTROL)) {
+            m_perspectiveCam.MoveDown(dt);
+        }
+    }
+
     OrthoCamera m_orthoCamera;
+    PerspectiveCamera m_perspectiveCam;
     SceneHierarchyPanel m_scenePanel;
     bool m_leftMousePressed = false;
+    bool m_rightMousePressed = false;
     glm::vec2 m_mousePosition;
     FrameBuffer m_frameBuffer;
     ViewportPanel m_viewportPanel;

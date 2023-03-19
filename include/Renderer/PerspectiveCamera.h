@@ -9,10 +9,10 @@ public:
     PerspectiveCamera(const glm::vec3& position);
     ~PerspectiveCamera() = default;
 
-    glm::mat4 GetView() const;
+    glm::mat4 GetViewMatrix() const;
     inline const glm::vec3& GetFront() const { return m_front; }
     inline const glm::vec3& GetPosition() const { return m_position; }
-    inline const glm::mat4& GetProjection() const { return m_projection; }
+    inline const glm::mat4& GetProjectionMatrix() const { return m_projection; }
 
     void SetAspectRatio(float width, float height);
     void SetAspectRatio(int width, int height);
