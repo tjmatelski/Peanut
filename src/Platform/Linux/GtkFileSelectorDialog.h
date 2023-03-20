@@ -12,6 +12,7 @@ public:
     virtual ~GtkFileSelectorDialog() = default;
     std::optional<std::string> OpenFile() override;
     std::optional<std::string> SaveFile() override;
+    std::optional<std::string> OpenDirectory() override;
 };
 
 }

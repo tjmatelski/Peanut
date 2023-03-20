@@ -3,11 +3,14 @@
 
 #include "KeyCodes.h"
 #include "Renderer/Lights.h"
+#include "Renderer/Material.h"
 #include "Renderer/Model.h"
 #include "Renderer/ModelLibrary.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
+#include "Renderer/Texture.h"
+#include "Renderer/TextureLibrary.h"
 #include "Scene/Component.h"
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
@@ -81,6 +84,15 @@ public:
         Renderer::ClearBuffers();
 
         Renderer2D::BeginScene(m_orthoCamera);
+
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<SkyboxComponent>()) {
+                m_skyboxShader.SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
+                m_skyboxShader.SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+                const auto& skybox = ent.Get<SkyboxComponent>();
+                Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), m_skyboxShader);
+            }
+        });
 
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<SpriteRenderComponent>()) {
@@ -311,6 +323,7 @@ private:
     FrameBuffer m_frameBuffer;
     ViewportPanel m_viewportPanel;
     Shader m_lightingShader;
+    Shader m_skyboxShader { "./res/shaders/Skybox.shader" };
 };
 
 Application* GetApplication()

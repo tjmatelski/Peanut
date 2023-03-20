@@ -2,6 +2,7 @@
 
 #include <Log.h>
 #include <gtkmm/application.h>
+#include <gtkmm/filechooser.h>
 #include <gtkmm/filechooserdialog.h>
 #include <optional>
 #include <string>
@@ -55,6 +56,11 @@ std::optional<std::string> GtkFileSelectorDialog::OpenFile()
 std::optional<std::string> GtkFileSelectorDialog::SaveFile()
 {
     return SelectFile(Gtk::FILE_CHOOSER_ACTION_SAVE);
+}
+
+std::optional<std::string> GtkFileSelectorDialog::OpenDirectory()
+{
+    return SelectFile(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
 }
 
 }

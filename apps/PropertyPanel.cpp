@@ -109,6 +109,16 @@ void DrawComponentSpecifics<PointLightComponent>(Entity ent)
     ImGui::DragFloat("Quadratic", &comp.quadratic, 0.001f, 0.0f, 2.0f, "%.3f");
 }
 
+template <>
+void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
+{
+    auto& comp = ent.Get<SkyboxComponent>();
+    ImGui::Text("%s", comp.directory.c_str());
+    if (ImGui::Button("...")) {
+        comp.directory = CreateFileSelectorDialog()->OpenFile().value_or(comp.directory);
+    }
+}
+
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 {
     ImGui::Begin("Properties Panel");
@@ -120,6 +130,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
         DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
         DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
+        DrawComponent<SkyboxComponent>("Skybox", m_selectedEntity);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -150,6 +161,13 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
             }
             if (ImGui::MenuItem("Point Light")) {
                 m_selectedEntity.Add<PointLightComponent>();
+            }
+            if (ImGui::MenuItem("Skybox")) {
+                auto directory = CreateFileSelectorDialog()->OpenDirectory().value_or("");
+                if (std::filesystem::exists(directory)) {
+                    auto& comp = m_selectedEntity.Add<SkyboxComponent>();
+                    comp.directory = directory;
+                }
             }
             ImGui::EndPopup();
         }

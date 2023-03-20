@@ -36,7 +36,7 @@ Texture TextureLibrary::LoadImpl(const fs::path& textureName, const Texture::Typ
     }
 
     LOG_DEBUG("Adding texture to cache '{}'", fullPath.c_str());
-    m_savedTextures.emplace(std::make_pair(fullPath, Texture(fullPath)));
+    m_savedTextures.emplace(std::make_pair(fullPath, Texture(fullPath, type)));
     return { m_savedTextures.at(fullPath), type };
 }
 

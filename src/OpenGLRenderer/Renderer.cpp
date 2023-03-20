@@ -1,6 +1,7 @@
 #include <Renderer/Renderer.h>
 
 #include "GLDebug.h"
+#include "Renderer/Texture.h"
 
 #include <glad/glad.h>
 
@@ -56,6 +57,51 @@ static const unsigned int cubeIndices[] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35
 };
+
+static constexpr float skyboxVertices[] = {
+    // positions
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
+
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
+
+    -1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f
+};
 }
 
 namespace PEANUT {
@@ -75,6 +121,16 @@ void Renderer::ClearBuffers()
 void Renderer::EnableDepthTest()
 {
     GLCALL(glEnable(GL_DEPTH_TEST));
+}
+
+void DisableDepthMask()
+{
+    GLCALL(glDepthMask(GL_FALSE));
+}
+
+void EnableDepthMask()
+{
+    GLCALL(glDepthMask(GL_TRUE));
 }
 
 void Renderer::SetViewport(const int width, const int height)
@@ -119,12 +175,12 @@ void Renderer::Draw(const Mesh& mesh, const Material material, Shader& shader)
         if (texture.GetType() == Texture::Type::Specular) {
             shader.SetUniform1i("material.specular[" + std::to_string(numSpecular++) + "]", glTextureNumber);
         }
+        if (texture.GetType() != Texture::Type::CubeMap) {
+            shader.SetUniform1f("material.shininess", material.GetShininess());
+        }
         GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
         texture.Bind();
     }
-    shader.SetUniform1f("material.shininess", material.GetShininess());
-    // shader.SetUniform1i("material.numDiffuseTextures", numDiffuse);
-    // shader.SetUniform1i("material.numSpecularTextures", numSpecular);
     Draw(mesh.GetVertexArray(), mesh.GetIndexBuffer(), shader);
 }
 
@@ -181,6 +237,24 @@ Mesh Renderer::GetCubeMesh()
         vert.position = glm::vec3(cubeVerts[i + 0], cubeVerts[i + 1], cubeVerts[i + 2]);
         vert.normal = glm::vec3(cubeVerts[i + 3], cubeVerts[i + 4], cubeVerts[i + 5]);
         vert.texCoords = glm::vec2(cubeVerts[i + 6], cubeVerts[i + 7]);
+        verts.push_back(vert);
+    }
+    for (int i = 0; i < 36; ++i) {
+        indicies.push_back(cubeIndices[i]);
+    }
+
+    return Mesh(std::move(verts), std::move(indicies));
+}
+
+Mesh Renderer::GetSkyboxMesh()
+{
+    std::vector<Mesh::Vertex> verts;
+    std::vector<unsigned int> indicies;
+    for (int i = 0; i < (3 * 36); i += 3) {
+        Mesh::Vertex vert;
+        vert.position = glm::vec3(skyboxVertices[i + 0], skyboxVertices[i + 1], skyboxVertices[i + 2]);
+        vert.normal = glm::vec3();
+        vert.texCoords = glm::vec2();
         verts.push_back(vert);
     }
     for (int i = 0; i < 36; ++i) {

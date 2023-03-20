@@ -114,6 +114,13 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         out << YAML::EndMap;
     }
 
+    if (ent.Has<SkyboxComponent>()) {
+        auto& comp = ent.Get<SkyboxComponent>();
+        out << YAML::Key << "SkyboxComponent" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Directory" << YAML::Value << std::filesystem::relative(comp.directory, Settings::GetResourceDir());
+        out << YAML::EndMap;
+    }
+
     out << YAML::EndMap;
 }
 }
@@ -190,6 +197,12 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             comp.constant = entity["PointLightComponent"]["Constant"].as<float>();
             comp.linear = entity["PointLightComponent"]["Linear"].as<float>();
             comp.quadratic = entity["PointLightComponent"]["Quadratic"].as<float>();
+        }
+
+        if (entity["SkyboxComponent"]) {
+            auto comp = sceneEnt.Add<SkyboxComponent>();
+            std::filesystem::path rel = entity["SkyboxComponent"]["Directory"].as<std::string>();
+            comp.directory = Settings::GetResourceDir() / rel;
         }
     }
 }

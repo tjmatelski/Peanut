@@ -69,4 +69,8 @@ struct PointLightComponent {
     float quadratic = 0.032f;
 };
 
+struct SkyboxComponent {
+    std::filesystem::path directory;
+};
+
 }
