@@ -90,7 +90,9 @@ public:
                 m_skyboxShader.SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
                 m_skyboxShader.SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
                 const auto& skybox = ent.Get<SkyboxComponent>();
+                Renderer::DisableDepthMask();
                 Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), m_skyboxShader);
+                Renderer::EnableDepthMask();
             }
         });
 

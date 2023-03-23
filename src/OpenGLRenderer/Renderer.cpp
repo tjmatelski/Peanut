@@ -123,12 +123,12 @@ void Renderer::EnableDepthTest()
     GLCALL(glEnable(GL_DEPTH_TEST));
 }
 
-void DisableDepthMask()
+void Renderer::DisableDepthMask()
 {
     GLCALL(glDepthMask(GL_FALSE));
 }
 
-void EnableDepthMask()
+void Renderer::EnableDepthMask()
 {
     GLCALL(glDepthMask(GL_TRUE));
 }
