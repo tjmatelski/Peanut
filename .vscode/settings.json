@@ -1,6 +1,6 @@
 {
     "cmake.buildDirectory": "${workspaceFolder}/build/${variant:buildType}-${variant:staticAnalysis}",
-    "cmake.configureOnOpen": true,
+    "cmake.configureOnOpen": false,
     "cmake.configureSettings": {
         "BUILD_SHARED_LIBS": "ON",
         "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build/install",
