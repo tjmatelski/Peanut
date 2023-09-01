@@ -202,7 +202,7 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
         }
 
         if (entity["SkyboxComponent"]) {
-            auto comp = sceneEnt.Add<SkyboxComponent>();
+            auto& comp = sceneEnt.Add<SkyboxComponent>();
             std::filesystem::path rel = entity["SkyboxComponent"]["Directory"].as<std::string>();
             comp.directory = Settings::GetResourceDir() / rel;
         }
