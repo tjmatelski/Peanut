@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Peanut.h>
+#include <Renderer/FrameBuffer.h>
 
 namespace PEANUT {
 class ViewportPanel {

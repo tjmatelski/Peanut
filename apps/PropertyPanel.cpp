@@ -1,7 +1,7 @@
-#include "FileSelectorDialog.h"
+#include "Input/FileSelectorDialog.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
-#include <Peanut.h>
+
 #include <imgui.h>
 
 namespace {

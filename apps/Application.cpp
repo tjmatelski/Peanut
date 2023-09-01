@@ -1,19 +1,23 @@
-#include <Peanut.h>
-#include <glad/glad.h>
-
-#include "KeyCodes.h"
-#include "Renderer/Lights.h"
-#include "Renderer/Material.h"
-#include "Renderer/Model.h"
-#include "Renderer/ModelLibrary.h"
-#include "Renderer/PerspectiveCamera.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Texture.h"
-#include "Renderer/TextureLibrary.h"
-#include "Scene/Component.h"
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
+#include <Application.h> // FIXME
+#include <Events/MouseEvents.h>
+#include <Input/FileSelectorDialog.h>
+#include <Input/Input.h>
+#include <Input/KeyCodes.h>
+#include <Renderer/Lights.h>
+#include <Renderer/Material.h>
+#include <Renderer/Model.h>
+#include <Renderer/ModelLibrary.h>
+#include <Renderer/PerspectiveCamera.h>
+#include <Renderer/Renderer.h>
+#include <Renderer/Renderer2D.h>
+#include <Renderer/Shader.h>
+#include <Renderer/Texture.h>
+#include <Renderer/TextureLibrary.h>
+#include <Scene/Component.h>
+#include <Scene/SceneSerializer.h>
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -23,9 +27,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
-// Temporary
-#include "../src/OpenGLRenderer/GLDebug.h"
 
 namespace PEANUT {
 

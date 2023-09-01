@@ -8,7 +8,14 @@ add_executable(Application
     )
 
 find_package(imgui CONFIG REQUIRED)
-target_link_libraries(Application PRIVATE Peanut dl imgui::imgui)
+target_link_libraries(Application
+    PRIVATE
+        pn-core
+        pn-renderer
+        pn-scene
+        dl
+        imgui::imgui
+)
 target_include_directories(Application PRIVATE ${CMAKE_BINARY_DIR}/imports)
 target_compile_options(Application PRIVATE -Wall -Wextra -Wpedantic -Werror)
 target_compile_features(Application PRIVATE cxx_std_17)

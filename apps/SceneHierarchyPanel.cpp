@@ -1,7 +1,10 @@
 #include "SceneHierarchyPanel.h"
-#include "../src/Settings.h"
-#include "Scene/Component.h"
-#include "imgui.h"
+
+#include <Scene/Component.h>
+#include <Utils/Log.h>
+#include <Utils/Settings.h>
+
+#include <imgui.h>
 
 #include <cstdlib>
 #include <filesystem>
