@@ -5,6 +5,8 @@
 #include "Scene/Scene.h"
 #include "Utils/TimeStep.h"
 #include "Window.h"
+#include <Renderer/PerspectiveCamera.h>
+#include <Renderer/Shader.h>
 
 #include <memory>
 
@@ -28,6 +30,8 @@ protected:
     void Terminate();
     bool m_runtime = false;
     std::shared_ptr<Scene> m_scene;
+    std::unique_ptr<Shader> m_lightingShader;
+    PerspectiveCamera m_perspectiveCam { { 0.0, 0.0, 0.0 } };
 
 private:
     static Application* s_application;
@@ -40,6 +44,7 @@ private:
     void OnApplicationEvent(Event& event);
     void UpdateWindow();
     void UpdateLuaScripts(TimeStep ts);
+    void Update(TimeStep dt);
 };
 
 /**

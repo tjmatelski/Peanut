@@ -38,12 +38,10 @@ public:
         : Application()
         , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
               static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
-        , m_perspectiveCam({ 0.0, 0.0, 0.0 })
         , m_scenePanel(m_scene)
         , m_mousePosition(0.0f, 0.0f)
         , m_frameBuffer({ GetWindow().GetWidth(), GetWindow().GetHeight() })
         , m_viewportPanel()
-        , m_lightingShader("./res/shaders/Lighting.shader")
     {
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -71,15 +69,15 @@ public:
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        m_frameBuffer.Bind();
+        OnImGuiUpdate();
+        AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
     }
 
     void OnUpdate(TimeStep timeStep) override
     {
         UpdateCameraPosition(timeStep);
-        OnImGuiUpdate();
-        AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
-
-        m_frameBuffer.Bind();
 
         Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
         Renderer::ClearBuffers();
@@ -112,7 +110,7 @@ public:
                         { comp.ambient, comp.ambient, comp.ambient },
                         { comp.diffuse, comp.diffuse, comp.diffuse },
                         { comp.specular, comp.specular, comp.specular } },
-                    m_lightingShader);
+                    *m_lightingShader);
             }
         });
 
@@ -132,23 +130,12 @@ public:
                 pointLights.push_back(pl);
             }
         });
-        Renderer::SetPointLights(pointLights, m_lightingShader);
-
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<ModelFileComponent>()) {
-                m_lightingShader.SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
-                m_lightingShader.SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-                m_lightingShader.SetUniformVec3("viewPos", m_perspectiveCam.GetPosition());
-                m_lightingShader.SetUniformMat4("model", ent.Get<TransformComponent>());
-                Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), m_lightingShader);
-            }
-        });
-
-        m_frameBuffer.Unbind();
+        Renderer::SetPointLights(pointLights, *m_lightingShader);
     }
 
     void OnPostUpdate() override
     {
+        m_frameBuffer.Unbind();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -318,14 +305,12 @@ private:
     }
 
     OrthoCamera m_orthoCamera;
-    PerspectiveCamera m_perspectiveCam;
     SceneHierarchyPanel m_scenePanel;
     bool m_leftMousePressed = false;
     bool m_rightMousePressed = false;
     glm::vec2 m_mousePosition;
     FrameBuffer m_frameBuffer;
     ViewportPanel m_viewportPanel;
-    Shader m_lightingShader;
     Shader m_skyboxShader { "./res/shaders/Skybox.shader" };
 };
 

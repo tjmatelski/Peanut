@@ -1,16 +1,19 @@
 #include "Application.h"
 
 #include "Input/MouseCodes.h"
+#include "Renderer/Shader.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include "Utils/Settings.h"
 #include "Utils/TimeStep.h"
 #include <Input/KeyCodes.h>
+#include <Renderer/ModelLibrary.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
 #include <Utils/Log.h>
 
 #include <filesystem>
+#include <memory>
 #include <sol/sol.hpp>
 
 namespace PEANUT {
@@ -24,6 +27,8 @@ Application::Application()
     m_window = std::make_unique<Window>("Peanut", 800, 600);
     m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
+
+    m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
 }
 
 void Application::Run()
@@ -35,6 +40,7 @@ void Application::Run()
 
         OnPreUpdate();
         OnUpdate(timeStep);
+        Update(timeStep);
         OnPostUpdate();
 
         if (m_runtime) {
@@ -43,6 +49,19 @@ void Application::Run()
 
         UpdateWindow();
     }
+}
+
+void Application::Update(TimeStep dt)
+{
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<ModelFileComponent>()) {
+            m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
+            m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.GetPosition());
+            m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+            Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), *m_lightingShader);
+        }
+    });
 }
 
 void Application::UpdateWindow()
