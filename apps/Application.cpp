@@ -78,41 +78,6 @@ public:
     void OnUpdate(TimeStep timeStep) override
     {
         UpdateCameraPosition(timeStep);
-
-        Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
-        Renderer::ClearBuffers();
-
-        Renderer2D::BeginScene(m_orthoCamera);
-
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<SkyboxComponent>()) {
-                m_skyboxShader.SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
-                m_skyboxShader.SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-                const auto& skybox = ent.Get<SkyboxComponent>();
-                Renderer::DisableDepthMask();
-                Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), m_skyboxShader);
-                Renderer::EnableDepthMask();
-            }
-        });
-
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<SpriteRenderComponent>()) {
-                const auto& spriteRender = ent.Get<SpriteRenderComponent>();
-                Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
-            }
-        });
-
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<DirectionalLightComponent>()) {
-                auto& comp = ent.Get<DirectionalLightComponent>();
-                Renderer::SetDirectionalLight(
-                    { comp.direction,
-                        { comp.ambient, comp.ambient, comp.ambient },
-                        { comp.diffuse, comp.diffuse, comp.diffuse },
-                        { comp.specular, comp.specular, comp.specular } },
-                    *m_lightingShader);
-            }
-        });
     }
 
     void OnPostUpdate() override
@@ -293,7 +258,6 @@ private:
     glm::vec2 m_mousePosition;
     FrameBuffer m_frameBuffer;
     ViewportPanel m_viewportPanel;
-    Shader m_skyboxShader { "./res/shaders/Skybox.shader" };
 };
 
 Application* GetApplication()

@@ -10,6 +10,7 @@
 #include <Renderer/ModelLibrary.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
+#include <Renderer/TextureLibrary.h>
 #include <Utils/Log.h>
 
 #include <filesystem>
@@ -29,6 +30,7 @@ Application::Application()
     Renderer2D::Init();
 
     m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
+    m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");
 }
 
 void Application::Run()
@@ -53,6 +55,43 @@ void Application::Run()
 
 void Application::Update(TimeStep dt)
 {
+    // Clear buffers for start of frame
+    Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    Renderer::ClearBuffers();
+
+    // Render skybox
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<SkyboxComponent>()) {
+            m_skyboxShader->SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
+            m_skyboxShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+            const auto& skybox = ent.Get<SkyboxComponent>();
+            Renderer::DisableDepthMask();
+            Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), *m_skyboxShader);
+            Renderer::EnableDepthMask();
+        }
+    });
+
+    // Render 2D sprites
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<SpriteRenderComponent>()) {
+            const auto& spriteRender = ent.Get<SpriteRenderComponent>();
+            Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
+        }
+    });
+
+    // Render Directional Lights
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<DirectionalLightComponent>()) {
+            auto& comp = ent.Get<DirectionalLightComponent>();
+            Renderer::SetDirectionalLight(
+                { comp.direction,
+                    { comp.ambient, comp.ambient, comp.ambient },
+                    { comp.diffuse, comp.diffuse, comp.diffuse },
+                    { comp.specular, comp.specular, comp.specular } },
+                *m_lightingShader);
+        }
+    });
+
     // Render Point Lights
     std::vector<PointLight> pointLights;
     m_scene->ForEachEntity([&](Entity ent) {

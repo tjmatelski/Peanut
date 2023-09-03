@@ -31,6 +31,7 @@ protected:
     bool m_runtime = false;
     std::shared_ptr<Scene> m_scene;
     std::unique_ptr<Shader> m_lightingShader;
+    std::unique_ptr<Shader> m_skyboxShader; // { "./res/shaders/Skybox.shader" };
     PerspectiveCamera m_perspectiveCam { { 0.0, 0.0, 0.0 } };
 
 private:
