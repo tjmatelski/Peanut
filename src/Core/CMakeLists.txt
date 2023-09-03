@@ -1,5 +1,5 @@
 add_library(pn-core
-    src/Application.cpp
+    src/Engine.cpp
     src/Window.cpp
     src/WindowInput.cpp
     src/FileSelectorDialog.cpp

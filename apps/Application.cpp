@@ -16,7 +16,6 @@
 #include <Scene/SceneSerializer.h>
 #include <Utils/Log.h>
 #include <Utils/Math.h>
-#include <Utils/TimeStep.h>
 #include <Window.h>
 
 #include <imgui.h>
@@ -38,15 +37,9 @@ void UpdatePropertiesPanel(Entity selectedEntity);
 
 class MyApp : public Application {
 public:
-    MyApp()
-        : Application()
-        , m_orthoCamera(-static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()),
-              static_cast<float>(GetWindow().GetWidth()) / static_cast<float>(GetWindow().GetHeight()), -1.0, 1.0)
-        , m_scenePanel(m_scene)
-        , m_mousePosition(0.0f, 0.0f)
-        , m_frameBuffer({ GetWindow().GetWidth(), GetWindow().GetHeight() })
-        , m_viewportPanel()
+    void OnAttach() override
     {
+        m_scenePanel = std::make_unique<SceneHierarchyPanel>(m_engine->GetScene());
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
@@ -56,13 +49,11 @@ public:
         ImGui::StyleColorsDark();
 
         // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(GetWindow().GetRawWindow()), true);
+        ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(m_engine->GetWindow().GetRawWindow()), true);
         const char* glsl_version = "#version 130";
         ImGui_ImplOpenGL3_Init(glsl_version);
-    }
 
-    void OnAttach() override
-    {
+        m_frameBuffer.Resize(m_engine->GetWindow().GetWidth(), m_engine->GetWindow().GetHeight());
     }
 
     void OnPreUpdate() override
@@ -77,7 +68,7 @@ public:
         AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
     }
 
-    void OnUpdate(TimeStep timeStep) override
+    void OnUpdate(double timeStep) override
     {
         UpdateCameraPosition(timeStep);
     }
@@ -117,22 +108,22 @@ public:
         ImGui::Begin("Peanut Editor", nullptr, windowFlags);
 
         if (ImGui::Button("Run")) {
-            m_runtime = true;
+            m_engine->StartRuntime();
         }
         ImGui::SameLine();
         if (ImGui::Button("Stop")) {
-            m_runtime = false;
+            m_engine->StopRunTime();
         }
         ImGui::SameLine();
-        (m_runtime) ? ImGui::Text("Running") : ImGui::Text("Stopped");
+        (m_engine->IsRuntime()) ? ImGui::Text("Running") : ImGui::Text("Stopped");
 
         ImGui::Separator();
 
         ImGui::DockSpace(ImGui::GetID("MyDockspace"));
 
         UpdateMenuBar();
-        m_scenePanel.UpdateGui();
-        UpdatePropertiesPanel(m_scenePanel.GetSelectedEntity());
+        m_scenePanel->UpdateGui();
+        UpdatePropertiesPanel(m_scenePanel->GetSelectedEntity());
         m_viewportPanel.Update(m_frameBuffer);
 
         ImGui::End();
@@ -155,7 +146,7 @@ private:
     {
         float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
         m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
-        m_perspectiveCam.SetAspectRatio(width, height);
+        m_engine->GetCamera().SetAspectRatio(width, height);
     }
 
     void OnWindowResize(const WindowResizeEvent& e)
@@ -179,14 +170,14 @@ private:
     {
         glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
         glm::vec2 diff = newPos - m_mousePosition;
-        diff /= 0.5 * GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
+        diff /= 0.5 * m_engine->GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
         if (m_leftMousePressed) {
             m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
         }
         if (m_rightMousePressed) {
             constexpr float rotateScale = 25.0;
-            m_perspectiveCam.PitchBy(-diff.y * rotateScale);
-            m_perspectiveCam.YawBy(diff.x * rotateScale);
+            m_engine->GetCamera().PitchBy(-diff.y * rotateScale);
+            m_engine->GetCamera().YawBy(diff.x * rotateScale);
         }
         m_mousePosition = newPos;
     }
@@ -195,7 +186,7 @@ private:
     {
         switch (event.GetCode()) {
         case KeyCode::ESCAPE:
-            Terminate();
+            m_engine->Terminate();
             break;
 
         default:
@@ -211,7 +202,7 @@ private:
                     auto saveFile = CreateFileSelectorDialog()->SaveFile().value_or("");
                     if (!saveFile.empty()) {
                         LOG_INFO("Saving Scene to '{0}'", saveFile);
-                        SceneSerializer::Serialize(*m_scene, saveFile);
+                        SceneSerializer::Serialize(*m_engine->GetScene(), saveFile);
                     } else {
                         LOG_WARN("Failed to select save file. Not saving scene.");
                     }
@@ -220,7 +211,7 @@ private:
                     std::string sceneFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                     if (sceneFile.find(".peanut") != std::string::npos) {
                         LOG_INFO("Opening Scene: {}", sceneFile);
-                        SceneSerializer::Deserialize(sceneFile, *m_scene);
+                        SceneSerializer::Deserialize(sceneFile, *m_engine->GetScene());
                     } else {
                         LOG_ERROR("Invalid scene file: {}", sceneFile);
                     }
@@ -234,31 +225,31 @@ private:
     void UpdateCameraPosition(double dt)
     {
         if (Input::IsKeyPressed(KeyCode::W)) {
-            m_perspectiveCam.MoveForward(dt);
+            m_engine->GetCamera().MoveForward(dt);
         }
         if (Input::IsKeyPressed(KeyCode::A)) {
-            m_perspectiveCam.MoveLeft(dt);
+            m_engine->GetCamera().MoveLeft(dt);
         }
         if (Input::IsKeyPressed(KeyCode::S)) {
-            m_perspectiveCam.MoveBackward(dt);
+            m_engine->GetCamera().MoveBackward(dt);
         }
         if (Input::IsKeyPressed(KeyCode::D)) {
-            m_perspectiveCam.MoveRight(dt);
+            m_engine->GetCamera().MoveRight(dt);
         }
         if (Input::IsKeyPressed(KeyCode::LEFT_SHIFT)) {
-            m_perspectiveCam.MoveUp(dt);
+            m_engine->GetCamera().MoveUp(dt);
         }
         if (Input::IsKeyPressed(KeyCode::LEFT_CONTROL)) {
-            m_perspectiveCam.MoveDown(dt);
+            m_engine->GetCamera().MoveDown(dt);
         }
     }
 
     OrthoCamera m_orthoCamera;
-    SceneHierarchyPanel m_scenePanel;
+    std::unique_ptr<SceneHierarchyPanel> m_scenePanel;
     bool m_leftMousePressed = false;
     bool m_rightMousePressed = false;
-    glm::vec2 m_mousePosition;
-    FrameBuffer m_frameBuffer;
+    glm::vec2 m_mousePosition = { 0.0, 0.0 };
+    FrameBuffer m_frameBuffer = { { 100, 100 } };
     ViewportPanel m_viewportPanel;
 };
 

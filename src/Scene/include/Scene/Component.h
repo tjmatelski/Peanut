@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Utils/Math.h"
-#include "Utils/TimeStep.h"
+#include <Utils/Math.h>
 
 #include <filesystem>
 #include <memory>

@@ -1,30 +1,30 @@
-#include "Application.h"
+#include <Engine.hpp>
 
-#include "Input/MouseCodes.h"
-#include "Renderer/Shader.h"
-#include "Scene/Component.h"
-#include "Scene/Entity.h"
-#include "Utils/Settings.h"
-#include "Utils/TimeStep.h"
+#include <Application.h>
+#include <Events/WindowEvents.h>
 #include <Input/KeyCodes.h>
+#include <Input/MouseCodes.h>
 #include <Renderer/ModelLibrary.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
+#include <Renderer/Shader.h>
 #include <Renderer/TextureLibrary.h>
+#include <Scene/Component.h>
+#include <Scene/Entity.h>
 #include <Utils/Log.h>
+#include <Utils/Settings.h>
 
 #include <filesystem>
 #include <memory>
 #include <sol/sol.hpp>
+#include <utility>
 
 namespace PEANUT {
-Application* Application::s_application = nullptr;
-Application::Application()
+Engine::Engine()
     : m_scene(std::make_shared<Scene>())
 {
     spdlog::set_level(spdlog::level::trace);
 
-    s_application = this;
     m_window = std::make_unique<Window>("Peanut", 800, 600);
     m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
@@ -34,17 +34,29 @@ Application::Application()
     m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");
 }
 
-void Application::Run()
+Engine::~Engine()
 {
+    delete m_app;
+}
+
+auto Engine::Get() -> Engine&
+{
+    static Engine engine;
+    return engine;
+}
+
+void Engine::Run()
+{
+    m_app->OnAttach();
     while (!m_shouldWindowClose) {
-        float currentFrameTime = m_window->GetTime();
-        TimeStep timeStep = currentFrameTime - m_lastFrameTime;
+        double currentFrameTime = m_window->GetTime();
+        double timeStep = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
-        OnPreUpdate();
-        OnUpdate(timeStep);
+        m_app->OnPreUpdate();
+        m_app->OnUpdate(timeStep);
         Update(timeStep);
-        OnPostUpdate();
+        m_app->OnPostUpdate();
 
         if (m_runtime) {
             UpdateLuaScripts(timeStep);
@@ -52,9 +64,10 @@ void Application::Run()
 
         UpdateWindow();
     }
+    m_app->OnRemove();
 }
 
-void Application::Update(TimeStep dt)
+void Engine::Update(double dt)
 {
     // Clear buffers for start of frame
     Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
@@ -124,13 +137,13 @@ void Application::Update(TimeStep dt)
     });
 }
 
-void Application::UpdateWindow()
+void Engine::UpdateWindow()
 {
     m_window->SwapBuffers();
     m_window->PollEvents();
 }
 
-void Application::UpdateLuaScripts(TimeStep ts)
+void Engine::UpdateLuaScripts(double ts)
 {
     sol::state lua;
     lua.open_libraries(sol::lib::base);
@@ -284,16 +297,16 @@ void Application::UpdateLuaScripts(TimeStep ts)
     });
 }
 
-void Application::OnApplicationEvent(Event& event)
+void Engine::OnApplicationEvent(Event& event)
 {
     Dispatcher dispatcher(event);
     dispatcher.Dispatch<WindowCloseEvent>([=]([[maybe_unused]] const auto& e) {
         Terminate();
     });
-    OnEvent(event);
+    m_app->OnEvent(event);
 }
 
-void Application::Terminate()
+void Engine::Terminate()
 {
     m_shouldWindowClose = true;
 }
@@ -305,11 +318,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     LOG_INFO("Starting Application: {}", argv[0]);
     PEANUT::Settings::SetApplication(argv[0]);
 
-    auto* app = PEANUT::GetApplication();
-    app->OnAttach();
-    LOG_INFO("Running Application");
-    app->Run();
-    app->OnRemove();
+    auto& engine = PEANUT::Engine::Get();
+    engine.m_app = PEANUT::GetApplication();
+    engine.m_app->m_engine = &engine;
+    engine.Run();
 
     return 0;
 }
