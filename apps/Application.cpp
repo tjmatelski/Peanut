@@ -113,24 +113,6 @@ public:
                     *m_lightingShader);
             }
         });
-
-        std::vector<PointLight> pointLights;
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<PointLightComponent>()) {
-                auto& comp = ent.Get<PointLightComponent>();
-                PointLight pl;
-                pl.active = true;
-                pl.position = ent.Get<TransformComponent>().translation;
-                pl.ambient = comp.ambient * comp.color;
-                pl.diffuse = comp.diffuse * comp.color;
-                pl.specular = comp.specular * comp.color;
-                pl.constant = comp.constant;
-                pl.linear = comp.linear;
-                pl.quadratic = comp.quadratic;
-                pointLights.push_back(pl);
-            }
-        });
-        Renderer::SetPointLights(pointLights, *m_lightingShader);
     }
 
     void OnPostUpdate() override
