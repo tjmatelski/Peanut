@@ -28,6 +28,7 @@ Application::Application()
     m_window = std::make_unique<Window>("Peanut", 800, 600);
     m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
+    Renderer::EnableDepthTest();
 
     m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
     m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");

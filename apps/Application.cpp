@@ -1,32 +1,36 @@
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
-#include <Application.h> // FIXME
+#include <Application.h>
+#include <Events/Event.h>
+#include <Events/KeyEvent.h>
 #include <Events/MouseEvents.h>
+#include <Events/WindowEvents.h>
 #include <Input/FileSelectorDialog.h>
 #include <Input/Input.h>
 #include <Input/KeyCodes.h>
-#include <Renderer/Lights.h>
-#include <Renderer/Material.h>
-#include <Renderer/Model.h>
-#include <Renderer/ModelLibrary.h>
+#include <Input/MouseCodes.h>
+#include <Renderer/FrameBuffer.h>
+#include <Renderer/OrthoCamera.h>
 #include <Renderer/PerspectiveCamera.h>
 #include <Renderer/Renderer.h>
-#include <Renderer/Renderer2D.h>
-#include <Renderer/Shader.h>
-#include <Renderer/Texture.h>
-#include <Renderer/TextureLibrary.h>
-#include <Scene/Component.h>
 #include <Scene/SceneSerializer.h>
+#include <Utils/Log.h>
+#include <Utils/Math.h>
+#include <Utils/TimeStep.h>
+#include <Window.h>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <dlfcn.h>
-#include <iostream>
 #include <memory>
-#include <utility>
-#include <vector>
+#include <optional>
+#include <string>
+
+namespace PEANUT {
+class Entity;
+}
+struct GLFWwindow;
 
 namespace PEANUT {
 
@@ -55,8 +59,6 @@ public:
         ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(GetWindow().GetRawWindow()), true);
         const char* glsl_version = "#version 130";
         ImGui_ImplOpenGL3_Init(glsl_version);
-
-        Renderer::EnableDepthTest();
     }
 
     void OnAttach() override
