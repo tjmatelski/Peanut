@@ -15,7 +15,7 @@ pkg_check_modules(GTKMM_LIB REQUIRED IMPORTED_TARGET gtkmm-3.0)
 target_link_libraries(pn-core
     PRIVATE
         pn-utils
-        glfw3
+        glfw
         pn-scene
         glad::glad
         pn-renderer

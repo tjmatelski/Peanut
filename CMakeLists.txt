@@ -7,14 +7,53 @@ project(Peanut
 set(LINT_WITH_CLANG_TIDY OFF CACHE BOOL "Use clang-tidy to perform static analysis when building")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-execute_process(
-    COMMAND conan install ${CMAKE_SOURCE_DIR} -s build_type=${CMAKE_BUILD_TYPE} -of ${CMAKE_BINARY_DIR} -if ${CMAKE_BINARY_DIR}
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+  message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+  file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
+                "${CMAKE_BINARY_DIR}/conan.cmake"
+                TLS_VERIFY ON)
+endif()
+
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+
+conan_cmake_configure(
+    REQUIRES
+        assimp/5.2.2
+        entt/3.11.1
+        glad/0.1.36
+        glfw/3.3.8
+        glm/0.9.9.8
+        imgui/cci.20220621+1.88.docking
+        lua/5.4.4
+        pkgconf/1.9.3
+        sol2/3.3.0
+        spdlog/1.11.0
+        yaml-cpp/0.7.0
+    GENERATORS
+        cmake_find_package_multi
+        CMakeToolchain
+    IMPORTS
+        "res/bindings, imgui_impl_glfw.cpp -> ./imports"
+        "res/bindings, imgui_impl_opengl3.cpp -> ./imports"
+        "res/bindings, imgui_impl_glfw.h -> ./imports"
+        "res/bindings, imgui_impl_opengl3.h -> ./imports"
+        "res/bindings, imgui_impl_opengl3_loader.h -> ./imports"
 )
-execute_process(
-    COMMAND conan imports -if ${CMAKE_BINARY_DIR} -imf ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}
+
+conan_cmake_autodetect(settings)
+
+conan_cmake_install(
+    PATH_OR_REFERENCE .
+    BUILD missing
+    REMOTE conancenter
+    SETTINGS ${settings}
+    INSTALL_FOLDER ${CMAKE_BINARY_DIR}
+    OUTPUT_FOLDER ${CMAKE_BINARY_DIR}
 )
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}conan_toolchain.cmake")
 
 if ("${LINT_WITH_CLANG_TIDY}")
     set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++17)

@@ -20,7 +20,7 @@ PEANUT::Texture::Type AssimpToPEANUTTexType(const aiTextureType type)
         break;
 
     default:
-        LOG_WARN("Non-Implemented Texture type: {}", type);
+        LOG_WARN("Non-Implemented Texture type: {}", static_cast<int>(type));
         return PEANUT::Texture::Type::None;
         break;
     }

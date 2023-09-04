@@ -25,6 +25,7 @@ find_package(OpenGL REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 
 target_link_libraries(pn-renderer PRIVATE
     pn-utils

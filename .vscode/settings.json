@@ -2,13 +2,14 @@
     "cmake.buildDirectory": "${workspaceFolder}/build/${variant:buildType}-${variant:staticAnalysis}",
     "cmake.configureOnOpen": false,
     "cmake.configureSettings": {
-        "BUILD_SHARED_LIBS": "ON",
+        //"BUILD_SHARED_LIBS": "ON",
         "CMAKE_INSTALL_PREFIX": "${workspaceFolder}/build/install",
     },
     "cmake.configureArgs": [
         //"--trace"
     ],
     "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
+    "cmake.configureOnEdit": false,
     "C_Cpp.intelliSenseEngine": "disabled",
     "C_Cpp.autocomplete": "disabled",
     "C_Cpp.errorSquiggles": "disabled",

@@ -8,6 +8,7 @@ add_executable(Application
     )
 
 find_package(imgui CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(Application
     PRIVATE
         pn-core
@@ -15,6 +16,7 @@ target_link_libraries(Application
         pn-scene
         dl
         imgui::imgui
+        glfw
 )
 target_include_directories(Application PRIVATE ${CMAKE_BINARY_DIR}/imports)
 target_compile_options(Application PRIVATE -Wall -Wextra -Wpedantic -Werror)
