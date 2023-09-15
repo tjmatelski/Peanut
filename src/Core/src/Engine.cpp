@@ -130,7 +130,7 @@ void Engine::Update(double dt)
         if (ent.Has<ModelFileComponent>()) {
             m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
             m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.GetPosition());
+            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
             m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
             Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), *m_lightingShader);
         }

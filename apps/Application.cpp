@@ -70,7 +70,9 @@ public:
 
     void OnUpdate(double timeStep) override
     {
-        UpdateCameraPosition(timeStep);
+        if (m_viewportPanel.IsFocused()) {
+            UpdateCameraPosition(timeStep);
+        }
     }
 
     void OnPostUpdate() override
@@ -224,23 +226,24 @@ private:
 
     void UpdateCameraPosition(double dt)
     {
+        double ammount = Input::IsKeyPressed(KeyCode::LEFT_SHIFT) ? 5 * dt : dt;
         if (Input::IsKeyPressed(KeyCode::W)) {
-            m_engine->GetCamera().MoveForward(dt);
+            m_engine->GetCamera().MoveForward(ammount);
         }
         if (Input::IsKeyPressed(KeyCode::A)) {
-            m_engine->GetCamera().MoveLeft(dt);
+            m_engine->GetCamera().MoveLeft(ammount);
         }
         if (Input::IsKeyPressed(KeyCode::S)) {
-            m_engine->GetCamera().MoveBackward(dt);
+            m_engine->GetCamera().MoveBackward(ammount);
         }
         if (Input::IsKeyPressed(KeyCode::D)) {
-            m_engine->GetCamera().MoveRight(dt);
+            m_engine->GetCamera().MoveRight(ammount);
         }
-        if (Input::IsKeyPressed(KeyCode::LEFT_SHIFT)) {
-            m_engine->GetCamera().MoveUp(dt);
+        if (Input::IsKeyPressed(KeyCode::Q)) {
+            m_engine->GetCamera().MoveUp(ammount);
         }
-        if (Input::IsKeyPressed(KeyCode::LEFT_CONTROL)) {
-            m_engine->GetCamera().MoveDown(dt);
+        if (Input::IsKeyPressed(KeyCode::E)) {
+            m_engine->GetCamera().MoveDown(ammount);
         }
     }
 
