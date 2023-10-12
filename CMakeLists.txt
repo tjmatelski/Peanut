@@ -29,6 +29,7 @@ conan_cmake_configure(
         sol2/3.3.0
         spdlog/1.11.0
         yaml-cpp/0.7.0
+        pybind11/2.10.4
     GENERATORS
         cmake_find_package_multi
         CMakeToolchain

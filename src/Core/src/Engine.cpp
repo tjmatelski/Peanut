@@ -1,7 +1,10 @@
+#include "Input/Input.h"
+#include "Renderer/IndexBuffer.h"
 #include <Engine.hpp>
 
 #include <Application.h>
 #include <Events/WindowEvents.h>
+#include <Input/Input.h>
 #include <Input/KeyCodes.h>
 #include <Input/MouseCodes.h>
 #include <Renderer/ModelLibrary.h>
@@ -14,9 +17,12 @@
 #include <Utils/Log.h>
 #include <Utils/Settings.h>
 
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
+#include <sol/sol.hpp>
+
 #include <filesystem>
 #include <memory>
-#include <sol/sol.hpp>
 #include <utility>
 
 namespace PEANUT {
@@ -32,6 +38,13 @@ Engine::Engine()
 
     m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
     m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");
+}
+
+PYBIND11_EMBEDDED_MODULE(peanut, m)
+{
+    m.def("is_key_pressed", [](int i) {
+        return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));
+    });
 }
 
 Engine::~Engine()
@@ -60,6 +73,8 @@ void Engine::Run()
 
         if (m_runtime) {
             UpdateLuaScripts(timeStep);
+            pybind11::scoped_interpreter python;
+            pybind11::exec("import peanut\nif peanut.is_key_pressed(32):\n\tprint('WOWZERS')");
         }
 
         UpdateWindow();
