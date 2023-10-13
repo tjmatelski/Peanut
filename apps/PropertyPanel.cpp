@@ -67,9 +67,9 @@ void DrawComponentSpecifics<SpriteRenderComponent>(Entity m_selectedEntity)
 }
 
 template <>
-void DrawComponentSpecifics<LuaScriptComponent>(Entity m_selectedEntity)
+void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
 {
-    auto& scriptComp = m_selectedEntity.Get<LuaScriptComponent>();
+    auto& scriptComp = m_selectedEntity.Get<PythonScriptComponent>();
     ImGui::Text("%s", scriptComp.script.filename().c_str());
     if (ImGui::Button("...")) {
         scriptComp.script = CreateFileSelectorDialog()->OpenFile().value_or(scriptComp.script);
@@ -126,7 +126,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<TagComponent>("Tag", m_selectedEntity);
         DrawComponent<TransformComponent>("Transform", m_selectedEntity);
         DrawComponent<SpriteRenderComponent>("Sprite Render", m_selectedEntity);
-        DrawComponent<LuaScriptComponent>("LUA Script", m_selectedEntity);
+        DrawComponent<PythonScriptComponent>("Python Script", m_selectedEntity);
         DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
         DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
         DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
@@ -142,10 +142,10 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                 comp.color = { 1.0, 1.0, 1.0 };
                 comp.texture = "textures/BlankSquare.png";
             }
-            if (ImGui::MenuItem("LUA Script")) {
+            if (ImGui::MenuItem("Python Script")) {
                 auto scriptFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                 if (std::filesystem::exists(scriptFile)) {
-                    auto& comp = m_selectedEntity.Add<LuaScriptComponent>();
+                    auto& comp = m_selectedEntity.Add<PythonScriptComponent>();
                     comp.script = scriptFile;
                 }
             }

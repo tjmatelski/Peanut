@@ -24,9 +24,7 @@ conan_cmake_configure(
         glfw/3.3.8
         glm/0.9.9.8
         imgui/cci.20220621+1.88.docking
-        lua/5.4.4
         pkgconf/1.9.3
-        sol2/3.3.0
         spdlog/1.11.0
         yaml-cpp/0.7.0
         pybind11/2.10.4

@@ -10,7 +10,7 @@ Entities:
     SpriteRenderComponent:
       Color: [1, 1, 1]
       Texture: textures/container.jpg
-    LuaScriptComponent:
+    PythonScriptComponent:
       Script: scripts/test.lua
   - Entity: 123456789
     TagComponent:

@@ -79,9 +79,9 @@ static void SerializeEntity(YAML::Emitter& out, PEANUT::Entity ent, std::filesys
         out << YAML::EndMap;
     }
 
-    if (ent.Has<LuaScriptComponent>()) {
-        auto scriptPath = ent.Get<LuaScriptComponent>().script;
-        out << YAML::Key << "LuaScriptComponent" << YAML::Value << YAML::BeginMap;
+    if (ent.Has<PythonScriptComponent>()) {
+        auto scriptPath = ent.Get<PythonScriptComponent>().script;
+        out << YAML::Key << "PythonScriptComponent" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "Script" << YAML::Value << std::filesystem::relative(scriptPath, sceneFile.parent_path());
         out << YAML::EndMap;
     }
@@ -170,9 +170,9 @@ void SceneSerializer::Deserialize(const std::string& file, Scene& scene)
             comp.texture = (projectDir / relative).string();
         }
 
-        if (entity["LuaScriptComponent"]) {
-            auto& component = sceneEnt.Add<LuaScriptComponent>();
-            std::filesystem::path relative(entity["LuaScriptComponent"]["Script"].as<std::string>());
+        if (entity["PythonScriptComponent"]) {
+            auto& component = sceneEnt.Add<PythonScriptComponent>();
+            std::filesystem::path relative(entity["PythonScriptComponent"]["Script"].as<std::string>());
             component.script = projectDir / relative;
         }
 

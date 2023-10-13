@@ -42,7 +42,7 @@ private:
     void Run();
     void OnApplicationEvent(Event& event);
     void UpdateWindow();
-    void UpdateLuaScripts(double dt);
+    void UpdateRuntimeScripts(double dt);
     void Update(double dt);
 
     friend int ::main(int argc, char** argv);
