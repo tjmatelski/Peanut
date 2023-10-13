@@ -44,6 +44,7 @@ PYBIND11_EMBEDDED_MODULE(peanut, m)
     m.def("is_key_pressed", [](int i) {
         return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));
     });
+    pybind11::enum_<KeyCode>(m, "KeyCode").value("Space", KeyCode::SPACE);
 }
 
 Engine::~Engine()
