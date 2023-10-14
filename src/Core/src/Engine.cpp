@@ -1,12 +1,12 @@
-#include "Input/Input.h"
-#include "Renderer/IndexBuffer.h"
 #include <Engine.hpp>
 
+#include "PythonBindings.hpp"
 #include <Application.h>
 #include <Events/WindowEvents.h>
 #include <Input/Input.h>
 #include <Input/KeyCodes.h>
 #include <Input/MouseCodes.h>
+#include <Renderer/IndexBuffer.h>
 #include <Renderer/ModelLibrary.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/Renderer2D.h>
@@ -22,9 +22,16 @@
 
 #include <filesystem>
 #include <memory>
+#include <pybind11/pytypes.h>
+#include <unordered_map>
 #include <utility>
 
 namespace PEANUT {
+
+namespace {
+    std::vector<pybind11::object> py_objects;
+}
+
 Engine::Engine()
     : m_scene(std::make_shared<Scene>())
 {
@@ -70,6 +77,18 @@ void Engine::Run()
         UpdateWindow();
     }
     m_app->OnRemove();
+}
+
+void Engine::StartRuntime()
+{
+    m_runtime = true;
+    BeginRuntime();
+}
+
+void Engine::StopRunTime()
+{
+    m_runtime = false;
+    EndRuntime();
 }
 
 void Engine::Update(double dt)
@@ -148,16 +167,31 @@ void Engine::UpdateWindow()
     m_window->PollEvents();
 }
 
-void UpdatePythonScripts(double dt, Entity ent, const std::filesystem::path& script);
+void Engine::BeginRuntime()
+{
+    pybind11::initialize_interpreter();
+    auto sys = pybind11::module_::import("sys");
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<PythonScriptComponent>()) {
+            const auto& script = ent.Get<PythonScriptComponent>().script;
+            sys.attr("path").attr("append")(script.parent_path().c_str());
+            auto module = pybind11::module_::import(script.stem().c_str());
+            py_objects.emplace_back(module.attr("my_test")());
+        }
+    });
+}
 
 void Engine::UpdateRuntimeScripts(double ts)
 {
-    pybind11::scoped_interpreter python;
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<PythonScriptComponent>()) {
-            UpdatePythonScripts(ts, ent, ent.Get<PythonScriptComponent>().script);
-        }
-    });
+    for (auto& instance : py_objects) {
+        instance.attr("update")(ts);
+    }
+}
+
+void Engine::EndRuntime()
+{
+    py_objects.clear();
+    pybind11::finalize_interpreter();
 }
 
 void Engine::OnApplicationEvent(Event& event)

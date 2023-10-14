@@ -19,8 +19,8 @@ public:
 
     static auto Get() -> Engine&;
 
-    void StartRuntime() { m_runtime = true; }
-    void StopRunTime() { m_runtime = false; }
+    void StartRuntime();
+    void StopRunTime();
     void Terminate();
 
     [[nodiscard]] auto GetWindow() const -> const Window& { return *m_window; }
@@ -42,7 +42,9 @@ private:
     void Run();
     void OnApplicationEvent(Event& event);
     void UpdateWindow();
+    void BeginRuntime();
     void UpdateRuntimeScripts(double dt);
+    void EndRuntime();
     void Update(double dt);
 
     friend int ::main(int argc, char** argv);
