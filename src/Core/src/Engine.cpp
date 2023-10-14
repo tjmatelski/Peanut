@@ -148,12 +148,14 @@ void Engine::UpdateWindow()
     m_window->PollEvents();
 }
 
+void UpdatePythonScripts(double dt, Entity ent, const std::filesystem::path& script);
+
 void Engine::UpdateRuntimeScripts(double ts)
 {
     pybind11::scoped_interpreter python;
     m_scene->ForEachEntity([&](Entity ent) {
         if (ent.Has<PythonScriptComponent>()) {
-            pybind11::eval_file(ent.Get<PythonScriptComponent>().script.c_str());
+            UpdatePythonScripts(ts, ent, ent.Get<PythonScriptComponent>().script);
         }
     });
 }

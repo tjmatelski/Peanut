@@ -1,6 +1,8 @@
+#include "Scene/Entity.h"
 #include <Input/Input.h>
 #include <Input/KeyCodes.h>
 
+#include <filesystem>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 
@@ -125,5 +127,13 @@ PYBIND11_EMBEDDED_MODULE(peanut, m)
         .value("RIGHT_ALT", KeyCode::RIGHT_ALT)
         .value("RIGHT_SUPER", KeyCode::RIGHT_SUPER)
         .value("MENU", KeyCode::MENU);
+}
+
+void UpdatePythonScripts(double dt, Entity ent, const std::filesystem::path& script)
+{
+    auto sys = pybind11::module_::import("sys");
+    sys.attr("path").attr("append")(script.parent_path().c_str());
+    auto module = pybind11::module_::import(script.stem().c_str());
+    module.attr("update")(dt);
 }
 }
