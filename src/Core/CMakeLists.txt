@@ -3,6 +3,7 @@ add_library(pn-core
     src/Window.cpp
     src/WindowInput.cpp
     src/FileSelectorDialog.cpp
+    src/PythonBindings.cpp
 )
 
 target_include_directories(pn-core PUBLIC include)
