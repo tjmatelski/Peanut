@@ -1,17 +1,58 @@
+#include "Input/Input.h"
+#include "Input/KeyCodes.h"
+#include "Scene/Component.h"
 #include "Scene/Entity.h"
-#include <Input/Input.h>
-#include <Input/KeyCodes.h>
+#include "Utils/Log.h"
 
-#include <filesystem>
+#include <pybind11/detail/common.h>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 
+#include <filesystem>
+
 namespace PEANUT {
+
+struct PythonScript {
+    PythonScript() { LOG_DEBUG("Constructing PythonScript: {:p}", fmt::ptr(this)); }
+    virtual ~PythonScript() { LOG_DEBUG("Destructing PythonScript: {:p}", fmt::ptr(this)); }
+    Entity m_ent;
+    virtual void update(double dt) { }
+};
+
+struct PythonScriptBinding : public PythonScript {
+    PythonScriptBinding()
+        : PythonScript()
+    {
+        LOG_DEBUG("Constructing PythonScriptBinding: {:p}", fmt::ptr(this));
+    }
+
+    PythonScriptBinding(PythonScript&& base)
+        : PythonScript(std::move(base))
+    {
+        LOG_DEBUG("Constructing PythonScriptBinding: {:p}", fmt::ptr(this));
+    }
+
+    ~PythonScriptBinding() override
+    {
+        LOG_DEBUG("Destructing PythonScriptBinding: {:p}", fmt::ptr(this));
+    }
+
+    void update(double dt) override
+    {
+        PYBIND11_OVERRIDE(void, PythonScript, update, dt);
+    }
+};
+
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
+    pybind11::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
+        .def(pybind11::init<>())
+        .def("update", &PythonScript::update);
+
     m.def("is_key_pressed", [](int i) {
         return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));
     });
+
     pybind11::enum_<KeyCode>(m, "KeyCode")
         .value("SPACE", KeyCode::SPACE)
         .value("APOSTROPHE", KeyCode::APOSTROPHE)

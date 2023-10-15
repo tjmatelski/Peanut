@@ -9,11 +9,16 @@ def update(dt: float):
         print(f"G was pressed. dt is {dt}")
 
 
-class my_test:
+class my_test(peanut.PythonScript):
     def __init__(self):
+        peanut.PythonScript.__init__(self)
+        print("Python Init!!!!!!!!!!!!!!!!")
         self.num = 0
 
-    def update(self, dt: float):
+    def __del__(self):
+        print("Python Del!!!!!!!!!!!!!!")
+
+    def update(self, dt):
         if (peanut.is_key_pressed(peanut.KeyCode.G)):
             self.num += 1
             print(f"num = {self.num}")

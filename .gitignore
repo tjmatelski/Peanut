@@ -34,6 +34,7 @@
 build*/
 .vscode/c_cpp_properties.json
 .cache/
+__pycache__/
 
 imgui.ini
 conan_imports_manifest.txt

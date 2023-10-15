@@ -29,7 +29,7 @@
 namespace PEANUT {
 
 namespace {
-    std::vector<pybind11::object> py_objects;
+    std::vector<PythonScript*> py_objects;
 }
 
 Engine::Engine()
@@ -75,6 +75,9 @@ void Engine::Run()
         }
 
         UpdateWindow();
+    }
+    if (m_runtime) {
+        EndRuntime();
     }
     m_app->OnRemove();
 }
@@ -176,7 +179,9 @@ void Engine::BeginRuntime()
             const auto& script = ent.Get<PythonScriptComponent>().script;
             sys.attr("path").attr("append")(script.parent_path().c_str());
             auto module = pybind11::module_::import(script.stem().c_str());
-            py_objects.emplace_back(module.attr("my_test")());
+            auto instance = module.attr(script.stem().c_str())();
+            instance.inc_ref(); // So the python interpreter keeps object alive while C++ has ownership.
+            py_objects.emplace_back(instance.cast<PythonScript*>());
         }
     });
 }
@@ -184,12 +189,15 @@ void Engine::BeginRuntime()
 void Engine::UpdateRuntimeScripts(double ts)
 {
     for (auto& instance : py_objects) {
-        instance.attr("update")(ts);
+        instance->update(ts);
     }
 }
 
 void Engine::EndRuntime()
 {
+    for (auto* obj : py_objects) {
+        pybind11::cast(obj).dec_ref(); // Release C++ ownership of python object
+    }
     py_objects.clear();
     pybind11::finalize_interpreter();
 }
