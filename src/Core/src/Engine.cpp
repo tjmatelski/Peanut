@@ -190,13 +190,17 @@ void Engine::BeginRuntime()
 
 void Engine::UpdateRuntimeScripts(double ts)
 {
+    bool python_error = false;
     try {
         for (auto& instance : py_objects) {
             instance->update(ts);
         }
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
-        EndRuntime();
+        python_error = true;
+    }
+    if (python_error) {
+        StopRunTime();
     }
 }
 

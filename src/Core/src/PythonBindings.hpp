@@ -22,6 +22,8 @@ struct PythonScript {
     Entity m_ent;
     template <class CompT>
     CompT& get() { return m_ent.Get<CompT>(); }
+    template <class CompT>
+    void set(const CompT& comp) { m_ent.Get<CompT>() = comp; }
 
     virtual void update(double dt) { }
 };
@@ -68,7 +70,7 @@ PYBIND11_EMBEDDED_MODULE(peanut, m)
     py::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
         .def(py::init<>())
         .def("update", &PythonScript::update)
-        .def("transform", &PythonScript::get<TransformComponent>, py::return_value_policy::reference);
+        .def_property("transform", &PythonScript::get<TransformComponent>, &PythonScript::set<TransformComponent>, py::return_value_policy::reference);
 
     m.def("is_key_pressed", [](int i) {
         return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));
