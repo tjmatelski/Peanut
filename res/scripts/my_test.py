@@ -22,3 +22,5 @@ class my_test(peanut.PythonScript):
         if (peanut.is_key_pressed(peanut.KeyCode.G)):
             self.num += 1
             print(f"num = {self.num}")
+        if (peanut.is_key_pressed(peanut.KeyCode.W)):
+            self.transform().translation.x += 5.0 * dt

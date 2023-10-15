@@ -17,6 +17,7 @@
 #include <Utils/Log.h>
 #include <Utils/Settings.h>
 
+#include <exception>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 
@@ -182,14 +183,20 @@ void Engine::BeginRuntime()
             auto instance = module.attr(script.stem().c_str())();
             instance.inc_ref(); // So the python interpreter keeps object alive while C++ has ownership.
             py_objects.emplace_back(instance.cast<PythonScript*>());
+            py_objects.back()->m_ent = ent;
         }
     });
 }
 
 void Engine::UpdateRuntimeScripts(double ts)
 {
-    for (auto& instance : py_objects) {
-        instance->update(ts);
+    try {
+        for (auto& instance : py_objects) {
+            instance->update(ts);
+        }
+    } catch (std::exception& e) {
+        LOG_ERROR("Python Script Threw Exception: {}", e.what());
+        EndRuntime();
     }
 }
 

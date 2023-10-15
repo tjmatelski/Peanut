@@ -4,18 +4,25 @@
 #include "Scene/Entity.h"
 #include "Utils/Log.h"
 
+#include <glm/fwd.hpp>
 #include <pybind11/detail/common.h>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 
 #include <filesystem>
 
+namespace py = pybind11;
+
 namespace PEANUT {
 
 struct PythonScript {
     PythonScript() { LOG_DEBUG("Constructing PythonScript: {:p}", fmt::ptr(this)); }
     virtual ~PythonScript() { LOG_DEBUG("Destructing PythonScript: {:p}", fmt::ptr(this)); }
+
     Entity m_ent;
+    template <class CompT>
+    CompT& get() { return m_ent.Get<CompT>(); }
+
     virtual void update(double dt) { }
 };
 
@@ -45,15 +52,29 @@ struct PythonScriptBinding : public PythonScript {
 
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
-    pybind11::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
-        .def(pybind11::init<>())
-        .def("update", &PythonScript::update);
+    // Components
+    py::class_<glm::vec3>(m, "Vec3")
+        .def(py::init())
+        .def_readwrite("x", &glm::vec3::x)
+        .def_readwrite("y", &glm::vec3::y)
+        .def_readwrite("z", &glm::vec3::z);
+
+    py::class_<TransformComponent>(m, "TransformComponent")
+        .def(py::init())
+        .def_readwrite("translation", &TransformComponent::translation)
+        .def_readwrite("rotation", &TransformComponent::rotation)
+        .def_readwrite("scale", &TransformComponent::scale);
+
+    py::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
+        .def(py::init<>())
+        .def("update", &PythonScript::update)
+        .def("transform", &PythonScript::get<TransformComponent>, py::return_value_policy::reference);
 
     m.def("is_key_pressed", [](int i) {
         return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));
     });
 
-    pybind11::enum_<KeyCode>(m, "KeyCode")
+    py::enum_<KeyCode>(m, "KeyCode")
         .value("SPACE", KeyCode::SPACE)
         .value("APOSTROPHE", KeyCode::APOSTROPHE)
         .value("COMMA", KeyCode::COMMA)
