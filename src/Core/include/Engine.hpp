@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene/Component.h"
 #include <Events/Event.h>
 #include <Renderer/PerspectiveCamera.h>
 #include <Renderer/Shader.h>
@@ -49,5 +50,7 @@ private:
 
     friend int ::main(int argc, char** argv);
 };
+
+void LoadPythonScriptObj(Entity ent);
 
 } // namespace PEANUT

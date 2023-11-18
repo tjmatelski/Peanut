@@ -8,6 +8,8 @@
 
 namespace PEANUT {
 
+class PythonScript;
+
 struct TagComponent {
     TagComponent() = default;
     std::string tag;
@@ -45,6 +47,7 @@ struct SpriteRenderComponent {
 
 struct PythonScriptComponent {
     std::filesystem::path script;
+    PythonScript* script_obj = nullptr;
 };
 
 struct ModelFileComponent {

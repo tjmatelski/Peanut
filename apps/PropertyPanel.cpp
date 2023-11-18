@@ -1,3 +1,4 @@
+#include "Engine.hpp"
 #include "Input/FileSelectorDialog.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
@@ -147,6 +148,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                 if (std::filesystem::exists(scriptFile)) {
                     auto& comp = m_selectedEntity.Add<PythonScriptComponent>();
                     comp.script = scriptFile;
+                    LoadPythonScriptObj(m_selectedEntity);
                 }
             }
             if (ImGui::MenuItem("Model File")) {
