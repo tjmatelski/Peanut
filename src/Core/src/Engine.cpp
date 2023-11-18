@@ -29,10 +29,6 @@
 
 namespace PEANUT {
 
-namespace {
-    std::vector<PythonScript*> py_objects;
-}
-
 Engine::Engine()
     : m_scene(std::make_shared<Scene>())
 {
@@ -45,10 +41,21 @@ Engine::Engine()
 
     m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
     m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");
+
+    LOG_DEBUG("Initializing Python Interpreter");
+    pybind11::initialize_interpreter();
 }
 
 Engine::~Engine()
 {
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<PythonScriptComponent>()) {
+            const auto comp = ent.Get<PythonScriptComponent>();
+            py::cast(comp.script_obj).dec_ref();
+        }
+    });
+    LOG_DEBUG("Stopping Python Interpreter");
+    pybind11::finalize_interpreter();
     delete m_app;
 }
 
@@ -173,17 +180,16 @@ void Engine::UpdateWindow()
 
 void Engine::BeginRuntime()
 {
-    pybind11::initialize_interpreter();
-    auto sys = pybind11::module_::import("sys");
     m_scene->ForEachEntity([&](Entity ent) {
         if (ent.Has<PythonScriptComponent>()) {
-            const auto& script = ent.Get<PythonScriptComponent>().script;
-            sys.attr("path").attr("append")(script.parent_path().c_str());
-            auto module = pybind11::module_::import(script.stem().c_str());
-            auto instance = module.attr(script.stem().c_str())();
-            instance.inc_ref(); // So the python interpreter keeps object alive while C++ has ownership.
-            py_objects.emplace_back(instance.cast<PythonScript*>());
-            py_objects.back()->m_ent = ent;
+            const auto comp = ent.Get<PythonScriptComponent>();
+
+            using namespace py::literals;
+            auto locals = py::dict("script"_a = py::cast(comp.script_obj));
+            for (const auto& local : locals) {
+                LOG_DEBUG("is str first:  {}", py::isinstance<py::str>(local.first));
+                LOG_DEBUG("is str second: {}", py::isinstance<py::str>(local.second));
+            }
         }
     });
 }
@@ -192,9 +198,12 @@ void Engine::UpdateRuntimeScripts(double ts)
 {
     bool python_error = false;
     try {
-        for (auto& instance : py_objects) {
-            instance->update(ts);
-        }
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<PythonScriptComponent>()) {
+                const auto comp = ent.Get<PythonScriptComponent>();
+                comp.script_obj->update(ts);
+            }
+        });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
         python_error = true;
@@ -206,11 +215,6 @@ void Engine::UpdateRuntimeScripts(double ts)
 
 void Engine::EndRuntime()
 {
-    for (auto* obj : py_objects) {
-        pybind11::cast(obj).dec_ref(); // Release C++ ownership of python object
-    }
-    py_objects.clear();
-    pybind11::finalize_interpreter();
 }
 
 void Engine::OnApplicationEvent(Event& event)
@@ -225,6 +229,24 @@ void Engine::OnApplicationEvent(Event& event)
 void Engine::Terminate()
 {
     m_shouldWindowClose = true;
+}
+
+void LoadPythonScriptObj(Entity ent)
+{
+    // Get Component parts
+    auto& comp = ent.Get<PythonScriptComponent>();
+    const auto& script = comp.script;
+
+    // Load module
+    auto sys = pybind11::module_::import("sys");
+    sys.attr("path").attr("append")(script.parent_path().c_str());
+    auto module = pybind11::module_::import(script.stem().c_str());
+
+    // Create instance
+    auto instance = module.attr(script.stem().c_str())();
+    instance.inc_ref(); // So the python interpreter keeps object alive while C++ has ownership.
+    comp.script_obj = instance.cast<PythonScript*>();
+    comp.script_obj->m_ent = ent;
 }
 } // namespace PEANUT
 
