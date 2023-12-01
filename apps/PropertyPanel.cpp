@@ -75,6 +75,19 @@ void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
     if (ImGui::Button("...")) {
         scriptComp.script = CreateFileSelectorDialog()->OpenFile().value_or(scriptComp.script);
     }
+    auto& editor_fields = GetScriptEditorMembers(scriptComp.script_obj);
+    for (auto& field : editor_fields) {
+        std::visit([&](auto&& arg) {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<int, T>) {
+                ImGui::DragInt(field.first.c_str(), &arg);
+            }
+            if constexpr (std::is_same_v<float, T>) {
+                ImGui::DragFloat(field.first.c_str(), &arg);
+            }
+        },
+            field.second);
+    }
 }
 
 template <>

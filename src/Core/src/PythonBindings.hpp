@@ -5,11 +5,17 @@
 #include "Utils/Log.h"
 
 #include <glm/fwd.hpp>
-#include <pybind11/detail/common.h>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 #include <filesystem>
+#include <string>
+#include <unordered_map>
+#include <variant>
+
+PYBIND11_MAKE_OPAQUE(std::unordered_map<std::string, std::variant<int, float>>);
 
 namespace py = pybind11;
 
@@ -19,11 +25,15 @@ struct PythonScript {
     PythonScript() { LOG_DEBUG("Constructing PythonScript: {:p}", fmt::ptr(this)); }
     virtual ~PythonScript() { LOG_DEBUG("Destructing PythonScript: {:p}", fmt::ptr(this)); }
 
+    // Component access
     Entity m_ent;
     template <class CompT>
     CompT& get() { return m_ent.Get<CompT>(); }
     template <class CompT>
     void set(const CompT& comp) { m_ent.Get<CompT>() = comp; }
+
+    // Editor
+    std::unordered_map<std::string, std::variant<int, float>> editor_fields;
 
     virtual void update(double dt) { }
 };
@@ -54,6 +64,8 @@ struct PythonScriptBinding : public PythonScript {
 
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
+    py::bind_map<std::unordered_map<std::string, std::variant<int, float>>>(m, "EditorFieldsMap");
+
     // Components
     py::class_<glm::vec3>(m, "Vec3")
         .def(py::init())
@@ -70,7 +82,8 @@ PYBIND11_EMBEDDED_MODULE(peanut, m)
     py::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
         .def(py::init<>())
         .def("update", &PythonScript::update)
-        .def_property("transform", &PythonScript::get<TransformComponent>, &PythonScript::set<TransformComponent>, py::return_value_policy::reference);
+        .def_property("transform", &PythonScript::get<TransformComponent>, &PythonScript::set<TransformComponent>, py::return_value_policy::reference)
+        .def_readwrite("editor_fields", &PythonScript::editor_fields, py::return_value_policy::reference);
 
     m.def("is_key_pressed", [](int i) {
         return PEANUT::Input::IsKeyPressed(static_cast<KeyCode>(i));

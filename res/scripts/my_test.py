@@ -9,6 +9,7 @@ class my_test(peanut.PythonScript):
         peanut.PythonScript.__init__(self)
         print("Python Init!!!!!!!!!!!!!!!!")
         self.vel = 0.0
+        self.editor_fields["velocity"] = 1.23
 
     def __del__(self):
         print("Python Del!!!!!!!!!!!!!!")

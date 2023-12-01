@@ -8,10 +8,14 @@
 #include <Window.h>
 
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <variant>
 
 int main(int argc, char** argv);
 
 namespace PEANUT {
+class PythonScript;
 class Application;
 class Engine {
 public:
@@ -52,5 +56,7 @@ private:
 };
 
 void LoadPythonScriptObj(Entity ent);
+
+std::unordered_map<std::string, std::variant<int, float>>& GetScriptEditorMembers(PythonScript* script);
 
 } // namespace PEANUT

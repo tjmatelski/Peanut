@@ -248,6 +248,12 @@ void LoadPythonScriptObj(Entity ent)
     comp.script_obj = instance.cast<PythonScript*>();
     comp.script_obj->m_ent = ent;
 }
+
+std::unordered_map<std::string, std::variant<int, float>>& GetScriptEditorMembers(PythonScript* script)
+{
+    return script->editor_fields;
+}
+
 } // namespace PEANUT
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
