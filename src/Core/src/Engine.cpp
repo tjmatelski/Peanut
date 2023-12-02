@@ -104,6 +104,17 @@ void Engine::StopRunTime()
 
 void Engine::Update(double dt)
 {
+    try {
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<PythonScriptComponent>()) {
+                const auto comp = ent.Get<PythonScriptComponent>();
+                comp.script_obj->editor_update();
+            }
+        });
+    } catch (std::exception& e) {
+        LOG_ERROR("Python Script Threw Exception: {}", e.what());
+    }
+
     // Clear buffers for start of frame
     Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
     Renderer::ClearBuffers();
@@ -180,18 +191,16 @@ void Engine::UpdateWindow()
 
 void Engine::BeginRuntime()
 {
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<PythonScriptComponent>()) {
-            const auto comp = ent.Get<PythonScriptComponent>();
-
-            using namespace py::literals;
-            auto locals = py::dict("script"_a = py::cast(comp.script_obj));
-            for (const auto& local : locals) {
-                LOG_DEBUG("is str first:  {}", py::isinstance<py::str>(local.first));
-                LOG_DEBUG("is str second: {}", py::isinstance<py::str>(local.second));
+    try {
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<PythonScriptComponent>()) {
+                const auto comp = ent.Get<PythonScriptComponent>();
+                comp.script_obj->runtime_begin();
             }
-        }
-    });
+        });
+    } catch (std::exception& e) {
+        LOG_ERROR("Python Script Threw Exception: {}", e.what());
+    }
 }
 
 void Engine::UpdateRuntimeScripts(double ts)
@@ -215,6 +224,16 @@ void Engine::UpdateRuntimeScripts(double ts)
 
 void Engine::EndRuntime()
 {
+    try {
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<PythonScriptComponent>()) {
+                const auto comp = ent.Get<PythonScriptComponent>();
+                comp.script_obj->runtime_end();
+            }
+        });
+    } catch (std::exception& e) {
+        LOG_ERROR("Python Script Threw Exception: {}", e.what());
+    }
 }
 
 void Engine::OnApplicationEvent(Event& event)
@@ -249,7 +268,7 @@ void LoadPythonScriptObj(Entity ent)
     comp.script_obj->m_ent = ent;
 }
 
-std::unordered_map<std::string, std::variant<int, float>>& GetScriptEditorMembers(PythonScript* script)
+EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
 {
     return script->editor_fields;
 }

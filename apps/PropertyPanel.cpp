@@ -2,6 +2,7 @@
 #include "Input/FileSelectorDialog.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
+#include "Utils/Log.h"
 
 #include <imgui.h>
 
@@ -84,6 +85,9 @@ void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
             }
             if constexpr (std::is_same_v<float, T>) {
                 ImGui::DragFloat(field.first.c_str(), &arg);
+            }
+            if constexpr (std::is_same_v<EditorButton, T>) {
+                arg.pressed = ImGui::Button(field.first.c_str());
             }
         },
             field.second);

@@ -36,7 +36,10 @@ struct PythonScript {
     // Editor
     EditorFieldMap editor_fields;
 
+    virtual void runtime_begin() { }
     virtual void update(double dt) { }
+    virtual void runtime_end() { }
+    virtual void editor_update() { }
 };
 
 struct PythonScriptBinding : public PythonScript {
@@ -57,15 +60,34 @@ struct PythonScriptBinding : public PythonScript {
         LOG_DEBUG("Destructing PythonScriptBinding: {:p}", fmt::ptr(this));
     }
 
+    void runtime_begin() override
+    {
+        PYBIND11_OVERRIDE(void, PythonScript, runtime_begin);
+    }
+
     void update(double dt) override
     {
         PYBIND11_OVERRIDE(void, PythonScript, update, dt);
+    }
+
+    void runtime_end() override
+    {
+        PYBIND11_OVERRIDE(void, PythonScript, runtime_end);
+    }
+
+    void editor_update() override
+    {
+        PYBIND11_OVERRIDE(void, PythonScript, editor_update);
     }
 };
 
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
     py::bind_map<EditorFieldMap>(m, "EditorFieldsMap");
+
+    py::class_<EditorButton>(m, "EditorButton")
+        .def(py::init())
+        .def_readwrite("pressed", &EditorButton::pressed);
 
     // Components
     py::class_<glm::vec3>(m, "Vec3")
@@ -82,7 +104,10 @@ PYBIND11_EMBEDDED_MODULE(peanut, m)
 
     py::class_<PythonScript, PythonScriptBinding>(m, "PythonScript")
         .def(py::init<>())
+        .def("runtime_begin", &PythonScript::runtime_begin)
         .def("update", &PythonScript::update)
+        .def("runtime_end", &PythonScript::runtime_end)
+        .def("editor_update", &PythonScript::editor_update)
         .def_property("transform", &PythonScript::get<TransformComponent>, &PythonScript::set<TransformComponent>, py::return_value_policy::reference)
         .def_readwrite("editor_fields", &PythonScript::editor_fields, py::return_value_policy::reference);
 

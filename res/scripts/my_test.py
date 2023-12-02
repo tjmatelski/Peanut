@@ -10,9 +10,13 @@ class my_test(peanut.PythonScript):
         self.editor_fields["speed"] = 1.23
         self.editor_fields["jump_force"] = 10.0
         self.editor_fields["test_int"] = 123
+        self.editor_fields["test_button"] = peanut.EditorButton()
 
     def __del__(self):
         print("Python Del!!!!!!!!!!!!!!")
+
+    def runtime_begin(self):
+        print('Python begin runtime')
 
     def update(self, dt):
         speed = self.editor_fields["speed"]
@@ -30,3 +34,10 @@ class my_test(peanut.PythonScript):
         self.vel += -self.grav * dt
         if (self.transform.translation.y < -1.0):
             self.transform.translation.y = -1.0
+
+    def runtime_end(self):
+        print('Python end runtime')
+
+    def editor_update(self):
+        if (self.editor_fields["test_button"].pressed):
+            print('Test button pressed!')
