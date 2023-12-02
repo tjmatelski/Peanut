@@ -1,3 +1,5 @@
+#include "Engine.hpp"
+#include "Scene/Component.h"
 #include "SceneHierarchyPanel.h"
 #include "ViewportPanel.h"
 #include <Application.h>
@@ -214,6 +216,11 @@ private:
                     if (sceneFile.find(".peanut") != std::string::npos) {
                         LOG_INFO("Opening Scene: {}", sceneFile);
                         SceneSerializer::Deserialize(sceneFile, *m_engine->GetScene());
+                        m_engine->GetScene()->ForEachEntity([](Entity ent) {
+                            if (ent.Has<PythonScriptComponent>()) {
+                                LoadPythonScriptObj(ent);
+                            }
+                        });
                     } else {
                         LOG_ERROR("Invalid scene file: {}", sceneFile);
                     }
