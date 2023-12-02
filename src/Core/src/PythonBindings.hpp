@@ -1,3 +1,4 @@
+#include "Engine.hpp"
 #include "Input/Input.h"
 #include "Input/KeyCodes.h"
 #include "Scene/Component.h"
@@ -15,7 +16,7 @@
 #include <unordered_map>
 #include <variant>
 
-PYBIND11_MAKE_OPAQUE(std::unordered_map<std::string, std::variant<int, float>>);
+PYBIND11_MAKE_OPAQUE(PEANUT::EditorFieldMap);
 
 namespace py = pybind11;
 
@@ -33,7 +34,7 @@ struct PythonScript {
     void set(const CompT& comp) { m_ent.Get<CompT>() = comp; }
 
     // Editor
-    std::unordered_map<std::string, std::variant<int, float>> editor_fields;
+    EditorFieldMap editor_fields;
 
     virtual void update(double dt) { }
 };
@@ -64,7 +65,7 @@ struct PythonScriptBinding : public PythonScript {
 
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
-    py::bind_map<std::unordered_map<std::string, std::variant<int, float>>>(m, "EditorFieldsMap");
+    py::bind_map<EditorFieldMap>(m, "EditorFieldsMap");
 
     // Components
     py::class_<glm::vec3>(m, "Vec3")

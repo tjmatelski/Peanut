@@ -57,6 +57,7 @@ private:
 
 void LoadPythonScriptObj(Entity ent);
 
-std::unordered_map<std::string, std::variant<int, float>>& GetScriptEditorMembers(PythonScript* script);
+using EditorFieldMap = std::unordered_map<std::string, std::variant<int, float>>;
+EditorFieldMap& GetScriptEditorMembers(PythonScript* script);
 
 } // namespace PEANUT
