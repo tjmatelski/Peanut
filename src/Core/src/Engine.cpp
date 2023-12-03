@@ -21,6 +21,7 @@
 #include <Utils/Log.h>
 #include <Utils/Settings.h>
 
+#include <cstddef>
 #include <exception>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
@@ -279,12 +280,22 @@ void LoadPythonScriptObj(Entity ent)
     auto sys = pybind11::module_::import("sys");
     sys.attr("path").attr("append")(script.parent_path().c_str());
     auto module = pybind11::module_::import(script.stem().c_str());
+    module.reload();
 
     // Create instance
     auto instance = module.attr(script.stem().c_str())();
     instance.inc_ref(); // So the python interpreter keeps object alive while C++ has ownership.
     comp.script_obj = instance.cast<PythonScript*>();
     comp.script_obj->m_ent = ent;
+}
+
+void ReloadPythonScript(Entity ent)
+{
+    auto& comp = ent.Get<PythonScriptComponent>();
+    auto inst = py::cast(comp.script_obj);
+    inst.dec_ref();
+    comp.script_obj = nullptr;
+    LoadPythonScriptObj(ent);
 }
 
 EditorFieldMap& GetScriptEditorMembers(PythonScript* script)

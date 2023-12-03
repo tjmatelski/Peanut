@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene/Component.h"
+#include "Scene/Entity.h"
 #include <Events/Event.h>
 #include <Renderer/PerspectiveCamera.h>
 #include <Renderer/Shader.h>
@@ -56,6 +57,7 @@ private:
 };
 
 void LoadPythonScriptObj(Entity ent);
+void ReloadPythonScript(Entity ent);
 
 struct EditorButton {
     bool pressed = false;

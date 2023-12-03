@@ -73,8 +73,8 @@ void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
 {
     auto& scriptComp = m_selectedEntity.Get<PythonScriptComponent>();
     ImGui::Text("%s", scriptComp.script.filename().c_str());
-    if (ImGui::Button("...")) {
-        scriptComp.script = CreateFileSelectorDialog()->OpenFile().value_or(scriptComp.script);
+    if (ImGui::Button("Reload")) {
+        ReloadPythonScript(m_selectedEntity);
     }
     auto& editor_fields = GetScriptEditorMembers(scriptComp.script_obj);
     for (auto& field : editor_fields) {
