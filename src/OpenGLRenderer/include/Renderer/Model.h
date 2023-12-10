@@ -15,7 +15,7 @@ class aiMaterial;
 namespace PEANUT {
 
 struct Renderable {
-    Mesh mesh;
+    OpenglMesh mesh;
     Material material;
 };
 

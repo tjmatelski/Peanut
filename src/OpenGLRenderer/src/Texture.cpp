@@ -100,8 +100,8 @@ Texture::Texture(const Type type)
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    constexpr int width = 2;
-    constexpr int height = 2;
+    constexpr int width = 1024;
+    constexpr int height = 1024;
     std::array<unsigned char, width * height * 3> data;
     std::fill(data.begin(), data.end(), std::numeric_limits<unsigned char>::max());
     GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.data()));

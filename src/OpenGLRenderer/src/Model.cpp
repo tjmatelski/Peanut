@@ -69,12 +69,12 @@ void Model::ProcessNode(const aiNode* node, const aiScene* scene)
 Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
 {
     LOG_DEBUG("Loading Mesh: {}", mesh->mName.C_Str());
-    std::vector<Mesh::Vertex> verts;
+    std::vector<Vertex> verts;
     std::vector<unsigned int> indices;
     std::vector<Texture> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-        Mesh::Vertex vert;
+        Vertex vert;
         vert.position = glm::vec3(mesh->mVertices[i].x,
             mesh->mVertices[i].y,
             mesh->mVertices[i].z);
@@ -100,7 +100,7 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
     textures.insert(textures.end(), diffuse.begin(), diffuse.end());
     textures.insert(textures.end(), specular.begin(), specular.end());
 
-    return { Mesh(std::move(verts), std::move(indices)), Material(std::move(textures)) };
+    return { OpenglMesh(std::move(verts), std::move(indices)), Material(std::move(textures)) };
 }
 
 std::vector<Texture> Model::LoadTextures(const aiMaterial* mat, const int type)

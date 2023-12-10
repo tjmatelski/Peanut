@@ -2,6 +2,7 @@
 
 #include "GLDebug.h"
 #include "Renderer/Texture.h"
+#include "Scene/Component.h"
 
 #include <glad/glad.h>
 
@@ -163,7 +164,7 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     Draw(vertexArray, indexBuffer, shader);
 }
 
-void Renderer::Draw(const Mesh& mesh, const Material material, Shader& shader)
+void Renderer::Draw(const OpenglMesh& mesh, const Material material, Shader& shader)
 {
     unsigned int glTextureNumber = 0;
     unsigned int numDiffuse = 0;
@@ -230,28 +231,26 @@ void Renderer::SetSpotLight(const SpotLight& spotLight, Shader& shader)
 
 Mesh Renderer::GetCubeMesh()
 {
-    std::vector<Mesh::Vertex> verts;
-    std::vector<unsigned int> indicies;
+    Mesh mesh;
     for (int i = 0; i < (8 * 36); i += 8) {
-        Mesh::Vertex vert;
+        Vertex vert;
         vert.position = glm::vec3(cubeVerts[i + 0], cubeVerts[i + 1], cubeVerts[i + 2]);
         vert.normal = glm::vec3(cubeVerts[i + 3], cubeVerts[i + 4], cubeVerts[i + 5]);
         vert.texCoords = glm::vec2(cubeVerts[i + 6], cubeVerts[i + 7]);
-        verts.push_back(vert);
+        mesh.vertices.push_back(vert);
     }
-    for (int i = 0; i < 36; ++i) {
-        indicies.push_back(cubeIndices[i]);
+    for (unsigned int cubeIndice : cubeIndices) {
+        mesh.indices.push_back(cubeIndice);
     }
-
-    return Mesh(std::move(verts), std::move(indicies));
+    return mesh;
 }
 
-Mesh Renderer::GetSkyboxMesh()
+OpenglMesh Renderer::GetSkyboxMesh()
 {
-    std::vector<Mesh::Vertex> verts;
+    std::vector<Vertex> verts;
     std::vector<unsigned int> indicies;
     for (int i = 0; i < (3 * 36); i += 3) {
-        Mesh::Vertex vert;
+        Vertex vert;
         vert.position = glm::vec3(skyboxVertices[i + 0], skyboxVertices[i + 1], skyboxVertices[i + 2]);
         vert.normal = glm::vec3();
         vert.texCoords = glm::vec2();
@@ -261,7 +260,7 @@ Mesh Renderer::GetSkyboxMesh()
         indicies.push_back(cubeIndices[i]);
     }
 
-    return Mesh(std::move(verts), std::move(indicies));
+    return OpenglMesh(std::move(verts), std::move(indicies));
 }
 
 }

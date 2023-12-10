@@ -29,6 +29,7 @@ find_package(glfw3 CONFIG REQUIRED)
 
 target_link_libraries(pn-renderer PRIVATE
     pn-utils
+    pn-scene
     glfw
     OpenGL::GL
     glad::glad

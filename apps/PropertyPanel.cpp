@@ -137,6 +137,12 @@ void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
     }
 }
 
+template <>
+void DrawComponentSpecifics<CustomModelComponent>(Entity)
+{
+    ImGui::Text("Custom Model");
+}
+
 void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 {
     ImGui::Begin("Properties Panel");
@@ -149,6 +155,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
         DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
         DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
         DrawComponent<SkyboxComponent>("Skybox", m_selectedEntity);
+        DrawComponent<CustomModelComponent>("Custom Model", m_selectedEntity);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -187,6 +194,11 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                     auto& comp = m_selectedEntity.Add<SkyboxComponent>();
                     comp.directory = directory;
                 }
+            }
+            if (ImGui::MenuItem("Custom Model")) {
+                auto& model = m_selectedEntity.Add<CustomModelComponent>();
+                model.mesh = GetCubeMesh();
+                CreateCustomModel(model);
             }
             ImGui::EndPopup();
         }

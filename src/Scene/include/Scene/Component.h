@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace PEANUT {
 
@@ -52,6 +53,28 @@ struct PythonScriptComponent {
 
 struct ModelFileComponent {
     std::filesystem::path file;
+};
+
+struct Vertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoords;
+};
+
+struct Mesh {
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+};
+
+struct CustomModelComponent {
+    unsigned int id;
+    Mesh mesh;
+
+    CustomModelComponent()
+    {
+        static unsigned int counter = 0;
+        id = counter++;
+    }
 };
 
 struct DirectionalLightComponent {

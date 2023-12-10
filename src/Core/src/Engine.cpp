@@ -1,6 +1,10 @@
 #include <Engine.hpp>
 
 #include "PythonBindings.hpp"
+#include "Renderer/Material.h"
+#include "Renderer/Mesh.h"
+#include "Renderer/Model.h"
+#include "Renderer/Texture.h"
 #include <Application.h>
 #include <Events/WindowEvents.h>
 #include <Input/Input.h>
@@ -28,6 +32,10 @@
 #include <utility>
 
 namespace PEANUT {
+
+namespace {
+    std::unordered_map<unsigned int, Renderable> customModels;
+}
 
 Engine::Engine()
     : m_scene(std::make_shared<Scene>())
@@ -181,6 +189,17 @@ void Engine::Update(double dt)
             Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), *m_lightingShader);
         }
     });
+
+    m_scene->ForEachEntity([&](Entity ent) {
+        if (ent.Has<CustomModelComponent>()) {
+            m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
+            m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
+            m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+            const auto& renderable = customModels.at(ent.Get<CustomModelComponent>().id);
+            Renderer::Draw(renderable.mesh, renderable.material, *m_lightingShader);
+        }
+    });
 }
 
 void Engine::UpdateWindow()
@@ -271,6 +290,16 @@ void LoadPythonScriptObj(Entity ent)
 EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
 {
     return script->editor_fields;
+}
+
+void CreateCustomModel(const CustomModelComponent& model)
+{
+    customModels.emplace(model.id, Renderable { OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { Texture {} } } });
+}
+
+Mesh GetCubeMesh()
+{
+    return Renderer::GetCubeMesh();
 }
 
 } // namespace PEANUT

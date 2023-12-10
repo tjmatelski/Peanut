@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IndexBuffer.h"
+#include "Scene/Component.h"
 #include "Texture.h"
 #include "Utils/Math.h"
 #include "VertexArray.h"
@@ -9,22 +10,14 @@
 
 namespace PEANUT {
 
-class Mesh {
+class OpenglMesh {
 public:
-    struct Vertex {
-        glm::vec3 position;
-        glm::vec3 normal;
-        glm::vec2 texCoords;
-    };
-
-    Mesh(std::vector<Vertex>&& verticies, std::vector<unsigned int>&& indicies);
+    OpenglMesh(const std::vector<Vertex>& verticies, const std::vector<unsigned int>& indicies);
 
     inline const VertexArray& GetVertexArray() const { return m_vertexArray; }
     inline const IndexBuffer& GetIndexBuffer() const { return m_indexBuffer; }
 
 private:
-    std::vector<Vertex> m_vertices;
-    std::vector<unsigned int> m_indicies;
     VertexArray m_vertexArray;
     IndexBuffer m_indexBuffer;
 };
