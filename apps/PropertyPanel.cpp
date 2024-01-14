@@ -143,7 +143,7 @@ void DrawComponentSpecifics<CustomModelComponent>(Entity)
     ImGui::Text("Custom Model");
 }
 
-void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
+void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
 {
     ImGui::Begin("Properties Panel");
     if (m_selectedEntity) {
@@ -200,6 +200,11 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
                 model.mesh = GetCubeMesh();
                 CreateCustomModel(model);
             }
+            for (const auto& plugin : engine->GetPlugins()) {
+                if (ImGui::MenuItem(plugin.name.c_str())) {
+                    plugin.addToEntity(m_selectedEntity);
+                }
+            }
             ImGui::EndPopup();
         }
     }
@@ -209,8 +214,8 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity)
 }
 
 namespace PEANUT {
-void UpdatePropertiesPanel(Entity selectedEntity)
+void UpdatePropertiesPanel(Entity selectedEntity, Engine* engine)
 {
-    UpdatePropertiesPanelImpl(selectedEntity);
+    UpdatePropertiesPanelImpl(selectedEntity, engine);
 }
 }

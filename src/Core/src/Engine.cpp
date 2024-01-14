@@ -75,6 +75,7 @@ auto Engine::Get() -> Engine&
 
 void Engine::Run()
 {
+    m_pluginManager.LoadAll(Settings::GetApplicationDir());
     m_app->OnAttach();
     while (!m_shouldWindowClose) {
         double currentFrameTime = m_window->GetTime();
