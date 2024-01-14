@@ -1,4 +1,5 @@
 #include "PluginManager.hpp"
+#include "Scene/NativeScript.h"
 #include "Utils/Log.h"
 #include <dlfcn.h>
 #include <filesystem>
@@ -36,6 +37,11 @@ void PluginManager::LoadAll(std::filesystem::path path)
                 LOG_ERROR("{}", error);
                 continue;
             }
+            auto* get_as_native_script = (NativeScript * (*)(Entity)) dlsym(handle, "get_as_native_script");
+            if (auto* error = dlerror()) {
+                LOG_ERROR("{}", error);
+                continue;
+            }
 
             Plugin p;
             p.name = get_name();
@@ -43,6 +49,7 @@ void PluginManager::LoadAll(std::filesystem::path path)
             p.addToEntity = add_to_entity;
             p.entityHasComponent = entity_has_component;
             p.removeFromEntity = remove_from_entity;
+            p.getAsNativeScript = get_as_native_script;
             m_plugins.push_back(p);
         }
     }

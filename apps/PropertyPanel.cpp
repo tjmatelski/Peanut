@@ -2,8 +2,10 @@
 #include "Input/FileSelectorDialog.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
+#include "Scene/NativeScript.h"
 #include "Utils/Log.h"
 
+#include <array>
 #include <imgui.h>
 
 namespace {
@@ -148,7 +150,26 @@ void DrawCustomComponents(Entity ent, Engine* engine)
             if (ImGui::Button("X")) {
                 comp.removeFromEntity(ent);
             } else {
-                // TODO: Draw members
+                for (const auto& member : comp.getAsNativeScript(ent)->GetMembers()) {
+                    if (member.type == MemberVariable::Type::Bool) {
+                        ImGui::Checkbox(member.name.c_str(), static_cast<bool*>(member.addr));
+                    }
+                    if (member.type == MemberVariable::Type::Float) {
+                        ImGui::DragFloat(member.name.c_str(), static_cast<float*>(member.addr));
+                    }
+                    if (member.type == MemberVariable::Type::Double) {
+                        ImGui::InputDouble(member.name.c_str(), static_cast<double*>(member.addr));
+                    }
+                    if (member.type == MemberVariable::Type::Int) {
+                        ImGui::DragInt(member.name.c_str(), static_cast<int*>(member.addr));
+                    }
+                    if (member.type == MemberVariable::Type::String) {
+                        std::array<char, 256> buf = {};
+                        if (ImGui::InputText(member.name.c_str(), buf.data(), 256)) {
+                            *static_cast<std::string*>(member.addr) = buf.data();
+                        }
+                    }
+                }
             }
             ImGui::PopID();
         }

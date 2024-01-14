@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene/NativeScript.h"
 #include <Scene/Entity.h>
 
 #include <filesystem>
@@ -16,6 +17,7 @@ struct Plugin {
     std::function<void(Entity)> addToEntity;
     std::function<bool(Entity)> entityHasComponent;
     std::function<void(Entity)> removeFromEntity;
+    std::function<NativeScript*(Entity)> getAsNativeScript;
 };
 
 class PluginManager {
