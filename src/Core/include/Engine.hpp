@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PluginManager.hpp"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include <Events/Event.h>
@@ -33,6 +34,7 @@ public:
     [[nodiscard]] auto GetScene() const -> std::shared_ptr<Scene> { return m_scene; }
     [[nodiscard]] auto IsRuntime() const -> bool { return m_runtime; }
     [[nodiscard]] auto GetCamera() -> PerspectiveCamera& { return m_perspectiveCam; }
+    [[nodiscard]] auto GetPlugins() -> const std::vector<Plugin>& { return m_pluginManager.Plugins(); }
 
 private:
     Application* m_app = nullptr;
@@ -44,6 +46,7 @@ private:
     double m_lastFrameTime = 0.0;
     bool m_shouldWindowClose = false;
     bool m_runtime = false;
+    PluginManager m_pluginManager;
 
     void Run();
     void OnApplicationEvent(Event& event);

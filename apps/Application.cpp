@@ -35,7 +35,7 @@ struct GLFWwindow;
 
 namespace PEANUT {
 
-void UpdatePropertiesPanel(Entity selectedEntity);
+void UpdatePropertiesPanel(Entity selectedEntity, Engine* engine);
 
 class MyApp : public Application {
 public:
@@ -127,7 +127,7 @@ public:
 
         UpdateMenuBar();
         m_scenePanel->UpdateGui();
-        UpdatePropertiesPanel(m_scenePanel->GetSelectedEntity());
+        UpdatePropertiesPanel(m_scenePanel->GetSelectedEntity(), m_engine);
         m_viewportPanel.Update(m_frameBuffer);
 
         ImGui::End();
