@@ -26,11 +26,23 @@ void PluginManager::LoadAll(std::filesystem::path path)
                 LOG_ERROR("{}", error);
                 continue;
             }
+            auto* remove_from_entity = (void (*)(Entity))dlsym(handle, "remove_from_entity");
+            if (auto* error = dlerror()) {
+                LOG_ERROR("{}", error);
+                continue;
+            }
+            auto* entity_has_component = (bool (*)(Entity))dlsym(handle, "entity_has_component");
+            if (auto* error = dlerror()) {
+                LOG_ERROR("{}", error);
+                continue;
+            }
 
             Plugin p;
             p.name = get_name();
             p.handle = handle;
             p.addToEntity = add_to_entity;
+            p.entityHasComponent = entity_has_component;
+            p.removeFromEntity = remove_from_entity;
             m_plugins.push_back(p);
         }
     }

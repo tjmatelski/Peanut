@@ -14,6 +14,8 @@ struct Plugin {
     std::string name;
     void* handle;
     std::function<void(Entity)> addToEntity;
+    std::function<bool(Entity)> entityHasComponent;
+    std::function<void(Entity)> removeFromEntity;
 };
 
 class PluginManager {

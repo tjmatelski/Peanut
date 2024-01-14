@@ -137,6 +137,24 @@ void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
     }
 }
 
+void DrawCustomComponents(Entity ent, Engine* engine)
+{
+    for (const auto& comp : engine->GetPlugins()) {
+        if (comp.entityHasComponent(ent)) {
+            ImGui::PushID(comp.name.c_str());
+            ImGui::Separator();
+            ImGui::Text("%s", comp.name.c_str());
+            ImGui::SameLine();
+            if (ImGui::Button("X")) {
+                comp.removeFromEntity(ent);
+            } else {
+                // TODO: Draw members
+            }
+            ImGui::PopID();
+        }
+    }
+}
+
 template <>
 void DrawComponentSpecifics<CustomModelComponent>(Entity)
 {
@@ -156,6 +174,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
         DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
         DrawComponent<SkyboxComponent>("Skybox", m_selectedEntity);
         DrawComponent<CustomModelComponent>("Custom Model", m_selectedEntity);
+        DrawCustomComponents(m_selectedEntity, engine);
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {

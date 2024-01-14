@@ -13,6 +13,17 @@ class TestPlugin : public PEANUT::NativeScript {
 
 extern "C" void add_to_entity(PEANUT::Entity ent)
 {
+    std::cout << "Adding Test Plugin" << std::endl;
     ent.Add<TestPlugin>();
-    std::cout << "TEST PLUGIN" << std::endl;
+}
+
+extern "C" void remove_from_entity(PEANUT::Entity ent)
+{
+    std::cout << "Removing Test Plugin" << std::endl;
+    ent.Remove<TestPlugin>();
+}
+
+extern "C" bool entity_has_component(PEANUT::Entity ent)
+{
+    return ent.Has<TestPlugin>();
 }
