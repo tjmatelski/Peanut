@@ -1,8 +1,11 @@
 #include "Scene/Entity.h"
 #include "Scene/NativeScript.h"
+#include "Scene/Scene.h"
+#include "Utils/Log.h"
 
 #include <iostream>
 #include <linux/limits.h>
+#include <memory>
 
 extern "C" const char* plugin_name()
 {
@@ -33,26 +36,15 @@ public:
     }
 
     TestPlugin(const TestPlugin& other) = delete;
+
+    void Update(double dt)
+    {
+        LOG_DEBUG("Updating TestPlugin");
+    }
 };
 
-extern "C" void add_to_entity(PEANUT::Entity ent)
+extern "C" PEANUT::NativeScript* get_new_component()
 {
-    std::cout << "Adding Test Plugin" << std::endl;
-    ent.Add<TestPlugin>();
-}
-
-extern "C" void remove_from_entity(PEANUT::Entity ent)
-{
-    std::cout << "Removing Test Plugin. speed = " << ent.Get<TestPlugin>().speed << std::endl;
-    ent.Remove<TestPlugin>();
-}
-
-extern "C" bool entity_has_component(PEANUT::Entity ent)
-{
-    return ent.Has<TestPlugin>();
-}
-
-extern "C" PEANUT::NativeScript* get_as_native_script(PEANUT::Entity ent)
-{
-    return &ent.Get<TestPlugin>();
+    LOG_DEBUG("Creating new TestComponent");
+    return new TestPlugin {};
 }

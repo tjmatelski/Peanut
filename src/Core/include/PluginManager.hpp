@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Scene/NativeScript.h"
+#include "Scene/Scene.h"
 #include <Scene/Entity.h>
 
 #include <filesystem>
 #include <functional>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -14,10 +16,7 @@ namespace PEANUT {
 struct Plugin {
     std::string name;
     void* handle;
-    std::function<void(Entity)> addToEntity;
-    std::function<bool(Entity)> entityHasComponent;
-    std::function<void(Entity)> removeFromEntity;
-    std::function<NativeScript*(Entity)> getAsNativeScript;
+    std::function<NativeScript*()> getNewComponent;
 };
 
 class PluginManager {
