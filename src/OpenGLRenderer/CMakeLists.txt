@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_library(pn-renderer
+add_library(pn-renderer SHARED
     src/BufferLayout.cpp
     src/FrameBuffer.cpp
     src/GLDebug.cpp

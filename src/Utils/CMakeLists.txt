@@ -1,4 +1,4 @@
-add_library(pn-utils src/Settings.cpp src/stb_image_impl.cpp)
+add_library(pn-utils SHARED src/Settings.cpp src/stb_image_impl.cpp)
 
 target_include_directories(pn-utils PUBLIC include)
 

@@ -1,3 +1,5 @@
+#include "Input/Input.h"
+#include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include "Scene/NativeScript.h"
 #include "Scene/Scene.h"
@@ -37,9 +39,20 @@ public:
 
     TestPlugin(const TestPlugin& other) = delete;
 
-    void Update(double dt)
+    void Update(double dt) override
     {
-        LOG_DEBUG("Updating TestPlugin");
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::W)) {
+            m_ent.Get<PEANUT::TransformComponent>().translation.z += speed * dt;
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::A)) {
+            m_ent.Get<PEANUT::TransformComponent>().translation.x += speed * dt;
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::S)) {
+            m_ent.Get<PEANUT::TransformComponent>().translation.z -= speed * dt;
+        }
+        if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::D)) {
+            m_ent.Get<PEANUT::TransformComponent>().translation.x += speed * dt;
+        }
     }
 };
 

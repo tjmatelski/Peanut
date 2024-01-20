@@ -1,5 +1,6 @@
-add_library(pn-scene
+add_library(pn-scene SHARED
     src/Entity.cpp
+    src/NativeScript.cpp
     src/Scene.cpp
     src/SceneSerializer.cpp
 )
