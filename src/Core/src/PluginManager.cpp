@@ -3,6 +3,7 @@
 #include "Utils/Log.h"
 #include <dlfcn.h>
 #include <filesystem>
+#include <memory>
 
 namespace PEANUT {
 
@@ -22,22 +23,7 @@ void PluginManager::LoadAll(std::filesystem::path path)
                 LOG_ERROR("{}", error);
                 continue;
             }
-            auto* add_to_entity = (void (*)(Entity))dlsym(handle, "add_to_entity");
-            if (auto* error = dlerror()) {
-                LOG_ERROR("{}", error);
-                continue;
-            }
-            auto* remove_from_entity = (void (*)(Entity))dlsym(handle, "remove_from_entity");
-            if (auto* error = dlerror()) {
-                LOG_ERROR("{}", error);
-                continue;
-            }
-            auto* entity_has_component = (bool (*)(Entity))dlsym(handle, "entity_has_component");
-            if (auto* error = dlerror()) {
-                LOG_ERROR("{}", error);
-                continue;
-            }
-            auto* get_as_native_script = (NativeScript * (*)(Entity)) dlsym(handle, "get_as_native_script");
+            auto* get_component = (NativeScript * (*)()) dlsym(handle, "get_new_component");
             if (auto* error = dlerror()) {
                 LOG_ERROR("{}", error);
                 continue;
@@ -46,10 +32,7 @@ void PluginManager::LoadAll(std::filesystem::path path)
             Plugin p;
             p.name = get_name();
             p.handle = handle;
-            p.addToEntity = add_to_entity;
-            p.entityHasComponent = entity_has_component;
-            p.removeFromEntity = remove_from_entity;
-            p.getAsNativeScript = get_as_native_script;
+            p.getNewComponent = get_component;
             m_plugins.push_back(p);
         }
     }

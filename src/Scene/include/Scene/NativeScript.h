@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Scene/Entity.h"
+#include <string>
+#include <vector>
 
 namespace PEANUT {
 

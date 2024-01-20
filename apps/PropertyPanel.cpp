@@ -142,15 +142,15 @@ void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
 void DrawCustomComponents(Entity ent, Engine* engine)
 {
     for (const auto& comp : engine->GetPlugins()) {
-        if (comp.entityHasComponent(ent)) {
+        if (ent.Has<NativeScript>(comp.name)) {
             ImGui::PushID(comp.name.c_str());
             ImGui::Separator();
             ImGui::Text("%s", comp.name.c_str());
             ImGui::SameLine();
             if (ImGui::Button("X")) {
-                comp.removeFromEntity(ent);
+                ent.Remove<NativeScript>(comp.name);
             } else {
-                for (const auto& member : comp.getAsNativeScript(ent)->GetMembers()) {
+                for (const auto& member : ent.Get<NativeScript>(comp.name)->GetMembers()) {
                     if (member.type == MemberVariable::Type::Bool) {
                         ImGui::Checkbox(member.name.c_str(), static_cast<bool*>(member.addr));
                     }
@@ -242,7 +242,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
             }
             for (const auto& plugin : engine->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {
-                    plugin.addToEntity(m_selectedEntity);
+                    m_selectedEntity.Add<NativeScript>(plugin.name, plugin.getNewComponent());
                 }
             }
             ImGui::EndPopup();
