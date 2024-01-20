@@ -1,29 +1,23 @@
 #pragma once
 
 #include "Scene.h"
-#include "Scene/NativeScript.h"
 #include <entt/core/hashed_string.hpp>
 #include <memory>
 #include <string_view>
 
 namespace PEANUT {
 
+class NativeScript;
+
 class Entity {
 
-    decltype(auto) GetStorage(const std::string& name)
-    {
-        return m_scene->m_registry.storage<std::unique_ptr<NativeScript>>(entt::hashed_string { name.c_str() });
-    }
-
-    NativeScript* AddScript(const std::string& name, NativeScript* comp)
-    {
-        return GetStorage(name).emplace(m_entityID, comp).get();
-    }
+    entt::storage_for_t<std::unique_ptr<PEANUT::NativeScript, std::default_delete<PEANUT::NativeScript>>>& GetStorage(const std::string& name);
+    NativeScript* AddScript(const std::string& name, NativeScript* comp);
 
 public:
-    Entity() = default;
+    Entity();
     Entity(const entt::entity entity, Scene* scene);
-    ~Entity() = default;
+    ~Entity();
 
     operator bool() const { return (m_entityID != entt::null) && m_scene; }
 
@@ -69,7 +63,7 @@ public:
 
 private:
     entt::entity m_entityID;
-    Scene* m_scene;
+    Scene* m_scene = nullptr;
 };
 
 } // namespace PEANUT

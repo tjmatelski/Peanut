@@ -5,6 +5,7 @@
 #include "Renderer/Mesh.h"
 #include "Renderer/Model.h"
 #include "Renderer/Texture.h"
+#include "Scene/NativeScript.h"
 #include <Application.h>
 #include <Events/WindowEvents.h>
 #include <Input/Input.h>
@@ -75,7 +76,7 @@ auto Engine::Get() -> Engine&
 
 void Engine::Run()
 {
-    m_pluginManager.LoadAll(Settings::GetApplicationDir());
+    m_pluginManager.LoadAll(Settings::GetApplicationDir() / "plugins");
     m_app->OnAttach();
     while (!m_shouldWindowClose) {
         double currentFrameTime = m_window->GetTime();
@@ -239,6 +240,14 @@ void Engine::UpdateRuntimeScripts(double ts)
     }
     if (python_error) {
         StopRunTime();
+    }
+
+    for (const auto& plugin : m_pluginManager.Plugins()) {
+        m_scene->ForEachEntity([&](Entity ent) {
+            if (ent.Has<NativeScript>(plugin.name)) {
+                ent.Get<NativeScript>(plugin.name)->Update(ts);
+            }
+        });
     }
 }
 

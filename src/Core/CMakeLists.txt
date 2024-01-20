@@ -1,4 +1,4 @@
-add_library(pn-core
+add_library(pn-core SHARED
     src/Engine.cpp
     src/Window.cpp
     src/WindowInput.cpp
