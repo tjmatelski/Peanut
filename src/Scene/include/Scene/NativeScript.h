@@ -28,7 +28,12 @@ public:
     NativeScript(const NativeScript&);
     NativeScript(NativeScript&&);
 
+    virtual void OnCreate() { }
+    virtual void OnDestroy() { }
+    virtual void EditorUpdate() { }
+    virtual void RuntimeBegin() { }
     virtual void Update([[maybe_unused]] double dt) { }
+    virtual void RuntimeEnd() { }
 
     [[nodiscard]] auto GetMembers() const -> const std::vector<MemberVariable>& { return m_members; }
 

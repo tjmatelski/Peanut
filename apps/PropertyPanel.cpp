@@ -148,6 +148,7 @@ void DrawCustomComponents(Entity ent, Engine* engine)
             ImGui::Text("%s", comp.name.c_str());
             ImGui::SameLine();
             if (ImGui::Button("X")) {
+                ent.Get<NativeScript>(comp.name)->OnDestroy();
                 ent.Remove<NativeScript>(comp.name);
             } else {
                 for (const auto& member : ent.Get<NativeScript>(comp.name)->GetMembers()) {
@@ -243,6 +244,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
             for (const auto& plugin : engine->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {
                     m_selectedEntity.Add<NativeScript>(plugin.name, plugin.getNewComponent());
+                    m_selectedEntity.Get<NativeScript>(plugin.name)->OnCreate();
                 }
             }
             ImGui::EndPopup();
