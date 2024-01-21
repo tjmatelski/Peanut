@@ -16,25 +16,19 @@ extern "C" const char* plugin_name()
 
 class TestPlugin : public PEANUT::NativeScript {
 public:
-    float speed = 0.0f;
-    int test_int = 0;
-    std::string string = "";
+    bool my_bool = false;
+    float my_float = 0.0f;
+    double speed = 0.0;
+    int my_int = 0;
+    std::string my_str = "";
 
     TestPlugin()
     {
-        PEANUT::MemberVariable member;
-        member.name = "speed";
-        member.type = PEANUT::MemberVariable::Type::Float;
-        member.addr = &speed;
-        m_members.push_back(member);
-        member.name = "test_int";
-        member.type = PEANUT::MemberVariable::Type::Int;
-        member.addr = &test_int;
-        m_members.push_back(member);
-        member.name = "string";
-        member.type = PEANUT::MemberVariable::Type::String;
-        member.addr = &string;
-        m_members.push_back(member);
+        m_members.emplace_back(PEANUT::MemberVariable { "my_bool", PEANUT::MemberVariable::Type::Bool, &my_bool });
+        m_members.emplace_back(PEANUT::MemberVariable { "my_float", PEANUT::MemberVariable::Type::Float, &my_float });
+        m_members.emplace_back(PEANUT::MemberVariable { "speed", PEANUT::MemberVariable::Type::Double, &speed });
+        m_members.emplace_back(PEANUT::MemberVariable { "my_int", PEANUT::MemberVariable::Type::Int, &my_int });
+        m_members.emplace_back(PEANUT::MemberVariable { "my_str", PEANUT::MemberVariable::Type::String, &my_str });
     }
 
     TestPlugin(const TestPlugin& other) = delete;
@@ -51,7 +45,7 @@ public:
             m_ent.Get<PEANUT::TransformComponent>().translation.z -= speed * dt;
         }
         if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::D)) {
-            m_ent.Get<PEANUT::TransformComponent>().translation.x += speed * dt;
+            m_ent.Get<PEANUT::TransformComponent>().translation.x -= speed * dt;
         }
     }
 };
