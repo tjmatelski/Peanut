@@ -158,7 +158,7 @@ void DrawCustomComponents(Entity ent, Engine* engine)
                         ImGui::DragFloat(member.name.c_str(), static_cast<float*>(member.addr));
                     }
                     if (member.type == MemberVariable::Type::Double) {
-                        ImGui::InputDouble(member.name.c_str(), static_cast<double*>(member.addr));
+                        ImGui::DragScalar(member.name.c_str(), ImGuiDataType_Double, static_cast<double*>(member.addr));
                     }
                     if (member.type == MemberVariable::Type::Int) {
                         ImGui::DragInt(member.name.c_str(), static_cast<int*>(member.addr));
