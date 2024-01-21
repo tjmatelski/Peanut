@@ -33,6 +33,33 @@ public:
 
     TestPlugin(const TestPlugin& other) = delete;
 
+    void OnCreate() override
+    {
+        LOG_DEBUG("TestPlugin created");
+    }
+
+    void OnDestroy() override
+    {
+        LOG_DEBUG("TestPlugin Destroyed");
+    }
+
+    void RuntimeBegin() override
+    {
+        LOG_DEBUG("TestPlugin runtime begin");
+    }
+
+    void RuntimeEnd() override
+    {
+        LOG_DEBUG("TestPlugin runtime end");
+    }
+
+    void EditorUpdate() override
+    {
+        if (my_bool) {
+            LOG_DEBUG("TestPlugin my_bool true");
+        }
+    }
+
     void Update(double dt) override
     {
         if (PEANUT::Input::IsKeyPressed(PEANUT::KeyCode::W)) {

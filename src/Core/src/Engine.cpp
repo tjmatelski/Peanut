@@ -86,6 +86,13 @@ void Engine::Run()
 
         m_app->OnPreUpdate();
         m_app->OnUpdate(timeStep);
+        for (auto& plugin : m_pluginManager.Plugins()) {
+            m_scene->ForEachEntity([&](Entity ent) {
+                if (ent.Has<NativeScript>(plugin.name)) {
+                    ent.Get<NativeScript>(plugin.name)->EditorUpdate();
+                }
+            });
+        }
         Update(timeStep);
         m_app->OnPostUpdate();
 
@@ -213,6 +220,13 @@ void Engine::UpdateWindow()
 
 void Engine::BeginRuntime()
 {
+    for (auto& plugin : m_pluginManager.Plugins()) {
+        m_scene->ForEachEntity([plugin](Entity ent) {
+            if (ent.Has<NativeScript>(plugin.name)) {
+                ent.Get<NativeScript>(plugin.name)->RuntimeBegin();
+            }
+        });
+    }
     try {
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<PythonScriptComponent>()) {
@@ -254,6 +268,13 @@ void Engine::UpdateRuntimeScripts(double ts)
 
 void Engine::EndRuntime()
 {
+    for (auto& plugin : m_pluginManager.Plugins()) {
+        m_scene->ForEachEntity([plugin](Entity ent) {
+            if (ent.Has<NativeScript>(plugin.name)) {
+                ent.Get<NativeScript>(plugin.name)->RuntimeEnd();
+            }
+        });
+    }
     try {
         m_scene->ForEachEntity([&](Entity ent) {
             if (ent.Has<PythonScriptComponent>()) {
