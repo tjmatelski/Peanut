@@ -34,10 +34,6 @@
 
 namespace PEANUT {
 
-namespace {
-    std::unordered_map<unsigned int, Renderable> customModels;
-}
-
 Engine::Engine()
     : m_scene(std::make_shared<Scene>())
 {
@@ -205,8 +201,8 @@ void Engine::Update(double dt)
             m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
             m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
             m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
-            const auto& renderable = customModels.at(ent.Get<CustomModelComponent>().id);
-            Renderer::Draw(renderable.mesh, renderable.material, *m_lightingShader);
+            const auto& model = ent.Get<CustomModelComponent>();
+            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { Texture {} } }, *m_lightingShader);
         }
     });
 }
@@ -321,11 +317,6 @@ void LoadPythonScriptObj(Entity ent)
 EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
 {
     return script->editor_fields;
-}
-
-void CreateCustomModel(const CustomModelComponent& model)
-{
-    customModels.emplace(model.id, Renderable { OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { Texture {} } } });
 }
 
 Mesh GetCubeMesh()
