@@ -5,6 +5,7 @@
 #include "Scene/Scene.h"
 #include "Utils/Log.h"
 
+#include <glm/fwd.hpp>
 #include <iostream>
 #include <linux/limits.h>
 #include <memory>
@@ -35,6 +36,18 @@ public:
 
     void OnCreate() override
     {
+        using namespace PEANUT;
+        auto& model = m_ent.Has<CustomModelComponent>() ? m_ent.Get<CustomModelComponent>() : m_ent.Add<CustomModelComponent>();
+        model.mesh.indices.clear();
+        model.mesh.vertices.clear();
+
+        model.mesh.vertices.emplace_back(Vertex { glm::vec3 { 1, 0, 0 }, glm::vec3 { 0, 0, -1 }, glm::vec2 { 1, 0 } });
+        model.mesh.vertices.emplace_back(Vertex { glm::vec3 { 0, 1, 0 }, glm::vec3 { 0, 0, -1 }, glm::vec2 { 0, 1 } });
+        model.mesh.vertices.emplace_back(Vertex { glm::vec3 { 1, 1, 0 }, glm::vec3 { 0, 0, -1 }, glm::vec2 { 1, 1 } });
+        model.mesh.indices.emplace_back(0);
+        model.mesh.indices.emplace_back(1);
+        model.mesh.indices.emplace_back(2);
+
         LOG_DEBUG("TestPlugin created");
     }
 
