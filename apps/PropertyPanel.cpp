@@ -151,6 +151,13 @@ void DrawCustomComponents(Entity ent, Engine* engine)
                 ent.Get<NativeScript>(comp.name)->OnDestroy();
                 ent.Remove<NativeScript>(comp.name);
             } else {
+                if (ImGui::Button("Reload")) {
+                    ent.Get<NativeScript>(comp.name)->OnDestroy();
+                    ent.Remove<NativeScript>(comp.name);
+                    engine->ReloadPlugin(comp.name);
+                    ent.Add<NativeScript>(comp.name, comp.getNewComponent());
+                    ent.Get<NativeScript>(comp.name)->OnCreate();
+                }
                 for (const auto& member : ent.Get<NativeScript>(comp.name)->GetMembers()) {
                     if (member.type == MemberVariable::Type::Bool) {
                         ImGui::Checkbox(member.name.c_str(), static_cast<bool*>(member.addr));

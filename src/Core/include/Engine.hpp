@@ -34,6 +34,7 @@ public:
     [[nodiscard]] auto IsRuntime() const -> bool { return m_runtime; }
     [[nodiscard]] auto GetCamera() -> PerspectiveCamera& { return m_perspectiveCam; }
     [[nodiscard]] auto GetPlugins() -> const std::vector<Plugin>& { return m_pluginManager.Plugins(); }
+    void ReloadPlugin(std::string_view name);
 
 private:
     Application* m_app = nullptr;

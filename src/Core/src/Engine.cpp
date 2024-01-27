@@ -335,6 +335,11 @@ Mesh GetCubeMesh()
     return Renderer::GetCubeMesh();
 }
 
+void Engine::ReloadPlugin(std::string_view name)
+{
+    m_pluginManager.Reload(name);
+}
+
 } // namespace PEANUT
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
