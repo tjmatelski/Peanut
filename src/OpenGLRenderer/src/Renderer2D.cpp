@@ -14,10 +14,12 @@ namespace PEANUT {
 struct QuadRenderData {
     std::shared_ptr<VertexArray> vertexArray;
     std::shared_ptr<IndexBuffer> indexBuffer;
-    std::shared_ptr<Shader> shader;
+    std::unique_ptr<Shader> shader;
 };
 
-static QuadRenderData s_quadRenderData;
+namespace {
+    QuadRenderData s_quadRenderData;
+}
 
 void Renderer2D::Init()
 {
@@ -41,6 +43,13 @@ void Renderer2D::Init()
     s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(indices.size(), indices.data());
 
     s_quadRenderData.shader = std::make_unique<Shader>(Settings::GetResourceDir() / "shaders" / "Generic2D.shader");
+}
+
+void Renderer2D::Destroy()
+{
+    s_quadRenderData.indexBuffer.reset();
+    s_quadRenderData.vertexArray.reset();
+    s_quadRenderData.shader.reset();
 }
 
 void Renderer2D::BeginScene(const OrthoCamera& camera)

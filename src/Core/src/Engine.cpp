@@ -34,6 +34,11 @@
 #include <utility>
 
 namespace PEANUT {
+using std::make_pair;
+
+namespace {
+    std::unordered_map<unsigned int, OpenglMesh> mesh_map;
+}
 
 Engine::Engine()
     : m_scene(std::make_shared<Scene>())
@@ -62,6 +67,7 @@ Engine::~Engine()
     });
     LOG_DEBUG("Stopping Python Interpreter");
     pybind11::finalize_interpreter();
+    Renderer2D::Destroy();
     delete m_app;
 }
 
@@ -203,7 +209,7 @@ void Engine::Update(double dt)
             m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
             m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
             const auto& model = ent.Get<CustomModelComponent>();
-            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { Texture {} } }, *m_lightingShader);
+            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
         }
     });
 }
@@ -328,6 +334,11 @@ void ReloadPythonScript(Entity ent)
 EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
 {
     return script->editor_fields;
+}
+
+void RedrawMesh(const CustomModelComponent& model)
+{
+    mesh_map.emplace(std::make_pair(model.id, OpenglMesh { model.mesh.vertices, model.mesh.indices }));
 }
 
 Mesh GetCubeMesh()
