@@ -67,6 +67,7 @@ using EditorFieldMap = std::unordered_map<std::string, std::variant<int, float, 
 EditorFieldMap& GetScriptEditorMembers(PythonScript* script);
 
 // Custom Model/Mesh
+void RedrawMesh(const CustomModelComponent& model);
 Mesh GetCubeMesh();
 
 } // namespace PEANUT

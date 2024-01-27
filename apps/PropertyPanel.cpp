@@ -239,6 +239,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
             if (ImGui::MenuItem("Custom Model")) {
                 auto& model = m_selectedEntity.Add<CustomModelComponent>();
                 model.mesh = GetCubeMesh();
+                RedrawMesh(model);
             }
             for (const auto& plugin : engine->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {
