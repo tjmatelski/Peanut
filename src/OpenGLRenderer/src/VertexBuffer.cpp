@@ -1,15 +1,37 @@
 #include "GLDebug.h"
+#include "Utils/Log.h"
 #include <Renderer/VertexBuffer.h>
 #include <glad/glad.h>
+#include <utility>
 
 namespace PEANUT {
 
 VertexBuffer::VertexBuffer(const unsigned int size, const void* data)
-    : m_ID(0)
 {
     GLCALL(glGenBuffers(1, &m_ID));
+    LOG_TRACE("Generated vertex buffer: {}", m_ID);
     GLCALL(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
     GLCALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+}
+
+VertexBuffer::VertexBuffer(VertexBuffer&& other)
+{
+    *this = std::move(other);
+}
+
+VertexBuffer& VertexBuffer::operator=(VertexBuffer&& rhs)
+{
+    m_ID = rhs.m_ID;
+    rhs.m_ID = 0;
+    return *this;
+}
+
+VertexBuffer::~VertexBuffer()
+{
+    if (m_ID != 0) {
+        LOG_TRACE("Deleting vertex buffer: {}", m_ID);
+        GLCALL(glDeleteBuffers(1, &m_ID));
+    }
 }
 
 void VertexBuffer::Bind() const

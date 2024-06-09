@@ -22,8 +22,7 @@ struct Renderable {
 class Model {
 public:
     Model(const std::string& modelFile);
-    Model(const Renderable& renderable);
-    inline const std::vector<Renderable>& GetRenderables() const { return m_renderables; }
+    [[nodiscard]] inline const std::vector<Renderable>& GetRenderables() const { return m_renderables; }
 
 private:
     std::filesystem::path m_modelFile;

@@ -29,13 +29,6 @@ PEANUT::Texture::Type AssimpToPEANUTTexType(const aiTextureType type)
 
 namespace PEANUT {
 
-Model::Model(const Renderable& renderable)
-    : m_modelFile()
-    , m_renderables()
-{
-    m_renderables.push_back(renderable);
-}
-
 Model::Model(const std::string& modelFile)
     : m_modelFile(modelFile)
 {

@@ -39,7 +39,7 @@ void Renderer2D::Init()
     BufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(2);
-    s_quadRenderData.vertexArray->AddBuffer(quadIndexBuffer, layout);
+    s_quadRenderData.vertexArray->AddBuffer(std::move(quadIndexBuffer), layout);
     s_quadRenderData.indexBuffer = std::make_shared<IndexBuffer>(indices.size(), indices.data());
 
     s_quadRenderData.shader = std::make_unique<Shader>(Settings::GetResourceDir() / "shaders" / "Generic2D.shader");

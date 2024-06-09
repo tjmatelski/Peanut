@@ -28,6 +28,7 @@ void LoadTexImage2D(int glType, const std::filesystem::path& file)
             LOG_ERROR("Texture does not currently support a texture with {0} channels", nrChannels);
         }
         GLCALL(glGenerateMipmap(glType));
+        LOG_TRACE("Generated Mipmap");
     } else {
         LOG_ERROR("Failed to load texture from file '{0}'\n\tSTB: {1}",
             file.c_str(), stbi_failure_reason());
@@ -94,6 +95,7 @@ Texture::Texture(const Type type)
     , m_type(type)
 {
     GLCALL(glGenTextures(1, &m_ID));
+    LOG_TRACE("Generated texture: {}", m_ID);
     Bind();
     // set the texture wrapping/filtering options (on the currently bound texture object)
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
@@ -118,6 +120,7 @@ Texture::Texture(const std::string& file, const Type type)
     , m_type(type)
 {
     GLCALL(glGenTextures(1, &m_ID));
+    LOG_TRACE("Generated texture: {}", m_ID);
     Bind();
     if (m_type == Type::CubeMap) {
         LoadCubeMap(file);

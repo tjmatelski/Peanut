@@ -13,7 +13,7 @@ OpenglMesh::OpenglMesh(const std::vector<Vertex>& verticies, const std::vector<u
     bl.Push<float>(3);
     bl.Push<float>(3);
     bl.Push<float>(2);
-    m_vertexArray.AddBuffer(vb, bl);
+    m_vertexArray.AddBuffer(std::move(vb), bl);
 }
 
 }
