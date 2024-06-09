@@ -20,6 +20,7 @@
 #include <Utils/Math.h>
 #include <Window.h>
 
+#include <algorithm>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -206,7 +207,12 @@ private:
                     auto saveFile = CreateFileSelectorDialog()->SaveFile().value_or("");
                     if (!saveFile.empty()) {
                         LOG_INFO("Saving Scene to '{0}'", saveFile);
-                        SceneSerializer::Serialize(*m_engine->GetScene(), saveFile);
+                        const auto& plugins = m_engine->GetPlugins();
+                        std::vector<std::string> plugin_names(plugins.size());
+                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
+                            return val.name;
+                        });
+                        SceneSerializer::Serialize(*m_engine->GetScene(), saveFile, plugin_names);
                     } else {
                         LOG_WARN("Failed to select save file. Not saving scene.");
                     }
@@ -215,7 +221,12 @@ private:
                     std::string sceneFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                     if (sceneFile.find(".peanut") != std::string::npos) {
                         LOG_INFO("Opening Scene: {}", sceneFile);
-                        SceneSerializer::Deserialize(sceneFile, *m_engine->GetScene());
+                        const auto& plugins = m_engine->GetPlugins();
+                        std::vector<std::string> plugin_names(plugins.size());
+                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
+                            return val.name;
+                        });
+                        SceneSerializer::Deserialize(sceneFile, *m_engine->GetScene(), plugin_names);
                         m_engine->GetScene()->ForEachEntity([](Entity ent) {
                             if (ent.Has<PythonScriptComponent>()) {
                                 LoadPythonScriptObj(ent);
