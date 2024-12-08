@@ -61,6 +61,23 @@ Entities:
       Scale: [1, 1, 1]
     ModelFileComponent:
       File: models/backpack/backpack.obj
+    Test Plugin:
+      Members:
+        - Name: my_bool
+          Type: Bool
+          Value: true
+        - Name: my_float
+          Type: Float
+          Value: 1.23000002
+        - Name: speed
+          Type: Double
+          Value: 12
+        - Name: my_int
+          Type: Int
+          Value: 42
+        - Name: my_str
+          Type: String
+          Value: str
   - Entity: 123456789
     TagComponent:
       Tag: Light
