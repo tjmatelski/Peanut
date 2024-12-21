@@ -2,6 +2,7 @@ add_executable(Application
     Application.cpp
     SceneHierarchyPanel.cpp
     PropertyPanel.cpp
+    RenderStatsPanel.cpp
     ViewportPanel.cpp
     ${CMAKE_BINARY_DIR}/imports/imgui_impl_glfw.cpp
     ${CMAKE_BINARY_DIR}/imports/imgui_impl_opengl3.cpp
