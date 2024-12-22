@@ -3,7 +3,6 @@
 #include "PythonBindings.hpp"
 #include "Renderer/Material.h"
 #include "Renderer/Mesh.h"
-#include "Renderer/Model.h"
 #include "Renderer/Texture.h"
 #include "Scene/NativeScript.h"
 #include <Application.h>
@@ -22,7 +21,6 @@
 #include <Utils/Log.h>
 #include <Utils/Settings.h>
 
-#include <cstddef>
 #include <exception>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
@@ -34,7 +32,6 @@
 #include <utility>
 
 namespace PEANUT {
-using std::make_pair;
 
 namespace {
     std::unordered_map<unsigned int, OpenglMesh> mesh_map;
@@ -59,11 +56,8 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<PythonScriptComponent>()) {
-            const auto comp = ent.Get<PythonScriptComponent>();
-            py::cast(comp.script_obj).dec_ref();
-        }
+    m_scene->ForEach<PythonScriptComponent>([](Entity ent, const PythonScriptComponent& comp) {
+        py::cast(comp.script_obj).dec_ref();
     });
     LOG_DEBUG("Stopping Python Interpreter");
     pybind11::finalize_interpreter();
@@ -125,11 +119,8 @@ void Engine::StopRunTime()
 void Engine::Update(double dt)
 {
     try {
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<PythonScriptComponent>()) {
-                const auto comp = ent.Get<PythonScriptComponent>();
-                comp.script_obj->editor_update();
-            }
+        m_scene->ForEach<PythonScriptComponent>([](Entity ent, const PythonScriptComponent& comp) {
+            comp.script_obj->editor_update();
         });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
@@ -140,77 +131,61 @@ void Engine::Update(double dt)
     Renderer::ClearBuffers();
 
     // Render skybox
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<SkyboxComponent>()) {
-            m_skyboxShader->SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
-            m_skyboxShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-            const auto& skybox = ent.Get<SkyboxComponent>();
-            Renderer::DisableDepthMask();
-            Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), *m_skyboxShader);
-            Renderer::EnableDepthMask();
-        }
+    m_scene->ForEach<SkyboxComponent>([&](Entity ent, const SkyboxComponent& skybox) {
+        m_skyboxShader->SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
+        m_skyboxShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+        Renderer::DisableDepthMask();
+        Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), *m_skyboxShader);
+        Renderer::EnableDepthMask();
     });
 
     // Render 2D sprites
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<SpriteRenderComponent>()) {
-            const auto& spriteRender = ent.Get<SpriteRenderComponent>();
-            Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
-        }
+    m_scene->ForEach<SpriteRenderComponent>([&](Entity ent, const SpriteRenderComponent& spriteRender) {
+        Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
     });
 
     // Render Directional Lights
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<DirectionalLightComponent>()) {
-            auto& comp = ent.Get<DirectionalLightComponent>();
-            Renderer::SetDirectionalLight(
-                { comp.direction,
-                    { comp.ambient, comp.ambient, comp.ambient },
-                    { comp.diffuse, comp.diffuse, comp.diffuse },
-                    { comp.specular, comp.specular, comp.specular } },
-                *m_lightingShader);
-        }
+    m_scene->ForEach<DirectionalLightComponent>([&](Entity ent, const DirectionalLightComponent& comp) {
+        Renderer::SetDirectionalLight(
+            { comp.direction,
+                { comp.ambient, comp.ambient, comp.ambient },
+                { comp.diffuse, comp.diffuse, comp.diffuse },
+                { comp.specular, comp.specular, comp.specular } },
+            *m_lightingShader);
     });
 
     // Render Point Lights
     std::vector<PointLight> pointLights;
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<PointLightComponent>()) {
-            auto& comp = ent.Get<PointLightComponent>();
-            PointLight pl;
-            pl.active = true;
-            pl.position = ent.Get<TransformComponent>().translation;
-            pl.ambient = comp.ambient * comp.color;
-            pl.diffuse = comp.diffuse * comp.color;
-            pl.specular = comp.specular * comp.color;
-            pl.constant = comp.constant;
-            pl.linear = comp.linear;
-            pl.quadratic = comp.quadratic;
-            pointLights.push_back(pl);
-        }
+    m_scene->ForEach<PointLightComponent>([&](Entity ent, const PointLightComponent& comp) {
+        PointLight pl;
+        pl.active = true;
+        pl.position = ent.Get<TransformComponent>().translation;
+        pl.ambient = comp.ambient * comp.color;
+        pl.diffuse = comp.diffuse * comp.color;
+        pl.specular = comp.specular * comp.color;
+        pl.constant = comp.constant;
+        pl.linear = comp.linear;
+        pl.quadratic = comp.quadratic;
+        pointLights.push_back(pl);
     });
     Renderer::SetPointLights(pointLights, *m_lightingShader);
 
     // Render Models
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<ModelFileComponent>()) {
-            m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
-            m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
-            m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
-            Renderer::Draw(ModelLibrary::Get(ent.Get<ModelFileComponent>().file), *m_lightingShader);
-        }
+    m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
+        m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
+        m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+        m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
+        m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+        Renderer::Draw(ModelLibrary::Get(comp.file), *m_lightingShader);
     });
 
-    m_scene->ForEachEntity([&](Entity ent) {
-        if (ent.Has<CustomModelComponent>()) {
-            m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
-            m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-            m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
-            m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
-            const auto& model = ent.Get<CustomModelComponent>();
-            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
-        }
+    // Render Custom Models
+    m_scene->ForEach<CustomModelComponent>([&](Entity ent, const CustomModelComponent& model) {
+        m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
+        m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+        m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
+        m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+        Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
     });
 }
 
@@ -230,11 +205,8 @@ void Engine::BeginRuntime()
         });
     }
     try {
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<PythonScriptComponent>()) {
-                const auto comp = ent.Get<PythonScriptComponent>();
-                comp.script_obj->runtime_begin();
-            }
+        m_scene->ForEach<PythonScriptComponent>([&](Entity ent, const PythonScriptComponent& comp) {
+            comp.script_obj->runtime_begin();
         });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
@@ -245,11 +217,8 @@ void Engine::UpdateRuntimeScripts(double ts)
 {
     bool python_error = false;
     try {
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<PythonScriptComponent>()) {
-                const auto comp = ent.Get<PythonScriptComponent>();
-                comp.script_obj->update(ts);
-            }
+        m_scene->ForEach<PythonScriptComponent>([&](Entity ent, const PythonScriptComponent& comp) {
+            comp.script_obj->update(ts);
         });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
@@ -278,11 +247,8 @@ void Engine::EndRuntime()
         });
     }
     try {
-        m_scene->ForEachEntity([&](Entity ent) {
-            if (ent.Has<PythonScriptComponent>()) {
-                const auto comp = ent.Get<PythonScriptComponent>();
-                comp.script_obj->runtime_end();
-            }
+        m_scene->ForEach<PythonScriptComponent>([&](Entity ent, const PythonScriptComponent& comp) {
+            comp.script_obj->runtime_end();
         });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
@@ -292,7 +258,7 @@ void Engine::EndRuntime()
 void Engine::OnApplicationEvent(Event& event)
 {
     Dispatcher dispatcher(event);
-    dispatcher.Dispatch<WindowCloseEvent>([=]([[maybe_unused]] const auto& e) {
+    dispatcher.Dispatch<WindowCloseEvent>([this]([[maybe_unused]] const auto& e) {
         Terminate();
     });
     m_app->OnEvent(event);

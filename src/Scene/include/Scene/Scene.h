@@ -2,6 +2,9 @@
 
 #include <entt/entt.hpp>
 
+#include <functional>
+#include <type_traits>
+
 namespace PEANUT {
 
 class Entity;
@@ -14,17 +17,17 @@ public:
     void Clear();
     Entity CreateEntity(const std::string& name = "Default Entity Name");
 
-    template <typename Functor>
+    template <class Functor>
     void ForEachEntity(Functor func)
     {
         m_registry.each([&](entt::entity ent) { func({ ent, this }); });
     }
 
-    template <class Comp, class Fn>
+    template <class... Args, class Fn>
     void ForEach(Fn func)
     {
-        auto view = m_registry.view<Comp>();
-        view.each([&](auto ent, auto comp) { func({ ent, this }, comp); });
+        auto view = m_registry.view<std::remove_reference_t<Args>...>();
+        view.each([&](auto ent, Args&... args) { func({ ent, this }, std::forward<Args...>(args)...); });
     }
 
 private:

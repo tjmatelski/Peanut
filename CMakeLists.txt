@@ -4,6 +4,8 @@ project(Peanut
     VERSION 0.1
     LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 20)
+
 set(LINT_WITH_CLANG_TIDY OFF CACHE BOOL "Use clang-tidy to perform static analysis when building")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

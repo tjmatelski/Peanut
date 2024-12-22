@@ -12,7 +12,6 @@ namespace PEANUT {
 class PythonScript;
 
 struct TagComponent {
-    TagComponent() = default;
     std::string tag;
 };
 
