@@ -3,6 +3,7 @@
 #include "PythonBindings.hpp"
 #include "Renderer/Material.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/ShaderLibrary.h"
 #include "Renderer/Texture.h"
 #include "Scene/NativeScript.h"
 #include <Application.h>
@@ -176,7 +177,11 @@ void Engine::Update(double dt)
         m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
         m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
         m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
-        Renderer::Draw(ModelLibrary::Get(comp.file), *m_lightingShader);
+        if (ent.Has<ShaderComponent>()) {
+            Renderer::Draw(ModelLibrary::Get(comp.file), ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
+        } else {
+            Renderer::Draw(ModelLibrary::Get(comp.file), *m_lightingShader);
+        }
     });
 
     // Render Custom Models
@@ -185,7 +190,11 @@ void Engine::Update(double dt)
         m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
         m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
         m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
-        Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
+        if (ent.Has<ShaderComponent>()) {
+            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
+        } else {
+            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
+        }
     });
 }
 

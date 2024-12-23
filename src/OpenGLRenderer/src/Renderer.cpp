@@ -164,7 +164,7 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     Draw(vertexArray, indexBuffer, shader);
 }
 
-void Renderer::Draw(const OpenglMesh& mesh, const Material material, Shader& shader)
+void Renderer::Draw(const OpenglMesh& mesh, const Material material, const Shader& shader)
 {
     unsigned int glTextureNumber = 0;
     unsigned int numDiffuse = 0;
@@ -185,7 +185,7 @@ void Renderer::Draw(const OpenglMesh& mesh, const Material material, Shader& sha
     Draw(mesh.GetVertexArray(), mesh.GetIndexBuffer(), shader);
 }
 
-void Renderer::Draw(const Model& model, Shader& shader)
+void Renderer::Draw(const Model& model, const Shader& shader)
 {
     for (const auto& renderable : model.GetRenderables()) {
         Draw(renderable.mesh, renderable.material, shader);

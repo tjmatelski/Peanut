@@ -13,6 +13,7 @@ add_library(pn-renderer SHARED
     src/Renderer.cpp
     src/Renderer2D.cpp
     src/Shader.cpp
+    src/ShaderLibrary.cpp
     src/Texture.cpp
     src/TextureLibrary.cpp
     src/VertexArray.cpp

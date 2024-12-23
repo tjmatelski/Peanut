@@ -97,4 +97,8 @@ struct SkyboxComponent {
     std::filesystem::path directory;
 };
 
+struct ShaderComponent {
+    std::filesystem::path file;
+};
+
 }

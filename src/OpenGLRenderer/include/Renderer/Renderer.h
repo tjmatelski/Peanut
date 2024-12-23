@@ -28,8 +28,8 @@ public:
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture);
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const std::vector<Texture>& textures);
-    static void Draw(const OpenglMesh& mesh, const Material material, Shader& shader);
-    static void Draw(const Model& model, Shader& shader);
+    static void Draw(const OpenglMesh& mesh, const Material material, const Shader& shader);
+    static void Draw(const Model& model, const Shader& shader);
     static void SetDirectionalLight(const DirectionalLight& dirLight, Shader& shader);
     static void SetPointLights(const std::vector<PointLight>& lights, Shader& shader);
     static void SetSpotLight(const SpotLight& spotLight, Shader& shader);

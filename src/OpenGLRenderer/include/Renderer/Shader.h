@@ -14,12 +14,12 @@ public:
     Shader(const std::filesystem::path& shaderFile);
     ~Shader();
     void Use() const;
-    void SetUniform1b(const std::string& name, const bool b);
-    void SetUniform1f(const std::string& name, const float f);
-    void SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d);
-    void SetUniform1i(const std::string& name, const int i);
-    void SetUniformMat4(const std::string& name, const glm::mat4& matrix);
-    void SetUniformVec3(const std::string& name, const glm::vec3& vec);
+    void SetUniform1b(const std::string& name, const bool b) const;
+    void SetUniform1f(const std::string& name, const float f) const;
+    void SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d) const;
+    void SetUniform1i(const std::string& name, const int i) const;
+    void SetUniformMat4(const std::string& name, const glm::mat4& matrix) const;
+    void SetUniformVec3(const std::string& name, const glm::vec3& vec) const;
 
 private:
     struct ShaderSources {
@@ -34,7 +34,7 @@ private:
     ShaderSources ParseShaderFile(const std::filesystem::path& file);
     unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
     unsigned int CompileShader(const unsigned int type, const std::string& shaderSource);
-    int GetUniformLocation(const char* name);
+    int GetUniformLocation(const char* name) const;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "Engine.hpp"
 #include "Input/FileSelectorDialog.h"
+#include "Renderer/ShaderLibrary.h"
 #include "Scene/Component.h"
 #include "Scene/Entity.h"
 #include "Scene/NativeScript.h"
@@ -139,6 +140,24 @@ void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
     }
 }
 
+template <>
+void DrawComponentSpecifics<ShaderComponent>(Entity ent)
+{
+    auto& comp = ent.Get<ShaderComponent>();
+    ImGui::Text("%s", comp.file.c_str());
+    if (ImGui::Button("...")) {
+        const auto file = CreateFileSelectorDialog()->OpenFile();
+        if (!file.has_value()) {
+            LOG_ERROR("Unable to open file; Not loading shader");
+            return;
+        }
+        if (!ShaderLibrary::Reload(file.value())) {
+            LOG_ERROR("Unable to load the shader [{}]", file.value());
+        }
+        comp.file = file.value();
+    }
+}
+
 void DrawCustomComponents(Entity ent, Engine* engine)
 {
     for (const auto& comp : engine->GetPlugins()) {
@@ -203,6 +222,7 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
         DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
         DrawComponent<SkyboxComponent>("Skybox", m_selectedEntity);
         DrawComponent<CustomModelComponent>("Custom Model", m_selectedEntity);
+        DrawComponent<ShaderComponent>("Shader", m_selectedEntity);
         DrawCustomComponents(m_selectedEntity, engine);
 
         ImGui::Separator();
@@ -247,6 +267,11 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
                 auto& model = m_selectedEntity.Add<CustomModelComponent>();
                 model.mesh = GetCubeMesh();
                 RedrawMesh(model);
+            }
+            if (ImGui::MenuItem("Shader")) {
+                auto& shader = m_selectedEntity.Add<ShaderComponent>();
+                shader.file = "./res/shaders/Lighting.shader";
+                ShaderLibrary::Load(shader.file);
             }
             for (const auto& plugin : engine->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {

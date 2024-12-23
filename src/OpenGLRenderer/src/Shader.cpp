@@ -43,7 +43,7 @@ Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
 
     if (!inputStream.is_open()) {
         LOG_ERROR("Failed to open shader {0}", file.c_str());
-        PN_ASSERT(false);
+        throw "Faild to open shader";
     } else {
         StreamType type = StreamType::NONE;
 
@@ -83,7 +83,7 @@ unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const 
         std::array<char, 512> infoLog;
         GLCALL(glGetProgramInfoLog(programID, infoLog.size(), nullptr, infoLog.data()));
         LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog.data());
-        PN_ASSERT(false);
+        throw "Failed to link shader";
     }
     GLCALL(glDeleteShader(vertexID));
     GLCALL(glDeleteShader(fragmentID));
@@ -105,12 +105,12 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
         std::array<char, 512> infoLog;
         GLCALL(glGetShaderInfoLog(shaderID, infoLog.size(), nullptr, infoLog.data()));
         LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog.data(), shaderSource);
-        PN_ASSERT(false);
+        throw "Failed to compile shader";
     }
     return shaderID;
 }
 
-int Shader::GetUniformLocation(const char* name)
+int Shader::GetUniformLocation(const char* name) const
 {
     int location = glGetUniformLocation(m_ShaderProgramID, name);
     GL_CHECK_ERROR();
@@ -120,40 +120,40 @@ int Shader::GetUniformLocation(const char* name)
     return location;
 }
 
-void Shader::SetUniform1b(const std::string& name, const bool b)
+void Shader::SetUniform1b(const std::string& name, const bool b) const
 {
     SetUniform1i(name, static_cast<int>(b));
 }
 
-void Shader::SetUniform1f(const std::string& name, const float f)
+void Shader::SetUniform1f(const std::string& name, const float f) const
 {
     int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform1f(uniformLocation, f));
 }
 
-void Shader::SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d)
+void Shader::SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d) const
 {
     int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform4f(uniformLocation, a, b, c, d));
 }
 
-void Shader::SetUniform1i(const std::string& name, const int i)
+void Shader::SetUniform1i(const std::string& name, const int i) const
 {
     int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniform1i(uniformLocation, i));
 }
 
-void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
+void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix) const
 {
     int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
     GLCALL(glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(matrix)));
 }
 
-void Shader::SetUniformVec3(const std::string& name, const glm::vec3& vec)
+void Shader::SetUniformVec3(const std::string& name, const glm::vec3& vec) const
 {
     int uniformLocation = GetUniformLocation(name.c_str());
     GLCALL(glUseProgram(m_ShaderProgramID));
