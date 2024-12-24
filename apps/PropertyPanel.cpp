@@ -1,13 +1,16 @@
-#include "Engine.hpp"
-#include "Input/FileSelectorDialog.h"
-#include "Renderer/ShaderLibrary.h"
-#include "Scene/Component.h"
-#include "Scene/Entity.h"
-#include "Scene/NativeScript.h"
-#include "Utils/Log.h"
+#include <peanut/Component.hpp>
+#include <peanut/Engine.hpp>
+#include <peanut/Entity.hpp>
+#include <peanut/FileSelectorDialog.hpp>
+#include <peanut/Log.hpp>
+#include <peanut/NativeScript.hpp>
+#include <peanut/ShaderLibrary.hpp>
 
-#include <array>
+// external
 #include <imgui.h>
+
+// stl
+#include <array>
 
 namespace {
 

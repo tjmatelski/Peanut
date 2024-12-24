@@ -57,7 +57,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
 if ("${LINT_WITH_CLANG_TIDY}")
-    set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++17)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++20)
 endif()
 add_subdirectory(apps)
 add_subdirectory(src)

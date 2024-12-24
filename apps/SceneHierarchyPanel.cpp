@@ -1,13 +1,13 @@
-#include "SceneHierarchyPanel.h"
+#include "SceneHierarchyPanel.hpp"
 
-#include <Scene/Component.h>
-#include <Utils/Log.h>
-#include <Utils/Settings.h>
+#include <peanut/Component.hpp>
+#include <peanut/Log.hpp>
 
+// external
 #include <imgui.h>
 
+// stl
 #include <cstdlib>
-#include <filesystem>
 
 namespace PEANUT {
 

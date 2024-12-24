@@ -13,7 +13,7 @@ void RenderStatsPanel::Update()
     m_last_frame_time = current_time;
 
     ImGui::Begin("Render Stats");
-    ImGui::Text("FPS: %g", fps);
+    ImGui::Text("FPS: %.0f", fps);
     ImGui::Text("Frame Time: %g ms", delta_ns / 1000.0);
     ImGui::End();
 }

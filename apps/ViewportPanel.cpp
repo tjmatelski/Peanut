@@ -1,4 +1,6 @@
-#include "ViewportPanel.h"
+#include "ViewportPanel.hpp"
+
+// external
 #include "imgui.h"
 
 namespace PEANUT {

@@ -12,9 +12,7 @@ find_package(imgui CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(Application
     PRIVATE
-        pn-core
-        pn-renderer
-        pn-scene
+        peanut
         dl
         imgui::imgui
         glfw

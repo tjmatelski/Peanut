@@ -1,30 +1,18 @@
-#include "Engine.hpp"
-#include "Scene/Component.h"
-#include "SceneHierarchyPanel.h"
-#include "ViewportPanel.h"
-#include <Application.h>
-#include <Events/Event.h>
-#include <Events/KeyEvent.h>
-#include <Events/MouseEvents.h>
-#include <Events/WindowEvents.h>
-#include <Input/FileSelectorDialog.h>
-#include <Input/Input.h>
-#include <Input/KeyCodes.h>
-#include <Input/MouseCodes.h>
-#include <Renderer/FrameBuffer.h>
-#include <Renderer/OrthoCamera.h>
-#include <Renderer/PerspectiveCamera.h>
-#include <Renderer/Renderer.h>
-#include <Scene/SceneSerializer.h>
-#include <Utils/Log.h>
-#include <Utils/Math.h>
-#include <Window.h>
+#include "RenderStatsPanel.hpp"
+#include "SceneHierarchyPanel.hpp"
+#include "ViewportPanel.hpp"
+#include "peanut/FileSelectorDialog.hpp"
+#include <peanut/Application.hpp>
+#include <peanut/Engine.hpp>
+#include <peanut/Input.hpp>
 
-#include <algorithm>
+// external
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+// stl
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <string>
@@ -130,6 +118,7 @@ public:
         m_scenePanel->UpdateGui();
         UpdatePropertiesPanel(m_scenePanel->GetSelectedEntity(), m_engine);
         m_viewportPanel.Update(m_frameBuffer);
+        m_renderStatsPanel.Update();
 
         ImGui::End();
     }
@@ -149,20 +138,17 @@ public:
 private:
     void AdjustRenderViewport(float width, float height)
     {
-        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-        m_orthoCamera.SetProjection(-(aspectRatio * 2.0f) / 2.0f, (aspectRatio * 2.0f) / 2.0f, -1.0f, 1.0f);
         m_engine->GetCamera().SetAspectRatio(width, height);
     }
 
     void OnWindowResize(const WindowResizeEvent& e)
     {
         m_frameBuffer.Resize(e.GetWidth(), e.GetHeight());
-        Renderer::SetViewport(e.GetWidth(), e.GetHeight());
+        m_engine->SetViewport(e.GetWidth(), e.GetHeight());
     }
 
-    void OnScroll(const ScrollEvent& e)
+    void OnScroll(const ScrollEvent&)
     {
-        m_orthoCamera.ZoomBy(static_cast<float>(e.GetVerticalScroll() / 100.0));
     }
 
     void OnMouseButton(const MouseButtonEvent& event)
@@ -173,12 +159,9 @@ private:
 
     void OnMouseMove(const MouseMovedEvent& event)
     {
-        glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
+        const glm::vec2 newPos(event.HorizontalPosition(), event.VerticalPosition());
         glm::vec2 diff = newPos - m_mousePosition;
         diff /= 0.5 * m_engine->GetWindow().GetHeight(); // Scales from 0 to pixelWidth to -1.0 to 1.0
-        if (m_leftMousePressed) {
-            m_orthoCamera.SetPosition(m_orthoCamera.GetPosition().x - diff.x, m_orthoCamera.GetPosition().y + diff.y);
-        }
         if (m_rightMousePressed) {
             constexpr float rotateScale = 25.0;
             m_engine->GetCamera().PitchBy(-diff.y * rotateScale);
@@ -212,7 +195,7 @@ private:
                         std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
                             return val.name;
                         });
-                        SceneSerializer::Serialize(*m_engine->GetScene(), saveFile, plugin_names);
+                        m_engine->Serialize(*m_engine->GetScene(), saveFile, plugin_names);
                     } else {
                         LOG_WARN("Failed to select save file. Not saving scene.");
                     }
@@ -226,7 +209,7 @@ private:
                         std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
                             return val.name;
                         });
-                        SceneSerializer::Deserialize(sceneFile, *m_engine->GetScene(), plugin_names);
+                        m_engine->Deserialize(*m_engine->GetScene(), sceneFile, plugin_names);
                         m_engine->GetScene()->ForEachEntity([](Entity ent) {
                             if (ent.Has<PythonScriptComponent>()) {
                                 LoadPythonScriptObj(ent);
@@ -265,13 +248,13 @@ private:
         }
     }
 
-    OrthoCamera m_orthoCamera;
     std::unique_ptr<SceneHierarchyPanel> m_scenePanel;
     bool m_leftMousePressed = false;
     bool m_rightMousePressed = false;
     glm::vec2 m_mousePosition = { 0.0, 0.0 };
     FrameBuffer m_frameBuffer = { { 100, 100 } };
     ViewportPanel m_viewportPanel;
+    RenderStatsPanel m_renderStatsPanel;
 };
 
 Application* GetApplication()
