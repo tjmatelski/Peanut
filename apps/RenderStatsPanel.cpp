@@ -1,7 +1,9 @@
 #include "RenderStatsPanel.hpp"
 
+// external
 #include <imgui.h>
 
+// stl
 #include <chrono>
 
 void RenderStatsPanel::Update()
@@ -12,8 +14,6 @@ void RenderStatsPanel::Update()
     const auto fps = 1000000.0 / delta_ns;
     m_last_frame_time = current_time;
 
-    ImGui::Begin("Render Stats");
     ImGui::Text("FPS: %.0f", fps);
     ImGui::Text("Frame Time: %g ms", delta_ns / 1000.0);
-    ImGui::End();
 }

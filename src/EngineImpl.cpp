@@ -1,7 +1,6 @@
 #include "EngineImpl.hpp"
 
 #include "PythonBindings.hpp"
-#include "Renderer/IndexBuffer.hpp"
 #include "Renderer/Mesh.hpp"
 #include "Renderer/ModelLibrary.hpp"
 #include "Renderer/Renderer.hpp"
@@ -306,7 +305,7 @@ void ReloadPythonScript(Entity ent)
     LoadPythonScriptObj(ent);
 }
 
-EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
+Engine::EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
 {
     return script->editor_fields;
 }

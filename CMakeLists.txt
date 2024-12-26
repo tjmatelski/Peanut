@@ -6,6 +6,15 @@ project(Peanut
 
 set(CMAKE_CXX_STANDARD 20)
 
+find_program(CCACHE_EXECUTABLE ccache)
+if(CCACHE_EXECUTABLE)
+  message(STATUS "ccache found: ${CCACHE_EXECUTABLE}")
+  set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+else()
+  message(WARNING "ccache not found.")
+endif()
+
 set(LINT_WITH_CLANG_TIDY OFF CACHE BOOL "Use clang-tidy to perform static analysis when building")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

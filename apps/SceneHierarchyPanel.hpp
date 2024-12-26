@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Panel.hpp"
 #include <peanut/Entity.hpp>
 #include <peanut/Scene.hpp>
 
@@ -8,14 +9,13 @@
 
 namespace PEANUT {
 
-class SceneHierarchyPanel {
+class SceneHierarchyPanel : public Panel {
 public:
-    SceneHierarchyPanel(std::shared_ptr<Scene> scene);
-    void UpdateGui();
+    using Panel::Panel;
+    void Update() override;
     [[nodiscard]] Entity GetSelectedEntity() const { return m_selectedEntity; }
 
 private:
-    std::shared_ptr<Scene> m_scene;
     Entity m_selectedEntity;
 };
 

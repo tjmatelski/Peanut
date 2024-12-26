@@ -11,17 +11,10 @@
 
 namespace PEANUT {
 
-SceneHierarchyPanel::SceneHierarchyPanel(std::shared_ptr<Scene> scene)
-    : m_scene(std::move(scene))
-    , m_selectedEntity()
+void SceneHierarchyPanel::Update()
 {
-}
-
-void SceneHierarchyPanel::UpdateGui()
-{
-    ImGui::Begin("Scene");
     ImGui::Text("Scene Heirarchy");
-    m_scene->ForEachEntity([&](Entity ent) {
+    Engine()->GetScene()->ForEachEntity([&](Entity ent) {
         constexpr int treeNodeFlags = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
         auto& tag = ent.Get<TagComponent>();
         if (ImGui::TreeNodeEx(tag.tag.c_str(), treeNodeFlags)) {
@@ -37,11 +30,10 @@ void SceneHierarchyPanel::UpdateGui()
     });
     if (ImGui::BeginPopupContextWindow("Scene Hierarchy Popup")) {
         if (ImGui::MenuItem("Create Empty Entity")) {
-            m_selectedEntity = m_scene->CreateEntity("New Entity");
+            m_selectedEntity = Engine()->GetScene()->CreateEntity("New Entity");
         }
         ImGui::EndPopup();
     }
-    ImGui::End();
 }
 
 }

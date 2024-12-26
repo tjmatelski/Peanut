@@ -15,7 +15,7 @@
 // stl
 #include <string>
 
-PYBIND11_MAKE_OPAQUE(PEANUT::EditorFieldMap);
+PYBIND11_MAKE_OPAQUE(PEANUT::Engine::Engine::EditorFieldMap);
 
 namespace py = pybind11;
 
@@ -34,7 +34,7 @@ public:
     void set(const CompT& comp) { m_ent.Get<CompT>() = comp; }
 
     // Editor
-    EditorFieldMap editor_fields;
+    Engine::EditorFieldMap editor_fields;
 
     virtual void runtime_begin() { }
     virtual void update(double /* dt */) { }
@@ -83,11 +83,11 @@ struct PythonScriptBinding : public PythonScript {
 
 PYBIND11_EMBEDDED_MODULE(peanut, m)
 {
-    py::bind_map<EditorFieldMap>(m, "EditorFieldsMap");
+    py::bind_map<Engine::EditorFieldMap>(m, "EditorFieldsMap");
 
-    py::class_<EditorButton>(m, "EditorButton")
+    py::class_<Engine::EditorButton>(m, "EditorButton")
         .def(py::init())
-        .def_readwrite("pressed", &EditorButton::pressed);
+        .def_readwrite("pressed", &Engine::EditorButton::pressed);
 
     // Components
     py::class_<glm::vec3>(m, "Vec3")

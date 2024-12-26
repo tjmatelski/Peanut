@@ -1,3 +1,5 @@
+#include "PropertyPanel.hpp"
+
 #include <peanut/Component.hpp>
 #include <peanut/Engine.hpp>
 #include <peanut/Entity.hpp>
@@ -12,20 +14,13 @@
 // stl
 #include <array>
 
-namespace {
-
 using namespace PEANUT;
 
-template <typename Component>
-void DrawComponent(const std::string& componentName, Entity m_selectedEntity);
-template <typename Component>
-void DrawComponentSpecifics(Entity m_selectedEntity);
-
 template <>
-void DrawComponent<TagComponent>(const std::string& componentName, Entity m_selectedEntity)
+void PropertyPanel::DrawComponent<TagComponent>(const std::string& componentName)
 {
     ImGui::Text("%s", componentName.c_str());
-    auto& tag = m_selectedEntity.Get<TagComponent>();
+    auto& tag = m_sh_panel->GetSelectedEntity().Get<TagComponent>();
     std::array<char, 256> buf;
     std::strncpy(buf.data(), tag.tag.c_str(), buf.size());
     if (ImGui::InputText("Tag", buf.data(), buf.size())) {
@@ -34,11 +29,11 @@ void DrawComponent<TagComponent>(const std::string& componentName, Entity m_sele
 }
 
 template <>
-void DrawComponent<TransformComponent>(const std::string& componentName, Entity m_selectedEntity)
+void PropertyPanel::DrawComponent<TransformComponent>(const std::string& componentName)
 {
     ImGui::Separator();
     ImGui::Text("%s", componentName.c_str());
-    auto& transform = m_selectedEntity.Get<TransformComponent>();
+    auto& transform = m_sh_panel->GetSelectedEntity().Get<TransformComponent>();
     ImGui::DragFloat3("Translation", glm::value_ptr(transform.translation), 0.2f);
     transform.rotation = glm::degrees(transform.rotation);
     ImGui::DragFloat3("Rotation", glm::value_ptr(transform.rotation), 1.0f, 0.0f, 360.0f, "%.2f deg");
@@ -47,26 +42,26 @@ void DrawComponent<TransformComponent>(const std::string& componentName, Entity 
 }
 
 template <typename Component>
-void DrawComponent(const std::string& componentName, Entity m_selectedEntity)
+void PropertyPanel::DrawComponent(const std::string& componentName)
 {
-    if (m_selectedEntity.Has<Component>()) {
+    if (m_sh_panel->GetSelectedEntity().Has<Component>()) {
         ImGui::PushID(componentName.c_str());
         ImGui::Separator();
         ImGui::Text("%s", componentName.c_str());
         ImGui::SameLine();
         if (ImGui::Button("X")) {
-            m_selectedEntity.Remove<Component>();
+            m_sh_panel->GetSelectedEntity().Remove<Component>();
         } else {
-            DrawComponentSpecifics<Component>(m_selectedEntity);
+            DrawComponentSpecifics<Component>();
         }
         ImGui::PopID();
     }
 }
 
 template <>
-void DrawComponentSpecifics<SpriteRenderComponent>(Entity m_selectedEntity)
+void PropertyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
 {
-    auto& renderComp = m_selectedEntity.Get<SpriteRenderComponent>();
+    auto& renderComp = m_sh_panel->GetSelectedEntity().Get<SpriteRenderComponent>();
     ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
     ImGui::Text("%s", renderComp.texture.c_str());
     if (ImGui::Button("...")) {
@@ -75,14 +70,14 @@ void DrawComponentSpecifics<SpriteRenderComponent>(Entity m_selectedEntity)
 }
 
 template <>
-void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
+void PropertyPanel::DrawComponentSpecifics<PythonScriptComponent>()
 {
-    auto& scriptComp = m_selectedEntity.Get<PythonScriptComponent>();
+    auto& scriptComp = m_sh_panel->GetSelectedEntity().Get<PythonScriptComponent>();
     ImGui::Text("%s", scriptComp.script.filename().c_str());
     if (ImGui::Button("Reload")) {
-        ReloadPythonScript(m_selectedEntity);
+        Engine()->ReloadPythonScript(m_sh_panel->GetSelectedEntity());
     }
-    auto& editor_fields = GetScriptEditorMembers(scriptComp.script_obj);
+    auto& editor_fields = Engine()->GetScriptEditorMembers(scriptComp.script_obj);
     for (auto& field : editor_fields) {
         std::visit([&](auto&& arg) {
             using T = std::decay_t<decltype(arg)>;
@@ -92,7 +87,7 @@ void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
             if constexpr (std::is_same_v<float, T>) {
                 ImGui::DragFloat(field.first.c_str(), &arg);
             }
-            if constexpr (std::is_same_v<EditorButton, T>) {
+            if constexpr (std::is_same_v<PEANUT::Engine::EditorButton, T>) {
                 arg.pressed = ImGui::Button(field.first.c_str());
             }
         },
@@ -101,9 +96,9 @@ void DrawComponentSpecifics<PythonScriptComponent>(Entity m_selectedEntity)
 }
 
 template <>
-void DrawComponentSpecifics<ModelFileComponent>(Entity ent)
+void PropertyPanel::DrawComponentSpecifics<ModelFileComponent>()
 {
-    auto& comp = ent.Get<ModelFileComponent>();
+    auto& comp = m_sh_panel->GetSelectedEntity().Get<ModelFileComponent>();
     ImGui::Text("%s", comp.file.c_str());
     if (ImGui::Button("...")) {
         comp.file = CreateFileSelectorDialog()->OpenFile().value_or(comp.file);
@@ -111,9 +106,9 @@ void DrawComponentSpecifics<ModelFileComponent>(Entity ent)
 }
 
 template <>
-void DrawComponentSpecifics<DirectionalLightComponent>(Entity ent)
+void PropertyPanel::DrawComponentSpecifics<DirectionalLightComponent>()
 {
-    auto& comp = ent.Get<DirectionalLightComponent>();
+    auto& comp = m_sh_panel->GetSelectedEntity().Get<DirectionalLightComponent>();
     ImGui::DragFloat3("Direction", glm::value_ptr(comp.direction), 0.01f, -1.0f, 1.0f, "%.2f");
     ImGui::DragFloat("Ambient", &comp.ambient, 0.01f, 0.0f, 1.0f, "%.2f");
     ImGui::DragFloat("Diffuse", &comp.diffuse, 0.01f, 0.0f, 1.0f, "%.2f");
@@ -121,9 +116,9 @@ void DrawComponentSpecifics<DirectionalLightComponent>(Entity ent)
 }
 
 template <>
-void DrawComponentSpecifics<PointLightComponent>(Entity ent)
+void PropertyPanel::DrawComponentSpecifics<PointLightComponent>()
 {
-    auto& comp = ent.Get<PointLightComponent>();
+    auto& comp = m_sh_panel->GetSelectedEntity().Get<PointLightComponent>();
     ImGui::DragFloat3("Color", glm::value_ptr(comp.color), 0.01f, 0.0f, 1.0f, "%.2f");
     ImGui::DragFloat("Ambient", &comp.ambient, 0.01f, 0.0f, 1.0f, "%.2f");
     ImGui::DragFloat("Diffuse", &comp.diffuse, 0.01f, 0.0f, 1.0f, "%.2f");
@@ -134,9 +129,9 @@ void DrawComponentSpecifics<PointLightComponent>(Entity ent)
 }
 
 template <>
-void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
+void PropertyPanel::DrawComponentSpecifics<SkyboxComponent>()
 {
-    auto& comp = ent.Get<SkyboxComponent>();
+    auto& comp = m_sh_panel->GetSelectedEntity().Get<SkyboxComponent>();
     ImGui::Text("%s", comp.directory.c_str());
     if (ImGui::Button("...")) {
         comp.directory = CreateFileSelectorDialog()->OpenFile().value_or(comp.directory);
@@ -144,9 +139,9 @@ void DrawComponentSpecifics<SkyboxComponent>(Entity ent)
 }
 
 template <>
-void DrawComponentSpecifics<ShaderComponent>(Entity ent)
+void PropertyPanel::DrawComponentSpecifics<ShaderComponent>()
 {
-    auto& comp = ent.Get<ShaderComponent>();
+    auto& comp = m_sh_panel->GetSelectedEntity().Get<ShaderComponent>();
     ImGui::Text("%s", comp.file.c_str());
     if (ImGui::Button("...")) {
         const auto file = CreateFileSelectorDialog()->OpenFile();
@@ -161,26 +156,26 @@ void DrawComponentSpecifics<ShaderComponent>(Entity ent)
     }
 }
 
-void DrawCustomComponents(Entity ent, Engine* engine)
+void PropertyPanel::DrawCustomComponents()
 {
-    for (const auto& comp : engine->GetPlugins()) {
-        if (ent.Has<NativeScript>(comp.name)) {
+    for (const auto& comp : Engine()->GetPlugins()) {
+        if (m_sh_panel->GetSelectedEntity().Has<NativeScript>(comp.name)) {
             ImGui::PushID(comp.name.c_str());
             ImGui::Separator();
             ImGui::Text("%s", comp.name.c_str());
             ImGui::SameLine();
             if (ImGui::Button("X")) {
-                ent.Get<NativeScript>(comp.name)->OnDestroy();
-                ent.Remove<NativeScript>(comp.name);
+                m_sh_panel->GetSelectedEntity().Get<NativeScript>(comp.name)->OnDestroy();
+                m_sh_panel->GetSelectedEntity().Remove<NativeScript>(comp.name);
             } else {
                 if (ImGui::Button("Reload")) {
-                    ent.Get<NativeScript>(comp.name)->OnDestroy();
-                    ent.Remove<NativeScript>(comp.name);
-                    engine->ReloadPlugin(comp.name);
-                    ent.Add<NativeScript>(comp.name, comp.getNewComponent());
-                    ent.Get<NativeScript>(comp.name)->OnCreate();
+                    m_sh_panel->GetSelectedEntity().Get<NativeScript>(comp.name)->OnDestroy();
+                    m_sh_panel->GetSelectedEntity().Remove<NativeScript>(comp.name);
+                    Engine()->ReloadPlugin(comp.name);
+                    m_sh_panel->GetSelectedEntity().Add<NativeScript>(comp.name, comp.getNewComponent());
+                    m_sh_panel->GetSelectedEntity().Get<NativeScript>(comp.name)->OnCreate();
                 }
-                for (const auto& member : ent.Get<NativeScript>(comp.name)->GetMembers()) {
+                for (const auto& member : m_sh_panel->GetSelectedEntity().Get<NativeScript>(comp.name)->GetMembers()) {
                     if (member.type == MemberVariable::Type::Bool) {
                         ImGui::Checkbox(member.name.c_str(), static_cast<bool*>(member.addr));
                     }
@@ -207,26 +202,25 @@ void DrawCustomComponents(Entity ent, Engine* engine)
 }
 
 template <>
-void DrawComponentSpecifics<CustomModelComponent>(Entity)
+void PropertyPanel::DrawComponentSpecifics<CustomModelComponent>()
 {
     ImGui::Text("Custom Model");
 }
 
-void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
+void PropertyPanel::Update()
 {
-    ImGui::Begin("Properties Panel");
-    if (m_selectedEntity) {
-        DrawComponent<TagComponent>("Tag", m_selectedEntity);
-        DrawComponent<TransformComponent>("Transform", m_selectedEntity);
-        DrawComponent<SpriteRenderComponent>("Sprite Render", m_selectedEntity);
-        DrawComponent<PythonScriptComponent>("Python Script", m_selectedEntity);
-        DrawComponent<ModelFileComponent>("Model File", m_selectedEntity);
-        DrawComponent<DirectionalLightComponent>("Directional Light", m_selectedEntity);
-        DrawComponent<PointLightComponent>("Point Light", m_selectedEntity);
-        DrawComponent<SkyboxComponent>("Skybox", m_selectedEntity);
-        DrawComponent<CustomModelComponent>("Custom Model", m_selectedEntity);
-        DrawComponent<ShaderComponent>("Shader", m_selectedEntity);
-        DrawCustomComponents(m_selectedEntity, engine);
+    if (m_sh_panel->GetSelectedEntity()) {
+        DrawComponent<TagComponent>("Tag");
+        DrawComponent<TransformComponent>("Transform");
+        DrawComponent<SpriteRenderComponent>("Sprite Render");
+        DrawComponent<PythonScriptComponent>("Python Script");
+        DrawComponent<ModelFileComponent>("Model File");
+        DrawComponent<DirectionalLightComponent>("Directional Light");
+        DrawComponent<PointLightComponent>("Point Light");
+        DrawComponent<SkyboxComponent>("Skybox");
+        DrawComponent<CustomModelComponent>("Custom Model");
+        DrawComponent<ShaderComponent>("Shader");
+        DrawCustomComponents();
 
         ImGui::Separator();
         if (ImGui::Button("Add Component")) {
@@ -234,65 +228,55 @@ void UpdatePropertiesPanelImpl(Entity m_selectedEntity, Engine* engine)
         }
         if (ImGui::BeginPopup("AddComponent")) {
             if (ImGui::MenuItem("Sprite Render Component")) {
-                auto& comp = m_selectedEntity.Add<SpriteRenderComponent>();
+                auto& comp = m_sh_panel->GetSelectedEntity().Add<SpriteRenderComponent>();
                 comp.color = { 1.0, 1.0, 1.0 };
                 comp.texture = "textures/BlankSquare.png";
             }
             if (ImGui::MenuItem("Python Script")) {
                 auto scriptFile = CreateFileSelectorDialog()->OpenFile().value_or("");
                 if (std::filesystem::exists(scriptFile)) {
-                    auto& comp = m_selectedEntity.Add<PythonScriptComponent>();
+                    auto& comp = m_sh_panel->GetSelectedEntity().Add<PythonScriptComponent>();
                     comp.script = scriptFile;
-                    LoadPythonScriptObj(m_selectedEntity);
+                    Engine()->LoadPythonScriptObj(m_sh_panel->GetSelectedEntity());
                 }
             }
             if (ImGui::MenuItem("Model File")) {
                 auto file = CreateFileSelectorDialog()->OpenFile().value_or("");
                 if (std::filesystem::exists(file)) {
-                    auto& comp = m_selectedEntity.Add<ModelFileComponent>();
+                    auto& comp = m_sh_panel->GetSelectedEntity().Add<ModelFileComponent>();
                     comp.file = file;
                 }
             }
             if (ImGui::MenuItem("Directional Light")) {
-                m_selectedEntity.Add<DirectionalLightComponent>();
+                m_sh_panel->GetSelectedEntity().Add<DirectionalLightComponent>();
             }
             if (ImGui::MenuItem("Point Light")) {
-                m_selectedEntity.Add<PointLightComponent>();
+                m_sh_panel->GetSelectedEntity().Add<PointLightComponent>();
             }
             if (ImGui::MenuItem("Skybox")) {
                 auto directory = CreateFileSelectorDialog()->OpenDirectory().value_or("");
                 if (std::filesystem::exists(directory)) {
-                    auto& comp = m_selectedEntity.Add<SkyboxComponent>();
+                    auto& comp = m_sh_panel->GetSelectedEntity().Add<SkyboxComponent>();
                     comp.directory = directory;
                 }
             }
             if (ImGui::MenuItem("Custom Model")) {
-                auto& model = m_selectedEntity.Add<CustomModelComponent>();
-                model.mesh = GetCubeMesh();
-                RedrawMesh(model);
+                auto& model = m_sh_panel->GetSelectedEntity().Add<CustomModelComponent>();
+                model.mesh = Engine()->GetCubeMesh();
+                Engine()->RedrawMesh(model);
             }
             if (ImGui::MenuItem("Shader")) {
-                auto& shader = m_selectedEntity.Add<ShaderComponent>();
+                auto& shader = m_sh_panel->GetSelectedEntity().Add<ShaderComponent>();
                 shader.file = "./res/shaders/Lighting.shader";
                 ShaderLibrary::Load(shader.file);
             }
-            for (const auto& plugin : engine->GetPlugins()) {
+            for (const auto& plugin : Engine()->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {
-                    m_selectedEntity.Add<NativeScript>(plugin.name, plugin.getNewComponent());
-                    m_selectedEntity.Get<NativeScript>(plugin.name)->OnCreate();
+                    m_sh_panel->GetSelectedEntity().Add<NativeScript>(plugin.name, plugin.getNewComponent());
+                    m_sh_panel->GetSelectedEntity().Get<NativeScript>(plugin.name)->OnCreate();
                 }
             }
             ImGui::EndPopup();
         }
     }
-    ImGui::End();
-}
-
-}
-
-namespace PEANUT {
-void UpdatePropertiesPanel(Entity selectedEntity, Engine* engine)
-{
-    UpdatePropertiesPanelImpl(selectedEntity, engine);
-}
 }

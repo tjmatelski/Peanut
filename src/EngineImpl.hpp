@@ -2,6 +2,7 @@
 
 #include "Renderer/Shader.hpp"
 #include <peanut/Component.hpp>
+#include <peanut/Engine.hpp>
 #include <peanut/Entity.hpp>
 #include <peanut/Event.hpp>
 #include <peanut/PerspectiveCamera.hpp>
@@ -12,14 +13,14 @@
 // stl
 #include <memory>
 #include <string>
-#include <unordered_map>
-#include <variant>
 
 int main(int argc, char** argv);
 
 namespace PEANUT {
 class PythonScript;
 class Application;
+class EditorFieldMap;
+
 class EngineImpl {
 public:
     EngineImpl();
@@ -62,5 +63,11 @@ private:
 
     friend int ::main(int argc, char** argv);
 };
+
+void RedrawMesh(const CustomModelComponent& model);
+Mesh GetCubeMesh();
+void LoadPythonScriptObj(Entity ent);
+void ReloadPythonScript(Entity ent);
+Engine::EditorFieldMap& GetScriptEditorMembers(PythonScript* script);
 
 } // namespace PEANUT

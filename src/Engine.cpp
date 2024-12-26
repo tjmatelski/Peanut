@@ -1,5 +1,6 @@
-#include "EngineImpl.hpp"
 #include <peanut/Engine.hpp>
+
+#include "EngineImpl.hpp"
 
 namespace PEANUT {
 
@@ -31,6 +32,31 @@ void Engine::Serialize(Scene& scene, const std::string& file, const std::vector<
 void Engine::Deserialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins)
 {
     m_engine->Deserialize(scene, file, plugins);
+}
+
+void Engine::RedrawMesh(const CustomModelComponent& model)
+{
+    PEANUT::RedrawMesh(model);
+}
+
+auto Engine::GetCubeMesh() -> Mesh
+{
+    return PEANUT::GetCubeMesh();
+}
+
+void Engine::LoadPythonScriptObj(Entity ent)
+{
+    PEANUT::LoadPythonScriptObj(ent);
+}
+
+void Engine::ReloadPythonScript(Entity ent)
+{
+    PEANUT::ReloadPythonScript(ent);
+}
+
+Engine::EditorFieldMap& Engine::GetScriptEditorMembers(PythonScript* script)
+{
+    return PEANUT::GetScriptEditorMembers(script);
 }
 
 } // namespace PEANUT

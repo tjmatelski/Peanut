@@ -1,7 +1,10 @@
+#include "Panel.hpp"
+#include "PropertyPanel.hpp"
 #include "RenderStatsPanel.hpp"
 #include "SceneHierarchyPanel.hpp"
 #include "ViewportPanel.hpp"
 #include "peanut/FileSelectorDialog.hpp"
+#include "peanut/FrameBuffer.hpp"
 #include <peanut/Application.hpp>
 #include <peanut/Engine.hpp>
 #include <peanut/Input.hpp>
@@ -16,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace PEANUT {
 class Entity;
@@ -30,7 +34,14 @@ class MyApp : public Application {
 public:
     void OnAttach() override
     {
-        m_scenePanel = std::make_unique<SceneHierarchyPanel>(m_engine->GetScene());
+        auto vp_panel = std::make_unique<ViewportPanel>(m_engine, &m_frameBuffer);
+        m_viewportPanel = vp_panel.get();
+        m_panels.emplace_back(std::move(vp_panel));
+        auto sh_panel = std::make_unique<SceneHierarchyPanel>("Scene", m_engine);
+        m_panels.emplace_back(std::make_unique<PropertyPanel>(m_engine, sh_panel.get()));
+        m_panels.emplace_back(std::move(sh_panel));
+        m_panels.emplace_back(std::make_unique<RenderStatsPanel>("Render Stats", m_engine));
+
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
@@ -56,12 +67,12 @@ public:
 
         m_frameBuffer.Bind();
         OnImGuiUpdate();
-        AdjustRenderViewport(m_viewportPanel.GetWidth(), m_viewportPanel.GetHeight());
+        AdjustRenderViewport(m_viewportPanel->GetWidth(), m_viewportPanel->GetHeight());
     }
 
     void OnUpdate(double timeStep) override
     {
-        if (m_viewportPanel.IsFocused()) {
+        if (m_viewportPanel->IsFocused()) {
             UpdateCameraPosition(timeStep);
         }
     }
@@ -115,10 +126,12 @@ public:
         ImGui::DockSpace(ImGui::GetID("MyDockspace"));
 
         UpdateMenuBar();
-        m_scenePanel->UpdateGui();
-        UpdatePropertiesPanel(m_scenePanel->GetSelectedEntity(), m_engine);
-        m_viewportPanel.Update(m_frameBuffer);
-        m_renderStatsPanel.Update();
+
+        for (const auto& panel : m_panels) {
+            panel->Begin();
+            panel->Update();
+            panel->End();
+        }
 
         ImGui::End();
     }
@@ -127,7 +140,7 @@ public:
     {
         Dispatcher dispatcher(event);
         dispatcher.Dispatch<WindowResizeEvent>([&](const WindowResizeEvent& e) { OnWindowResize(e); });
-        if (m_viewportPanel.IsHovered()) {
+        if (m_viewportPanel->IsHovered()) {
             dispatcher.Dispatch<ScrollEvent>([&](const ScrollEvent& e) { OnScroll(e); });
             dispatcher.Dispatch<MouseButtonEvent>([&](const MouseButtonEvent& e) { OnMouseButton(e); });
             dispatcher.Dispatch<MouseMovedEvent>([&](const MouseMovedEvent& e) { OnMouseMove(e); });
@@ -210,9 +223,9 @@ private:
                             return val.name;
                         });
                         m_engine->Deserialize(*m_engine->GetScene(), sceneFile, plugin_names);
-                        m_engine->GetScene()->ForEachEntity([](Entity ent) {
+                        m_engine->GetScene()->ForEachEntity([this](Entity ent) {
                             if (ent.Has<PythonScriptComponent>()) {
-                                LoadPythonScriptObj(ent);
+                                m_engine->LoadPythonScriptObj(ent);
                             }
                         });
                     } else {
@@ -248,13 +261,12 @@ private:
         }
     }
 
-    std::unique_ptr<SceneHierarchyPanel> m_scenePanel;
+    std::vector<std::unique_ptr<Panel>> m_panels;
+    ViewportPanel* m_viewportPanel;
+    FrameBuffer m_frameBuffer = { { 100, 100 } };
+    glm::vec2 m_mousePosition = { 0.0, 0.0 };
     bool m_leftMousePressed = false;
     bool m_rightMousePressed = false;
-    glm::vec2 m_mousePosition = { 0.0, 0.0 };
-    FrameBuffer m_frameBuffer = { { 100, 100 } };
-    ViewportPanel m_viewportPanel;
-    RenderStatsPanel m_renderStatsPanel;
 };
 
 Application* GetApplication()

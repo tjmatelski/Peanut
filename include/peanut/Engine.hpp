@@ -25,11 +25,18 @@ class PerspectiveCamera;
 
 class Engine {
 public:
+    struct EditorButton {
+        bool pressed = false;
+    };
+    using EditorFieldMap = std::unordered_map<std::string, std::variant<int, float, EditorButton>>;
+
     [[nodiscard]] auto GetWindow() const -> const Window&;
     [[nodiscard]] auto GetScene() const -> std::shared_ptr<Scene>;
     [[nodiscard]] auto IsRuntime() const -> bool;
     [[nodiscard]] auto GetCamera() -> PerspectiveCamera&;
     [[nodiscard]] auto GetPlugins() -> const std::vector<Plugin>&;
+    [[nodiscard]] auto GetCubeMesh() -> Mesh;
+    [[nodiscard]] auto GetScriptEditorMembers(PythonScript* script) -> EditorFieldMap&;
 
     void StartRuntime();
     void StopRunTime();
@@ -38,23 +45,13 @@ public:
     void SetViewport(int width, int height);
     void Serialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins);
     void Deserialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins);
+    void LoadPythonScriptObj(Entity ent);
+    void ReloadPythonScript(Entity ent);
+    void RedrawMesh(const CustomModelComponent& model);
 
 private:
     EngineImpl* m_engine = nullptr;
     friend int ::main(int argc, char** argv);
 };
-
-void LoadPythonScriptObj(Entity ent);
-void ReloadPythonScript(Entity ent);
-
-struct EditorButton {
-    bool pressed = false;
-};
-using EditorFieldMap = std::unordered_map<std::string, std::variant<int, float, EditorButton>>;
-EditorFieldMap& GetScriptEditorMembers(PythonScript* script);
-
-// Custom Model/Mesh
-void RedrawMesh(const CustomModelComponent& model);
-Mesh GetCubeMesh();
 
 } // namespace PEANUT
