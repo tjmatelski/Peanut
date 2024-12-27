@@ -45,7 +45,7 @@ public:
     void Dispatch(const Func& f)
     {
         if (m_event.GetType() == T::GetStaticType()) {
-            LOG_DEBUG("Dispatching {0}", m_event.ToString());
+            LOG_TRACE("Dispatching {0}", m_event.ToString());
             f(static_cast<const T&>(m_event));
         }
     }

@@ -172,13 +172,13 @@ void Renderer::Draw(const OpenglMesh& mesh, const Material material, const Shade
     unsigned int numSpecular = 0;
     for (const auto texture : material.GetTextures()) {
         if (texture.GetType() == Texture::Type::Diffuse) {
-            shader.SetUniform1i("material.diffuse[" + std::to_string(numDiffuse++) + "]", glTextureNumber);
+            shader.SetUniform({ "material.diffuse[" + std::to_string(numDiffuse++) + "]", static_cast<int>(glTextureNumber) });
         }
         if (texture.GetType() == Texture::Type::Specular) {
-            shader.SetUniform1i("material.specular[" + std::to_string(numSpecular++) + "]", glTextureNumber);
+            shader.SetUniform({ "material.specular[" + std::to_string(numSpecular++) + "]", static_cast<int>(glTextureNumber) });
         }
         if (texture.GetType() != Texture::Type::CubeMap) {
-            shader.SetUniform1f("material.shininess", material.GetShininess());
+            shader.SetUniform({ "material.shininess", material.GetShininess() });
         }
         GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
         texture.Bind();
@@ -195,39 +195,39 @@ void Renderer::Draw(const Model& model, const Shader& shader)
 
 void Renderer::SetDirectionalLight(const DirectionalLight& dirLight, Shader& shader)
 {
-    shader.SetUniformVec3("dirLight.direction", dirLight.direction);
-    shader.SetUniformVec3("dirLight.ambient", dirLight.ambient);
-    shader.SetUniformVec3("dirLight.diffuse", dirLight.diffuse);
-    shader.SetUniformVec3("dirLight.specular", dirLight.specular);
+    shader.SetUniform({ "dirLight.direction", dirLight.direction });
+    shader.SetUniform({ "dirLight.ambient", dirLight.ambient });
+    shader.SetUniform({ "dirLight.diffuse", dirLight.diffuse });
+    shader.SetUniform({ "dirLight.specular", dirLight.specular });
 }
 
 void Renderer::SetPointLights(const std::vector<PointLight>& lights, Shader& shader)
 {
     for (int i = 0; i < MAX_POINT_LIGHTS; ++i) {
-        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].is_active", false);
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].is_active", false });
     }
     unsigned int i = 0;
     for (const auto& light : lights) {
-        shader.SetUniform1b("pointLights[" + std::to_string(i) + "].is_active", light.active);
-        shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].position", light.position);
-        shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].ambient", light.ambient);
-        shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].diffuse", light.diffuse);
-        shader.SetUniformVec3("pointLights[" + std::to_string(i) + "].specular", light.specular);
-        shader.SetUniform1f("pointLights[" + std::to_string(i) + "].constant", light.constant);
-        shader.SetUniform1f("pointLights[" + std::to_string(i) + "].linear", light.linear);
-        shader.SetUniform1f("pointLights[" + std::to_string(i) + "].quadratic", light.quadratic);
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].is_active", light.active });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].position", light.position });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].ambient", light.ambient });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].diffuse", light.diffuse });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].specular", light.specular });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].constant", light.constant });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].linear", light.linear });
+        shader.SetUniform({ "pointLights[" + std::to_string(i) + "].quadratic", light.quadratic });
         ++i;
     }
 }
 
 void Renderer::SetSpotLight(const SpotLight& spotLight, Shader& shader)
 {
-    shader.SetUniformVec3("spotLight.position", spotLight.position);
-    shader.SetUniformVec3("spotLight.direction", spotLight.direction);
-    shader.SetUniformVec3("spotLight.diffuse", spotLight.diffuse);
-    shader.SetUniformVec3("spotLight.specular", spotLight.specular);
-    shader.SetUniform1f("spotLight.cutoff", glm::cos(glm::radians(spotLight.beginCutoff)));
-    shader.SetUniform1f("spotLight.outerCutoff", glm::cos(glm::radians(spotLight.endCutoff)));
+    shader.SetUniform({ "spotLight.position", spotLight.position });
+    shader.SetUniform({ "spotLight.direction", spotLight.direction });
+    shader.SetUniform({ "spotLight.diffuse", spotLight.diffuse });
+    shader.SetUniform({ "spotLight.specular", spotLight.specular });
+    shader.SetUniform({ "spotLight.cutoff", glm::cos(glm::radians(spotLight.beginCutoff)) });
+    shader.SetUniform({ "spotLight.outerCutoff", glm::cos(glm::radians(spotLight.endCutoff)) });
 }
 
 Mesh Renderer::GetCubeMesh()

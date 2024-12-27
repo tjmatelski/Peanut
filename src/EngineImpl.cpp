@@ -132,8 +132,8 @@ void EngineImpl::Update(double)
 
     // Render skybox
     m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) {
-        m_skyboxShader->SetUniformMat4("view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())));
-        m_skyboxShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
+        m_skyboxShader->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
+        m_skyboxShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
         Renderer::DisableDepthMask();
         Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), *m_skyboxShader);
         Renderer::EnableDepthMask();
@@ -172,10 +172,10 @@ void EngineImpl::Update(double)
 
     // Render Models
     m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
-        m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
-        m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-        m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
-        m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+        m_lightingShader->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        m_lightingShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        m_lightingShader->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        m_lightingShader->SetUniform({ "model", ent.Get<TransformComponent>() });
         if (ent.Has<ShaderComponent>()) {
             Renderer::Draw(ModelLibrary::Get(comp.file), ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
         } else {
@@ -185,10 +185,10 @@ void EngineImpl::Update(double)
 
     // Render Custom Models
     m_scene->ForEach<CustomModelComponent>([&](Entity ent, const CustomModelComponent& model) {
-        m_lightingShader->SetUniformMat4("view", m_perspectiveCam.GetViewMatrix());
-        m_lightingShader->SetUniformMat4("projection", m_perspectiveCam.GetProjectionMatrix());
-        m_lightingShader->SetUniformVec3("viewPos", m_perspectiveCam.Position());
-        m_lightingShader->SetUniformMat4("model", ent.Get<TransformComponent>());
+        m_lightingShader->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        m_lightingShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        m_lightingShader->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        m_lightingShader->SetUniform({ "model", ent.Get<TransformComponent>() });
         if (ent.Has<ShaderComponent>()) {
             Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
         } else {

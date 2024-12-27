@@ -57,8 +57,8 @@ void Renderer2D::Destroy()
 
 void Renderer2D::BeginScene(const OrthoCamera& camera)
 {
-    s_quadRenderData.shader->SetUniformMat4("view", camera.GetViewMatrix());
-    s_quadRenderData.shader->SetUniformMat4("projection", camera.GetProjectionMatrix());
+    s_quadRenderData.shader->SetUniform({ "view", camera.GetViewMatrix() });
+    s_quadRenderData.shader->SetUniform({ "projection", camera.GetProjectionMatrix() });
 }
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec3& color)
@@ -73,8 +73,8 @@ void Renderer2D::DrawQuad(const glm::mat4& transform, const Texture& texture)
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec3& color, const Texture& texture)
 {
-    s_quadRenderData.shader->SetUniformMat4("model", transform);
-    s_quadRenderData.shader->SetUniformVec3("color", color);
+    s_quadRenderData.shader->SetUniform({ "model", transform });
+    s_quadRenderData.shader->SetUniform({ "color", color });
     Renderer::Draw(*s_quadRenderData.vertexArray, *s_quadRenderData.indexBuffer, *s_quadRenderData.shader, texture);
 }
 

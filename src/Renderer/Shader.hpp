@@ -7,20 +7,33 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 
 namespace PEANUT {
+
+using UniformValue = std::variant<
+    bool,
+    int,
+    unsigned int,
+    float,
+    glm::vec2,
+    glm::vec3,
+    glm::vec4,
+    glm::mat2,
+    glm::mat3,
+    glm::mat4>;
+
+struct Uniform {
+    std::string name;
+    UniformValue value;
+};
 
 class Shader {
 public:
     Shader(const std::filesystem::path& shaderFile);
     ~Shader();
     void Use() const;
-    void SetUniform1b(const std::string& name, const bool b) const;
-    void SetUniform1f(const std::string& name, const float f) const;
-    void SetUniform4f(const std::string& name, const float a, const float b, const float c, const float d) const;
-    void SetUniform1i(const std::string& name, const int i) const;
-    void SetUniformMat4(const std::string& name, const glm::mat4& matrix) const;
-    void SetUniformVec3(const std::string& name, const glm::vec3& vec) const;
+    void SetUniform(const Uniform& uniform) const;
 
 private:
     struct ShaderSources {

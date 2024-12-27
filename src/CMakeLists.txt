@@ -39,5 +39,6 @@ target_link_libraries(peanut
 )
 
 target_compile_options(peanut PRIVATE -Wall -Wextra -Werror)
+target_compile_features(peanut PUBLIC cxx_std_20)
 
 add_subdirectory(Renderer)
