@@ -45,8 +45,6 @@ private:
     Application* m_app = nullptr;
     std::unique_ptr<Window> m_window;
     std::shared_ptr<Scene> m_scene;
-    std::unique_ptr<Shader> m_lightingShader;
-    std::unique_ptr<Shader> m_skyboxShader;
     PerspectiveCamera m_perspectiveCam = { { 0.0, 0.0, 0.0 } };
     double m_lastFrameTime = 0.0;
     bool m_shouldWindowClose = false;

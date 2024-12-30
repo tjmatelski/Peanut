@@ -24,9 +24,9 @@ bool ShaderLibrary::Reload(const std::filesystem::path& shader)
     return Load(shader);
 }
 
-const Shader& ShaderLibrary::Get(const std::filesystem::path& shaderName)
+const Shader* ShaderLibrary::Get(const std::filesystem::path& shaderName)
 {
-    return GetInstance().LoadImpl(shaderName);
+    return &GetInstance().LoadImpl(shaderName);
 }
 
 ShaderLibrary& ShaderLibrary::GetInstance()

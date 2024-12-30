@@ -14,7 +14,7 @@ class ShaderLibrary {
 public:
     static bool Load(const std::filesystem::path& shader);
     static bool Reload(const std::filesystem::path& shader);
-    static const Shader& Get(const std::filesystem::path& shaderName);
+    static const Shader* Get(const std::filesystem::path& shaderName);
 
 private:
     ShaderLibrary() = default;

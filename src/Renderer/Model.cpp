@@ -1,6 +1,8 @@
 #include "Model.hpp"
 
+#include "Material.hpp"
 #include "TextureLibrary.hpp"
+#include "peanut/ShaderLibrary.hpp"
 #include <peanut/Log.hpp>
 
 // external
@@ -69,13 +71,10 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
 
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
         Vertex vert;
-        vert.position = glm::vec3(mesh->mVertices[i].x,
-            mesh->mVertices[i].y,
-            mesh->mVertices[i].z);
-        vert.normal = glm::vec3(mesh->mNormals[i].x,
-            mesh->mNormals[i].y,
-            mesh->mNormals[i].z);
-        vert.texCoords = mesh->mTextureCoords[0] ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y) : glm::vec2(0.0f, 0.0f);
+        vert.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+        vert.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+        vert.texCoords = mesh->mTextureCoords[0] ? glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y)
+                                                 : glm::vec2(0.0f, 0.0f);
 
         verts.push_back(vert);
     }
@@ -94,7 +93,16 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
     textures.insert(textures.end(), diffuse.begin(), diffuse.end());
     textures.insert(textures.end(), specular.begin(), specular.end());
 
-    return { OpenglMesh(std::move(verts), std::move(indices)), Material(std::move(textures)) };
+    Material mat;
+    mat.SetUniform("material.shininess", 32.0f);
+    for (const auto& texture : diffuse) {
+        mat.AddTexture(texture);
+    }
+    for (const auto& texture : specular) {
+        mat.AddTexture(texture);
+    }
+    return { OpenglMesh(std::move(verts), std::move(indices)), mat,
+        ShaderLibrary::Get("./res/shaders/Lighting.shader") };
 }
 
 std::vector<Texture> Model::LoadTextures(const aiMaterial* mat, const int type)

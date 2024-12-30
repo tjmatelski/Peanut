@@ -15,8 +15,7 @@
 #include <variant>
 
 namespace {
-template <class... Ts>
-struct Overloaded : Ts... {
+template <class... Ts> struct Overloaded : Ts... {
     using Ts::operator()...;
 };
 }
@@ -29,15 +28,28 @@ Shader::Shader(const std::filesystem::path& shaderFile)
     m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
 }
 
-Shader::~Shader()
+Shader::Shader(Shader&& other)
+    : m_ShaderProgramID(other.m_ShaderProgramID)
 {
-    GLCALL(glDeleteProgram(m_ShaderProgramID));
+    other.m_ShaderProgramID = 0;
 }
 
-void Shader::Use() const
+Shader& Shader::operator=(Shader&& other)
 {
-    GLCALL(glUseProgram(m_ShaderProgramID));
+    m_ShaderProgramID = other.m_ShaderProgramID;
+    other.m_ShaderProgramID = 0;
+    return *this;
 }
+
+Shader::~Shader()
+{
+    if (m_ShaderProgramID != 0) {
+        GLCALL(glDeleteProgram(m_ShaderProgramID));
+        m_ShaderProgramID = 0;
+    }
+}
+
+void Shader::Use() const { GLCALL(glUseProgram(m_ShaderProgramID)); }
 
 Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
 {
@@ -45,11 +57,7 @@ Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
     std::string line;
     std::array<std::stringstream, 2> ss;
 
-    enum class StreamType {
-        NONE = -1,
-        VERTEX = 0,
-        FRAGMENT = 1
-    };
+    enum class StreamType { NONE = -1, VERTEX = 0, FRAGMENT = 1 };
 
     if (!inputStream.is_open()) {
         LOG_ERROR("Failed to open shader {0}", file.c_str());
@@ -144,7 +152,8 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
     if (!success) {
         std::array<char, 512> infoLog;
         GLCALL(glGetShaderInfoLog(shaderID, infoLog.size(), nullptr, infoLog.data()));
-        LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog.data(), shaderSource);
+        LOG_ERROR("ERROR::SHADER::TYPE {0}::COMPILATION_FAILED Info: {1}\nShaderSource:\n{2}", type, infoLog.data(),
+            shaderSource);
         throw "Failed to compile shader";
     }
 
@@ -155,17 +164,23 @@ void Shader::SetUniform(const Uniform& uniform) const
 {
     const auto loc = GetUniformLocation(uniform.name.c_str());
     Use();
-    std::visit(Overloaded {
-                   [&](std::same_as<bool> auto value) { GLCALL(glUniform1i(loc, static_cast<GLint>(value))); },
-                   [&](std::same_as<int> auto value) { GLCALL(glUniform1i(loc, value)); },
-                   [&](std::same_as<unsigned int> auto value) { GLCALL(glUniform1ui(loc, value)); },
-                   [&](std::same_as<float> auto value) { GLCALL(glUniform1f(loc, value)); },
-                   [&](std::same_as<glm::vec2> auto value) { GLCALL(glUniform2f(loc, value.x, value.y)); },
-                   [&](std::same_as<glm::vec3> auto value) { GLCALL(glUniform3f(loc, value.x, value.y, value.z)); },
-                   [&](std::same_as<glm::vec4> auto value) { GLCALL(glUniform4f(loc, value.x, value.y, value.z, value.w)); },
-                   [&](std::same_as<glm::mat2> auto value) { GLCALL(glUniformMatrix2fv(loc, 1, GL_FALSE, glm::value_ptr(value))); },
-                   [&](std::same_as<glm::mat3> auto value) { GLCALL(glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value))); },
-                   [&](std::same_as<glm::mat4> auto value) { GLCALL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value))); } },
+    std::visit(
+        Overloaded { [&](std::same_as<bool> auto value) { GLCALL(glUniform1i(loc, static_cast<GLint>(value))); },
+            [&](std::same_as<int> auto value) { GLCALL(glUniform1i(loc, value)); },
+            [&](std::same_as<unsigned int> auto value) { GLCALL(glUniform1ui(loc, value)); },
+            [&](std::same_as<float> auto value) { GLCALL(glUniform1f(loc, value)); },
+            [&](std::same_as<glm::vec2> auto value) { GLCALL(glUniform2f(loc, value.x, value.y)); },
+            [&](std::same_as<glm::vec3> auto value) { GLCALL(glUniform3f(loc, value.x, value.y, value.z)); },
+            [&](std::same_as<glm::vec4> auto value) { GLCALL(glUniform4f(loc, value.x, value.y, value.z, value.w)); },
+            [&](std::same_as<glm::mat2> auto value) {
+                GLCALL(glUniformMatrix2fv(loc, 1, GL_FALSE, glm::value_ptr(value)));
+            },
+            [&](std::same_as<glm::mat3> auto value) {
+                GLCALL(glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(value)));
+            },
+            [&](std::same_as<glm::mat4> auto value) {
+                GLCALL(glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value)));
+            } },
         uniform.value);
 }
 

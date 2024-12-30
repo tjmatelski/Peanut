@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Material.hpp"
-#include "Mesh.hpp"
+#include "Renderable.hpp"
 
 // stl
 #include <filesystem>
@@ -14,11 +13,6 @@ class aiMesh;
 class aiMaterial;
 
 namespace PEANUT {
-
-struct Renderable {
-    OpenglMesh mesh;
-    Material material;
-};
 
 class Model {
 public:

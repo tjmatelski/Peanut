@@ -1,8 +1,10 @@
 #include "EngineImpl.hpp"
 
 #include "PythonBindings.hpp"
+#include "Renderer/Material.hpp"
 #include "Renderer/Mesh.hpp"
 #include "Renderer/ModelLibrary.hpp"
+#include "Renderer/Renderable.hpp"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Renderer2D.hpp"
 #include "Renderer/Shader.hpp"
@@ -24,10 +26,13 @@
 // external
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 // stl
 #include <exception>
 #include <pybind11/pytypes.h>
+#include <spdlog/spdlog.h>
 #include <unordered_map>
 #include <utility>
 
@@ -47,18 +52,14 @@ EngineImpl::EngineImpl()
     Renderer2D::Init();
     Renderer::EnableDepthTest();
 
-    m_lightingShader = std::make_unique<Shader>("./res/shaders/Lighting.shader");
-    m_skyboxShader = std::make_unique<Shader>("./res/shaders/Skybox.shader");
-
     LOG_DEBUG("Initializing Python Interpreter");
     pybind11::initialize_interpreter();
 }
 
 EngineImpl::~EngineImpl()
 {
-    m_scene->ForEach<PythonScriptComponent>([](Entity, const PythonScriptComponent& comp) {
-        py::cast(comp.script_obj).dec_ref();
-    });
+    m_scene->ForEach<PythonScriptComponent>(
+        [](Entity, const PythonScriptComponent& comp) { py::cast(comp.script_obj).dec_ref(); });
     LOG_DEBUG("Stopping Python Interpreter");
     pybind11::finalize_interpreter();
     Renderer2D::Destroy();
@@ -119,9 +120,8 @@ void EngineImpl::StopRunTime()
 void EngineImpl::Update(double)
 {
     try {
-        m_scene->ForEach<PythonScriptComponent>([](Entity, const PythonScriptComponent& comp) {
-            comp.script_obj->editor_update();
-        });
+        m_scene->ForEach<PythonScriptComponent>(
+            [](Entity, const PythonScriptComponent& comp) { comp.script_obj->editor_update(); });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
     }
@@ -132,26 +132,32 @@ void EngineImpl::Update(double)
 
     // Render skybox
     m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) {
-        m_skyboxShader->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
-        m_skyboxShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        ShaderLibrary::Get("./res/shaders/Skybox.shader")
+            ->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
+        ShaderLibrary::Get("./res/shaders/Skybox.shader")
+            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
         Renderer::DisableDepthMask();
-        Renderer::Draw(Renderer::GetSkyboxMesh(), Material({ TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap) }), *m_skyboxShader);
+        Material mat;
+        mat.AddTexture(TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap));
+        const Renderable renderable = { .mesh_ = Renderer::GetSkyboxMesh(),
+            .material_ = mat,
+            .shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader") };
+        Renderer::Draw(renderable);
         Renderer::EnableDepthMask();
     });
 
     // Render 2D sprites
     m_scene->ForEach<SpriteRenderComponent>([&](Entity ent, const SpriteRenderComponent& spriteRender) {
-        Renderer2D::DrawQuad(ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
+        Renderer2D::DrawQuad(
+            ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
     });
 
     // Render Directional Lights
     m_scene->ForEach<DirectionalLightComponent>([&](Entity, const DirectionalLightComponent& comp) {
         Renderer::SetDirectionalLight(
-            { comp.direction,
-                { comp.ambient, comp.ambient, comp.ambient },
-                { comp.diffuse, comp.diffuse, comp.diffuse },
-                { comp.specular, comp.specular, comp.specular } },
-            *m_lightingShader);
+            { comp.direction, { comp.ambient, comp.ambient, comp.ambient },
+                { comp.diffuse, comp.diffuse, comp.diffuse }, { comp.specular, comp.specular, comp.specular } },
+            *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
     });
 
     // Render Point Lights
@@ -168,32 +174,29 @@ void EngineImpl::Update(double)
         pl.quadratic = comp.quadratic;
         pointLights.push_back(pl);
     });
-    Renderer::SetPointLights(pointLights, *m_lightingShader);
+    Renderer::SetPointLights(pointLights, *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
 
     // Render Models
     m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
-        m_lightingShader->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        m_lightingShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        m_lightingShader->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        m_lightingShader->SetUniform({ "model", ent.Get<TransformComponent>() });
-        if (ent.Has<ShaderComponent>()) {
-            Renderer::Draw(ModelLibrary::Get(comp.file), ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
-        } else {
-            Renderer::Draw(ModelLibrary::Get(comp.file), *m_lightingShader);
-        }
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")
+            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "model", ent.Get<TransformComponent>() });
+        Renderer::Draw(ModelLibrary::Get(comp.file));
     });
 
     // Render Custom Models
     m_scene->ForEach<CustomModelComponent>([&](Entity ent, const CustomModelComponent& model) {
-        m_lightingShader->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        m_lightingShader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        m_lightingShader->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        m_lightingShader->SetUniform({ "model", ent.Get<TransformComponent>() });
-        if (ent.Has<ShaderComponent>()) {
-            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, ShaderLibrary::Get(ent.Get<ShaderComponent>().file));
-        } else {
-            Renderer::Draw(OpenglMesh { model.mesh.vertices, model.mesh.indices }, Material { { TextureLibrary::Load("textures/BlankSquare.png") } }, *m_lightingShader);
-        }
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")
+            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "model", ent.Get<TransformComponent>() });
+        const Renderable renderable = { .mesh_ = { model.mesh.vertices, model.mesh.indices },
+            .material_ = Material::Default(),
+            .shader_ = ShaderLibrary::Get("./res/shaders/Lighting.shader") };
+        Renderer::Draw(renderable);
     });
 }
 
@@ -213,9 +216,8 @@ void EngineImpl::BeginRuntime()
         });
     }
     try {
-        m_scene->ForEach<PythonScriptComponent>([&](Entity, const PythonScriptComponent& comp) {
-            comp.script_obj->runtime_begin();
-        });
+        m_scene->ForEach<PythonScriptComponent>(
+            [&](Entity, const PythonScriptComponent& comp) { comp.script_obj->runtime_begin(); });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
     }
@@ -225,9 +227,8 @@ void EngineImpl::UpdateRuntimeScripts(double ts)
 {
     bool python_error = false;
     try {
-        m_scene->ForEach<PythonScriptComponent>([&](Entity, const PythonScriptComponent& comp) {
-            comp.script_obj->update(ts);
-        });
+        m_scene->ForEach<PythonScriptComponent>(
+            [&](Entity, const PythonScriptComponent& comp) { comp.script_obj->update(ts); });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
         python_error = true;
@@ -255,9 +256,8 @@ void EngineImpl::EndRuntime()
         });
     }
     try {
-        m_scene->ForEach<PythonScriptComponent>([&](Entity, const PythonScriptComponent& comp) {
-            comp.script_obj->runtime_end();
-        });
+        m_scene->ForEach<PythonScriptComponent>(
+            [&](Entity, const PythonScriptComponent& comp) { comp.script_obj->runtime_end(); });
     } catch (std::exception& e) {
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
     }
@@ -266,16 +266,11 @@ void EngineImpl::EndRuntime()
 void EngineImpl::OnApplicationEvent(Event& event)
 {
     Dispatcher dispatcher(event);
-    dispatcher.Dispatch<WindowCloseEvent>([this]([[maybe_unused]] const auto& e) {
-        Terminate();
-    });
+    dispatcher.Dispatch<WindowCloseEvent>([this]([[maybe_unused]] const auto& e) { Terminate(); });
     m_app->OnEvent(event);
 }
 
-void EngineImpl::Terminate()
-{
-    m_shouldWindowClose = true;
-}
+void EngineImpl::Terminate() { m_shouldWindowClose = true; }
 
 void LoadPythonScriptObj(Entity ent)
 {
@@ -305,30 +300,18 @@ void ReloadPythonScript(Entity ent)
     LoadPythonScriptObj(ent);
 }
 
-Engine::EditorFieldMap& GetScriptEditorMembers(PythonScript* script)
-{
-    return script->editor_fields;
-}
+Engine::EditorFieldMap& GetScriptEditorMembers(PythonScript* script) { return script->editor_fields; }
 
 void RedrawMesh(const CustomModelComponent& model)
 {
     mesh_map.emplace(std::make_pair(model.id, OpenglMesh { model.mesh.vertices, model.mesh.indices }));
 }
 
-Mesh GetCubeMesh()
-{
-    return Renderer::GetCubeMesh();
-}
+Mesh GetCubeMesh() { return Renderer::GetCubeMesh(); }
 
-void EngineImpl::ReloadPlugin(std::string_view name)
-{
-    m_pluginManager.Reload(name);
-}
+void EngineImpl::ReloadPlugin(std::string_view name) { m_pluginManager.Reload(name); }
 
-void EngineImpl::SetViewport(int width, int height)
-{
-    Renderer::SetViewport(width, height);
-}
+void EngineImpl::SetViewport(int width, int height) { Renderer::SetViewport(width, height); }
 
 void EngineImpl::Serialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins)
 {
@@ -344,7 +327,14 @@ void EngineImpl::Deserialize(Scene& scene, const std::string& file, const std::v
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    auto basic_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("peanut.log");
+    std::vector<spdlog::sink_ptr> sinks { console_sink, basic_sink };
+    auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
+    spdlog::register_logger(logger); // if it would be used in some other place
+    spdlog::set_default_logger(logger);
     spdlog::set_level(static_cast<spdlog::level::level_enum>(SPDLOG_ACTIVE_LEVEL));
+
     LOG_INFO("Starting Application: {}", argv[0]);
     PEANUT::Settings::SetApplication(argv[0]);
 

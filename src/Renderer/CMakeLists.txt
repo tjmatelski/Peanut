@@ -5,6 +5,7 @@ target_sources(peanut PRIVATE
     FrameBuffer.cpp
     GLDebug.cpp
     IndexBuffer.cpp
+    Material.cpp
     Mesh.cpp
     Model.cpp
     ModelLibrary.cpp
