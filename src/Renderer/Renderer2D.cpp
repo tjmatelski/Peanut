@@ -1,11 +1,10 @@
 #include "Renderer2D.hpp"
 
 #include "../Settings.hpp"
-#include "GLDebug.hpp"
-#include "IndexBuffer.hpp"
 #include "Renderer.hpp"
 #include "TextureLibrary.hpp"
-#include "VertexArray.hpp"
+#include <peanut/IndexBuffer.hpp>
+#include <peanut/VertexArray.hpp>
 
 // external
 #include <glad/glad.h>

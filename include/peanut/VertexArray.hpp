@@ -1,7 +1,7 @@
 #pragma once
 
-#include "BufferLayout.hpp"
-#include "VertexBuffer.hpp"
+#include <peanut/BufferLayout.hpp>
+#include <peanut/VertexBuffer.hpp>
 
 // stl
 #include <vector>

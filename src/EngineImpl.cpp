@@ -1,13 +1,9 @@
 #include "EngineImpl.hpp"
 
 #include "PythonBindings.hpp"
-#include "Renderer/Material.hpp"
-#include "Renderer/Mesh.hpp"
 #include "Renderer/ModelLibrary.hpp"
-#include "Renderer/Renderable.hpp"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Renderer2D.hpp"
-#include "Renderer/Shader.hpp"
 #include "Renderer/TextureLibrary.hpp"
 #include "SceneSerializer.hpp"
 #include "Settings.hpp"
@@ -18,8 +14,11 @@
 #include <peanut/Input.hpp>
 #include <peanut/KeyCodes.hpp>
 #include <peanut/Log.hpp>
+#include <peanut/Material.hpp>
+#include <peanut/Mesh.hpp>
 #include <peanut/MouseCodes.hpp>
 #include <peanut/NativeScript.hpp>
+#include <peanut/Shader.hpp>
 #include <peanut/ShaderLibrary.hpp>
 #include <peanut/WindowEvents.hpp>
 
@@ -33,14 +32,8 @@
 #include <exception>
 #include <pybind11/pytypes.h>
 #include <spdlog/spdlog.h>
-#include <unordered_map>
-#include <utility>
 
 namespace PEANUT {
-
-namespace {
-    std::unordered_map<unsigned int, OpenglMesh> mesh_map;
-}
 
 EngineImpl::EngineImpl()
     : m_scene(std::make_shared<Scene>())
@@ -178,24 +171,23 @@ void EngineImpl::Update(double)
 
     // Render Models
     m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")
-            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "model", ent.Get<TransformComponent>() });
-        Renderer::Draw(ModelLibrary::Get(comp.file));
+        // TODO: Should camera uniforms be handled here or in renderer
+        auto& model = ModelLibrary::Get(comp.file);
+        for (auto& renderable : model.GetRenderables()) {
+            renderable.shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+            renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+            renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+            renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
+        }
+        Renderer::Draw(model);
     });
 
-    // Render Custom Models
-    m_scene->ForEach<CustomModelComponent>([&](Entity ent, const CustomModelComponent& model) {
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")
-            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        ShaderLibrary::Get("./res/shaders/Lighting.shader")->SetUniform({ "model", ent.Get<TransformComponent>() });
-        const Renderable renderable = { .mesh_ = { model.mesh.vertices, model.mesh.indices },
-            .material_ = Material::Default(),
-            .shader_ = ShaderLibrary::Get("./res/shaders/Lighting.shader") };
+    // Render Renderables
+    m_scene->ForEach<Renderable>([&](Entity ent, const Renderable& renderable) {
+        renderable.shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
         Renderer::Draw(renderable);
     });
 }
@@ -301,11 +293,6 @@ void ReloadPythonScript(Entity ent)
 }
 
 Engine::EditorFieldMap& GetScriptEditorMembers(PythonScript* script) { return script->editor_fields; }
-
-void RedrawMesh(const CustomModelComponent& model)
-{
-    mesh_map.emplace(std::make_pair(model.id, OpenglMesh { model.mesh.vertices, model.mesh.indices }));
-}
 
 Mesh GetCubeMesh() { return Renderer::GetCubeMesh(); }
 

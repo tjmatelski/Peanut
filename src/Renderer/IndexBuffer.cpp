@@ -1,4 +1,4 @@
-#include "IndexBuffer.hpp"
+#include <peanut/IndexBuffer.hpp>
 
 #include "GLDebug.hpp"
 #include <peanut/Log.hpp>
@@ -20,10 +20,7 @@ IndexBuffer::IndexBuffer(const unsigned int elements, const void* data)
     GLCALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements * sizeof(unsigned int), data, GL_STATIC_DRAW));
 }
 
-IndexBuffer::IndexBuffer(IndexBuffer&& other)
-{
-    *this = std::move(other);
-}
+IndexBuffer::IndexBuffer(IndexBuffer&& other) { *this = std::move(other); }
 
 IndexBuffer& IndexBuffer::operator=(IndexBuffer&& rhs)
 {
@@ -41,9 +38,6 @@ IndexBuffer::~IndexBuffer()
     }
 }
 
-void IndexBuffer::Bind() const
-{
-    GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID));
-}
+void IndexBuffer::Bind() const { GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ID)); }
 
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Shader.hpp"
-#include "Texture.hpp"
+#include <peanut/Shader.hpp>
+#include <peanut/Texture.hpp>
 
 // stl
 #include <functional>

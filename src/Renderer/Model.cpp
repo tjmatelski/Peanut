@@ -1,9 +1,9 @@
 #include "Model.hpp"
 
-#include "Material.hpp"
 #include "TextureLibrary.hpp"
 #include "peanut/ShaderLibrary.hpp"
 #include <peanut/Log.hpp>
+#include <peanut/Material.hpp>
 
 // external
 #include <assimp/Importer.hpp>
@@ -101,8 +101,7 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
     for (const auto& texture : specular) {
         mat.AddTexture(texture);
     }
-    return { OpenglMesh(std::move(verts), std::move(indices)), mat,
-        ShaderLibrary::Get("./res/shaders/Lighting.shader") };
+    return { Mesh(std::move(verts), std::move(indices)), mat, ShaderLibrary::Get("./res/shaders/Lighting.shader") };
 }
 
 std::vector<Texture> Model::LoadTextures(const aiMaterial* mat, const int type)

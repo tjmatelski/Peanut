@@ -1,5 +1,5 @@
-#include "Material.hpp"
 #include "TextureLibrary.hpp"
+#include <peanut/Material.hpp>
 
 namespace PEANUT {
 

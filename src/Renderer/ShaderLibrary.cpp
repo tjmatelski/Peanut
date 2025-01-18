@@ -1,7 +1,9 @@
-#include "Shader.hpp"
-#include <memory>
 #include <peanut/Log.hpp>
+#include <peanut/Shader.hpp>
 #include <peanut/ShaderLibrary.hpp>
+
+// stl
+#include <memory>
 
 namespace PEANUT {
 
@@ -37,6 +39,7 @@ ShaderLibrary& ShaderLibrary::GetInstance()
 
 const Shader& ShaderLibrary::LoadImpl(const std::filesystem::path& shaderName)
 {
+    // TODO: Probably not safe to return raw pointers. Could be invalidated on map rehash
     const auto it = m_savedShaders.find(shaderName);
     if (it != m_savedShaders.end()) {
         return *(it->second);

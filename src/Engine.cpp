@@ -34,25 +34,11 @@ void Engine::Deserialize(Scene& scene, const std::string& file, const std::vecto
     m_engine->Deserialize(scene, file, plugins);
 }
 
-void Engine::RedrawMesh(const CustomModelComponent& model)
-{
-    PEANUT::RedrawMesh(model);
-}
+auto Engine::GetCubeMesh() -> Mesh { return PEANUT::GetCubeMesh(); }
 
-auto Engine::GetCubeMesh() -> Mesh
-{
-    return PEANUT::GetCubeMesh();
-}
+void Engine::LoadPythonScriptObj(Entity ent) { PEANUT::LoadPythonScriptObj(ent); }
 
-void Engine::LoadPythonScriptObj(Entity ent)
-{
-    PEANUT::LoadPythonScriptObj(ent);
-}
-
-void Engine::ReloadPythonScript(Entity ent)
-{
-    PEANUT::ReloadPythonScript(ent);
-}
+void Engine::ReloadPythonScript(Entity ent) { PEANUT::ReloadPythonScript(ent); }
 
 Engine::EditorFieldMap& Engine::GetScriptEditorMembers(PythonScript* script)
 {

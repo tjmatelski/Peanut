@@ -47,7 +47,6 @@ public:
     void Deserialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins);
     void LoadPythonScriptObj(Entity ent);
     void ReloadPythonScript(Entity ent);
-    void RedrawMesh(const CustomModelComponent& model);
 
 private:
     EngineImpl* m_engine = nullptr;

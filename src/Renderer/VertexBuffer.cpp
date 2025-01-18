@@ -1,4 +1,4 @@
-#include "VertexBuffer.hpp"
+#include <peanut/VertexBuffer.hpp>
 
 #include "GLDebug.hpp"
 #include <peanut/Log.hpp>
@@ -19,10 +19,7 @@ VertexBuffer::VertexBuffer(const unsigned int size, const void* data)
     GLCALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
 }
 
-VertexBuffer::VertexBuffer(VertexBuffer&& other)
-{
-    *this = std::move(other);
-}
+VertexBuffer::VertexBuffer(VertexBuffer&& other) { *this = std::move(other); }
 
 VertexBuffer& VertexBuffer::operator=(VertexBuffer&& rhs)
 {
@@ -39,9 +36,6 @@ VertexBuffer::~VertexBuffer()
     }
 }
 
-void VertexBuffer::Bind() const
-{
-    GLCALL(glBindBuffer(GL_ARRAY_BUFFER, m_ID));
-}
+void VertexBuffer::Bind() const { GLCALL(glBindBuffer(GL_ARRAY_BUFFER, m_ID)); }
 
 }

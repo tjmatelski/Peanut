@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Texture.hpp"
+#include <peanut/Texture.hpp>
 
 // stl
 #include <filesystem>

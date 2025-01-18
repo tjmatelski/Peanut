@@ -1,13 +1,13 @@
 #pragma once
 
-#include "IndexBuffer.hpp"
 #include "Lights.hpp"
-#include "Material.hpp"
-#include "Mesh.hpp"
 #include "Model.hpp"
-#include "Shader.hpp"
-#include "Texture.hpp"
-#include "VertexArray.hpp"
+#include <peanut/IndexBuffer.hpp>
+#include <peanut/Material.hpp>
+#include <peanut/Mesh.hpp>
+#include <peanut/Shader.hpp>
+#include <peanut/Texture.hpp>
+#include <peanut/VertexArray.hpp>
 
 // stl
 #include <vector>
@@ -26,7 +26,7 @@ public:
     static void DisableDepthMask();
     static void EnableDepthMask();
     static Mesh GetCubeMesh();
-    static OpenglMesh GetSkyboxMesh();
+    static Mesh GetSkyboxMesh();
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader);
     static void Draw(
         const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture);

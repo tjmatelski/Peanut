@@ -1,6 +1,6 @@
 #pragma once
 
 // external
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/glm.hpp> // IWYU pragma: keep
+#include <glm/gtc/matrix_transform.hpp> // IWYU pragma: keep
+#include <glm/gtc/type_ptr.hpp> // IWYU pragma: keep

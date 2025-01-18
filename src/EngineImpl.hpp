@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Renderer/Shader.hpp"
 #include <peanut/Component.hpp>
 #include <peanut/Engine.hpp>
 #include <peanut/Entity.hpp>
@@ -8,6 +7,7 @@
 #include <peanut/PerspectiveCamera.hpp>
 #include <peanut/PluginManager.hpp>
 #include <peanut/Scene.hpp>
+#include <peanut/Shader.hpp>
 #include <peanut/Window.hpp>
 
 // stl
@@ -62,7 +62,6 @@ private:
     friend int ::main(int argc, char** argv);
 };
 
-void RedrawMesh(const CustomModelComponent& model);
 Mesh GetCubeMesh();
 void LoadPythonScriptObj(Entity ent);
 void ReloadPythonScript(Entity ent);

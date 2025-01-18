@@ -16,8 +16,13 @@
 
 using namespace PEANUT;
 
-template <>
-void PropertyPanel::DrawComponent<TagComponent>(const std::string& componentName)
+namespace {
+template <class... Ts> struct Overloaded : Ts... {
+    using Ts::operator()...;
+};
+}
+
+template <> void PropertyPanel::DrawComponent<TagComponent>(const std::string& componentName)
 {
     ImGui::Text("%s", componentName.c_str());
     auto& tag = m_sh_panel->GetSelectedEntity().Get<TagComponent>();
@@ -28,8 +33,7 @@ void PropertyPanel::DrawComponent<TagComponent>(const std::string& componentName
     }
 }
 
-template <>
-void PropertyPanel::DrawComponent<TransformComponent>(const std::string& componentName)
+template <> void PropertyPanel::DrawComponent<TransformComponent>(const std::string& componentName)
 {
     ImGui::Separator();
     ImGui::Text("%s", componentName.c_str());
@@ -41,25 +45,25 @@ void PropertyPanel::DrawComponent<TransformComponent>(const std::string& compone
     ImGui::DragFloat3("Scale", glm::value_ptr(transform.scale), 0.2, 0.0f, FLT_MAX);
 }
 
-template <typename Component>
-void PropertyPanel::DrawComponent(const std::string& componentName)
+template <typename Component> void PropertyPanel::DrawComponent(const std::string& componentName)
 {
     if (m_sh_panel->GetSelectedEntity().Has<Component>()) {
-        ImGui::PushID(componentName.c_str());
-        ImGui::Separator();
-        ImGui::Text("%s", componentName.c_str());
-        ImGui::SameLine();
-        if (ImGui::Button("X")) {
-            m_sh_panel->GetSelectedEntity().Remove<Component>();
-        } else {
-            DrawComponentSpecifics<Component>();
+
+        constexpr int treeNodeFlags
+            = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
+        if (ImGui::TreeNodeEx(componentName.c_str(), treeNodeFlags)) {
+            ImGui::SameLine(); // TODO: Calc width so "X" is at end
+            if (ImGui::Button("X")) {
+                m_sh_panel->GetSelectedEntity().Remove<Component>();
+            } else {
+                DrawComponentSpecifics<Component>();
+            }
+            ImGui::TreePop();
         }
-        ImGui::PopID();
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
 {
     auto& renderComp = m_sh_panel->GetSelectedEntity().Get<SpriteRenderComponent>();
     ImGui::ColorEdit3("Color", glm::value_ptr(renderComp.color));
@@ -69,8 +73,7 @@ void PropertyPanel::DrawComponentSpecifics<SpriteRenderComponent>()
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<PythonScriptComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<PythonScriptComponent>()
 {
     auto& scriptComp = m_sh_panel->GetSelectedEntity().Get<PythonScriptComponent>();
     ImGui::Text("%s", scriptComp.script.filename().c_str());
@@ -79,24 +82,24 @@ void PropertyPanel::DrawComponentSpecifics<PythonScriptComponent>()
     }
     auto& editor_fields = Engine()->GetScriptEditorMembers(scriptComp.script_obj);
     for (auto& field : editor_fields) {
-        std::visit([&](auto&& arg) {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::is_same_v<int, T>) {
-                ImGui::DragInt(field.first.c_str(), &arg);
-            }
-            if constexpr (std::is_same_v<float, T>) {
-                ImGui::DragFloat(field.first.c_str(), &arg);
-            }
-            if constexpr (std::is_same_v<PEANUT::Engine::EditorButton, T>) {
-                arg.pressed = ImGui::Button(field.first.c_str());
-            }
-        },
+        std::visit(
+            [&](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<int, T>) {
+                    ImGui::DragInt(field.first.c_str(), &arg);
+                }
+                if constexpr (std::is_same_v<float, T>) {
+                    ImGui::DragFloat(field.first.c_str(), &arg);
+                }
+                if constexpr (std::is_same_v<PEANUT::Engine::EditorButton, T>) {
+                    arg.pressed = ImGui::Button(field.first.c_str());
+                }
+            },
             field.second);
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<ModelFileComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<ModelFileComponent>()
 {
     auto& comp = m_sh_panel->GetSelectedEntity().Get<ModelFileComponent>();
     ImGui::Text("%s", comp.file.c_str());
@@ -105,8 +108,7 @@ void PropertyPanel::DrawComponentSpecifics<ModelFileComponent>()
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<DirectionalLightComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<DirectionalLightComponent>()
 {
     auto& comp = m_sh_panel->GetSelectedEntity().Get<DirectionalLightComponent>();
     ImGui::DragFloat3("Direction", glm::value_ptr(comp.direction), 0.01f, -1.0f, 1.0f, "%.2f");
@@ -115,8 +117,7 @@ void PropertyPanel::DrawComponentSpecifics<DirectionalLightComponent>()
     ImGui::DragFloat("Specular", &comp.specular, 0.01f, 0.0f, 1.0f, "%.2f");
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<PointLightComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<PointLightComponent>()
 {
     auto& comp = m_sh_panel->GetSelectedEntity().Get<PointLightComponent>();
     ImGui::DragFloat3("Color", glm::value_ptr(comp.color), 0.01f, 0.0f, 1.0f, "%.2f");
@@ -128,8 +129,7 @@ void PropertyPanel::DrawComponentSpecifics<PointLightComponent>()
     ImGui::DragFloat("Quadratic", &comp.quadratic, 0.001f, 0.0f, 2.0f, "%.3f");
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<SkyboxComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<SkyboxComponent>()
 {
     auto& comp = m_sh_panel->GetSelectedEntity().Get<SkyboxComponent>();
     ImGui::Text("%s", comp.directory.c_str());
@@ -138,22 +138,46 @@ void PropertyPanel::DrawComponentSpecifics<SkyboxComponent>()
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<ShaderComponent>()
+template <> void PropertyPanel::DrawComponentSpecifics<Renderable>()
 {
-    auto& comp = m_sh_panel->GetSelectedEntity().Get<ShaderComponent>();
-    ImGui::Text("%s", comp.file.c_str());
-    if (ImGui::Button("...")) {
-        const auto file = CreateFileSelectorDialog()->OpenFile();
-        if (!file.has_value()) {
-            LOG_ERROR("Unable to open file; Not loading shader");
-            return;
-        }
-        if (!ShaderLibrary::Reload(file.value())) {
-            LOG_ERROR("Unable to load the shader [{}]", file.value());
-        }
-        comp.file = file.value();
-    }
+    // auto& renderable = m_sh_panel->GetSelectedEntity().Get<Renderable>();
+    ImGui::Text("Mesh Placeholder");
+    ImGui::Text("Material Placeholder");
+    ImGui::Text("Shader Placeholder");
+    // TODO: Materials? Should they store their own values?
+    // auto& material = renderable.material_;
+    // for (auto& [name, value] : material.Uniforms()) {
+    //     ImGui::Text("%s: ", name.c_str());
+    //     std::visit(Overloaded { [&](std::same_as<bool> auto&& value) {
+    //                                value = ImGui::Button(value ? "True" : "False") ? !value : value;
+    //                            },
+    //                    [&](std::same_as<int> auto&& value) { ImGui::SliderInt(name.c_str(), &value); },
+    //                    [&](std::same_as<unsigned int> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<float> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::vec2> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::vec3> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::vec4> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::mat2> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::mat3> auto value) {
+
+    //                    },
+    //                    [&](std::same_as<glm::mat4> auto value) {
+
+    //                    } },
+    //         value);
+    // }
 }
 
 void PropertyPanel::DrawCustomComponents()
@@ -201,12 +225,6 @@ void PropertyPanel::DrawCustomComponents()
     }
 }
 
-template <>
-void PropertyPanel::DrawComponentSpecifics<CustomModelComponent>()
-{
-    ImGui::Text("Custom Model");
-}
-
 void PropertyPanel::Update()
 {
     if (m_sh_panel->GetSelectedEntity()) {
@@ -215,11 +233,10 @@ void PropertyPanel::Update()
         DrawComponent<SpriteRenderComponent>("Sprite Render");
         DrawComponent<PythonScriptComponent>("Python Script");
         DrawComponent<ModelFileComponent>("Model File");
+        DrawComponent<Renderable>("Renderable");
         DrawComponent<DirectionalLightComponent>("Directional Light");
         DrawComponent<PointLightComponent>("Point Light");
         DrawComponent<SkyboxComponent>("Skybox");
-        DrawComponent<CustomModelComponent>("Custom Model");
-        DrawComponent<ShaderComponent>("Shader");
         DrawCustomComponents();
 
         ImGui::Separator();
@@ -259,16 +276,6 @@ void PropertyPanel::Update()
                     auto& comp = m_sh_panel->GetSelectedEntity().Add<SkyboxComponent>();
                     comp.directory = directory;
                 }
-            }
-            if (ImGui::MenuItem("Custom Model")) {
-                auto& model = m_sh_panel->GetSelectedEntity().Add<CustomModelComponent>();
-                model.mesh = Engine()->GetCubeMesh();
-                Engine()->RedrawMesh(model);
-            }
-            if (ImGui::MenuItem("Shader")) {
-                auto& shader = m_sh_panel->GetSelectedEntity().Add<ShaderComponent>();
-                shader.file = "./res/shaders/Lighting.shader";
-                ShaderLibrary::Load(shader.file);
             }
             for (const auto& plugin : Engine()->GetPlugins()) {
                 if (ImGui::MenuItem(plugin.name.c_str())) {

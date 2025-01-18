@@ -1,4 +1,4 @@
-#include "Texture.hpp"
+#include <peanut/Texture.hpp>
 
 #include "../stb_image.hpp"
 #include "GLDebug.hpp"
@@ -32,8 +32,7 @@ void LoadTexImage2D(int glType, const std::filesystem::path& file)
         GLCALL(glGenerateMipmap(glType));
         LOG_TRACE("Generated Mipmap");
     } else {
-        LOG_ERROR("Failed to load texture from file '{0}'\n\tSTB: {1}",
-            file.c_str(), stbi_failure_reason());
+        LOG_ERROR("Failed to load texture from file '{0}'\n\tSTB: {1}", file.c_str(), stbi_failure_reason());
     }
     stbi_image_free(data);
 }
@@ -130,6 +129,8 @@ Texture::Texture(const std::string& file, const Type type)
         Load2DTexture(file);
     }
 }
+
+// TODO: Unload textures?
 
 void Texture::Bind() const
 {

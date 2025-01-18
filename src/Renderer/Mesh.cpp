@@ -1,10 +1,10 @@
-#include "Mesh.hpp"
+#include <peanut/Mesh.hpp>
 
 namespace PEANUT {
 
 static_assert(sizeof(Vertex) == 32);
 
-OpenglMesh::OpenglMesh(const std::vector<Vertex>& verticies, const std::vector<unsigned int>& indicies)
+Mesh::Mesh(const std::vector<Vertex>& verticies, const std::vector<unsigned int>& indicies)
     : m_vertexArray()
     , m_indexBuffer(indicies.size(), indicies.data())
 {

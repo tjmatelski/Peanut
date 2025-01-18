@@ -1,12 +1,12 @@
 #include "Renderer.hpp"
 
 #include "GLDebug.hpp"
-#include "Renderable.hpp"
-#include "Texture.hpp"
 #include <peanut/Component.hpp>
+#include <peanut/Texture.hpp>
 
 // external
 #include <glad/glad.h>
+#include <vector>
 
 namespace {
 static const float cubeVerts[] = {
@@ -199,21 +199,23 @@ void Renderer::SetSpotLight(const SpotLight& spotLight, Shader& shader)
 
 Mesh Renderer::GetCubeMesh()
 {
-    Mesh mesh;
+    std::vector<Vertex> verts;
+    std::vector<unsigned int> indices;
     for (int i = 0; i < (8 * 36); i += 8) {
         Vertex vert;
         vert.position = glm::vec3(cubeVerts[i + 0], cubeVerts[i + 1], cubeVerts[i + 2]);
         vert.normal = glm::vec3(cubeVerts[i + 3], cubeVerts[i + 4], cubeVerts[i + 5]);
         vert.texCoords = glm::vec2(cubeVerts[i + 6], cubeVerts[i + 7]);
-        mesh.vertices.push_back(vert);
+        verts.push_back(vert);
     }
     for (unsigned int cubeIndice : cubeIndices) {
-        mesh.indices.push_back(cubeIndice);
+        indices.push_back(cubeIndice);
     }
+    Mesh mesh(std::move(verts), std::move(indices));
     return mesh;
 }
 
-OpenglMesh Renderer::GetSkyboxMesh()
+Mesh Renderer::GetSkyboxMesh()
 {
     std::vector<Vertex> verts;
     std::vector<unsigned int> indicies;
@@ -228,7 +230,7 @@ OpenglMesh Renderer::GetSkyboxMesh()
         indicies.push_back(cubeIndices[i]);
     }
 
-    return OpenglMesh(std::move(verts), std::move(indicies));
+    return Mesh(std::move(verts), std::move(indicies));
 }
 
 }

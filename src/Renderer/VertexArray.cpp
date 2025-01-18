@@ -1,4 +1,4 @@
-#include "VertexArray.hpp"
+#include <peanut/VertexArray.hpp>
 
 #include "GLDebug.hpp"
 #include <peanut/Log.hpp>
@@ -15,10 +15,7 @@ VertexArray::VertexArray()
     LOG_TRACE("Generated vertex array: {}", m_ID);
 }
 
-VertexArray::VertexArray(VertexArray&& other)
-{
-    *this = std::move(other);
-}
+VertexArray::VertexArray(VertexArray&& other) { *this = std::move(other); }
 
 VertexArray& VertexArray::operator=(VertexArray&& rhs)
 {
@@ -36,10 +33,7 @@ VertexArray::~VertexArray()
     }
 }
 
-void VertexArray::Bind() const
-{
-    GLCALL(glBindVertexArray(m_ID));
-}
+void VertexArray::Bind() const { GLCALL(glBindVertexArray(m_ID)); }
 
 void VertexArray::AddBuffer(VertexBuffer&& vb, const BufferLayout& bl)
 {
@@ -54,7 +48,8 @@ void VertexArray::AddBuffer(VertexBuffer&& vb, const BufferLayout& bl)
     unsigned char* offset = nullptr;
 
     for (const auto& element : elements) {
-        GLCALL(glVertexAttribPointer(attribute, element.size, element.type, element.normalized, stride, static_cast<void*>(offset)));
+        GLCALL(glVertexAttribPointer(
+            attribute, element.size, element.type, element.normalized, stride, static_cast<void*>(offset)));
         GLCALL(glEnableVertexAttribArray(attribute));
         ++attribute;
         offset += static_cast<std::size_t>(element.size * BufferLayout::Element::GetSizeOfGLType(element.type));

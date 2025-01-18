@@ -1,4 +1,4 @@
-#include "Shader.hpp"
+#include <peanut/Shader.hpp>
 
 #include "../Util.hpp"
 #include "GLDebug.hpp"

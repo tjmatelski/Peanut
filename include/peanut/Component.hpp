@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Math.hpp"
+#include <peanut/Material.hpp>
+#include <peanut/Math.hpp>
+#include <peanut/Mesh.hpp>
 
 // stl
 #include <filesystem>
 #include <string>
-#include <vector>
 
 namespace PEANUT {
 
@@ -26,7 +27,8 @@ struct TransformComponent {
 
     glm::mat4 GetTransform() const
     {
-        return glm::translate(glm::mat4(1.0f), translation) * glm::mat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
+        return glm::translate(glm::mat4(1.0f), translation) * glm::mat4(glm::quat(rotation))
+            * glm::scale(glm::mat4(1.0f), scale);
     }
 };
 
@@ -54,28 +56,6 @@ struct ModelFileComponent {
     std::filesystem::path file;
 };
 
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoords;
-};
-
-struct Mesh {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-};
-
-struct CustomModelComponent {
-    unsigned int id;
-    Mesh mesh;
-
-    CustomModelComponent()
-    {
-        static unsigned int counter = 0;
-        id = counter++;
-    }
-};
-
 struct DirectionalLightComponent {
     glm::vec3 direction = { 0.0f, -1.0f, 0.0f };
     float ambient = 0.05f;
@@ -97,8 +77,10 @@ struct SkyboxComponent {
     std::filesystem::path directory;
 };
 
-struct ShaderComponent {
-    std::filesystem::path file;
+struct Renderable {
+    Mesh mesh_;
+    Material material_;
+    const Shader* shader_;
 };
 
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "OrthoCamera.hpp"
-#include "Texture.hpp"
 #include <peanut/Math.hpp>
+#include <peanut/Texture.hpp>
 
 namespace PEANUT {
 

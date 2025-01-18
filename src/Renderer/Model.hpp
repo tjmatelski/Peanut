@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderable.hpp"
+#include <peanut/Component.hpp>
 
 // stl
 #include <filesystem>
