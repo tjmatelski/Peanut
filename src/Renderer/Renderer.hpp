@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Lights.hpp"
-#include "Model.hpp"
 #include <peanut/IndexBuffer.hpp>
 #include <peanut/Material.hpp>
 #include <peanut/Mesh.hpp>
+#include <peanut/Model.hpp>
 #include <peanut/Shader.hpp>
 #include <peanut/Texture.hpp>
 #include <peanut/VertexArray.hpp>

@@ -1,4 +1,4 @@
-#include "Model.hpp"
+#include <peanut/Model.hpp>
 
 #include "TextureLibrary.hpp"
 #include "peanut/ShaderLibrary.hpp"

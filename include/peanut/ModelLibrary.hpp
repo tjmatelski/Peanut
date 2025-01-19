@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model.hpp"
+#include <peanut/Model.hpp>
 
 // stl
 #include <filesystem>
@@ -9,12 +9,12 @@
 namespace PEANUT {
 class ModelLibrary {
 public:
-    static const Model& Get(const std::filesystem::path& model);
+    static auto Get(const std::filesystem::path& model) -> Model&;
 
 private:
     ModelLibrary() = default;
     static ModelLibrary& Instance();
-    const Model& GetImpl(const std::filesystem::path& file);
+    Model& GetImpl(const std::filesystem::path& file);
 
     std::unordered_map<std::string, Model> m_cache;
 };

@@ -17,7 +17,8 @@ namespace PEANUT {
 class Model {
 public:
     Model(const std::string& modelFile);
-    [[nodiscard]] inline const std::vector<Renderable>& GetRenderables() const { return m_renderables; }
+    [[nodiscard]] auto GetRenderables() const -> const std::vector<Renderable>& { return m_renderables; }
+    [[nodiscard]] auto GetRenderables() -> std::vector<Renderable>& { return m_renderables; }
 
 private:
     std::filesystem::path m_modelFile;

@@ -1,7 +1,6 @@
 #include "EngineImpl.hpp"
 
 #include "PythonBindings.hpp"
-#include "Renderer/ModelLibrary.hpp"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Renderer2D.hpp"
 #include "Renderer/TextureLibrary.hpp"
@@ -16,6 +15,7 @@
 #include <peanut/Log.hpp>
 #include <peanut/Material.hpp>
 #include <peanut/Mesh.hpp>
+#include <peanut/ModelLibrary.hpp>
 #include <peanut/MouseCodes.hpp>
 #include <peanut/NativeScript.hpp>
 #include <peanut/Shader.hpp>

@@ -17,6 +17,7 @@ public:
     void SetUniform(std::string_view name, UniformValue value);
     void AddTexture(Texture texture);
 
+    [[nodiscard]] auto Uniforms() -> auto& { return uniforms_; }
     [[nodiscard]] auto Uniforms() const -> const auto& { return uniforms_; }
     [[nodiscard]] auto Textures() const -> const auto& { return textures_; }
 

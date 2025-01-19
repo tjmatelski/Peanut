@@ -1,4 +1,4 @@
-#include "ModelLibrary.hpp"
+#include <peanut/ModelLibrary.hpp>
 
 #include "../Settings.hpp"
 #include <peanut/Log.hpp>
@@ -14,12 +14,9 @@ ModelLibrary& ModelLibrary::Instance()
     return library;
 }
 
-const Model& ModelLibrary::Get(const std::filesystem::path& model)
-{
-    return ModelLibrary::Instance().GetImpl(model);
-}
+Model& ModelLibrary::Get(const std::filesystem::path& model) { return ModelLibrary::Instance().GetImpl(model); }
 
-const Model& ModelLibrary::GetImpl(const std::filesystem::path& file)
+Model& ModelLibrary::GetImpl(const std::filesystem::path& file)
 {
     namespace fs = std::filesystem;
     fs::path fullPath = file;

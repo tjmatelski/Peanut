@@ -23,20 +23,18 @@ template <class... Ts> struct Overloaded : Ts... {
 namespace PEANUT {
 
 Shader::Shader(const std::filesystem::path& shaderFile)
+    : m_ShaderFile(shaderFile)
 {
     ShaderSources shaderSources = ParseShaderFile(shaderFile);
     m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
 }
 
-Shader::Shader(Shader&& other)
-    : m_ShaderProgramID(other.m_ShaderProgramID)
-{
-    other.m_ShaderProgramID = 0;
-}
+Shader::Shader(Shader&& other) { *this = std::move(other); }
 
 Shader& Shader::operator=(Shader&& other)
 {
     m_ShaderProgramID = other.m_ShaderProgramID;
+    m_ShaderFile = std::move(other.m_ShaderFile);
     other.m_ShaderProgramID = 0;
     return *this;
 }

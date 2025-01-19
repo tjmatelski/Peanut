@@ -5,10 +5,12 @@
 #include <peanut/Entity.hpp>
 #include <peanut/FileSelectorDialog.hpp>
 #include <peanut/Log.hpp>
+#include <peanut/ModelLibrary.hpp>
 #include <peanut/NativeScript.hpp>
 #include <peanut/ShaderLibrary.hpp>
 
 // external
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 
 // stl
@@ -20,6 +22,56 @@ namespace {
 template <class... Ts> struct Overloaded : Ts... {
     using Ts::operator()...;
 };
+
+void DrawRenderable(Renderable& renderable)
+{
+    ImGui::Text("Mesh Placeholder");
+
+    ImGui::Separator();
+
+    auto& material = renderable.material_;
+    for (auto& [name, value] : material.Uniforms()) {
+        ImGui::Text("%s: ", name.c_str());
+        ImGui::SameLine();
+        if (ImGui::Button("X")) {
+            material.Uniforms().erase(name);
+        }
+        std::visit(
+            Overloaded { [&](std::same_as<bool> auto& value) {
+                            value = ImGui::Button(value ? "True" : "False") ? !value : value;
+                        },
+                [&](std::same_as<int> auto& value) { ImGui::DragInt("##uniform", &value); },
+                [&](std::same_as<unsigned int> auto& value) {
+                    ImGui::DragScalar("##uniform", ImGuiDataType_::ImGuiDataType_U32, &value);
+                },
+                [&](std::same_as<float> auto& value) { ImGui::DragFloat("##uniform", &value); },
+                [&](std::same_as<glm::vec2> auto& value) { ImGui::DragFloat2("##uniform", glm::value_ptr(value)); },
+                [&](std::same_as<glm::vec3> auto& value) { ImGui::DragFloat3("##uniform", glm::value_ptr(value)); },
+                [&](std::same_as<glm::vec4> auto& value) { ImGui::DragFloat4("##uniform", glm::value_ptr(value)); },
+                [&](std::same_as<glm::mat2> auto& value) {
+                    ImGui::DragScalarN("##uniform", ImGuiDataType_::ImGuiDataType_Float, glm::value_ptr(value), 4);
+                },
+                [&](std::same_as<glm::mat3> auto& value) {
+                    ImGui::DragScalarN("##uniform", ImGuiDataType_::ImGuiDataType_Float, glm::value_ptr(value), 9);
+                },
+                [&](std::same_as<glm::mat4> auto& value) {
+                    ImGui::DragScalarN("##uniform", ImGuiDataType_::ImGuiDataType_Float, glm::value_ptr(value), 16);
+                } },
+            value);
+    }
+    // TODO: Add way to add and rename uniforms
+
+    ImGui::Separator();
+
+    ImGui::Text("Shader: %s", renderable.shader_->ShaderFile().c_str());
+    ImGui::SameLine();
+    if (ImGui::Button("...")) {
+        auto new_shader = CreateFileSelectorDialog()->OpenFile();
+        if (new_shader) {
+            renderable.shader_ = ShaderLibrary::Get(new_shader.value());
+        }
+    }
+}
 }
 
 template <> void PropertyPanel::DrawComponent<TagComponent>(const std::string& componentName)
@@ -106,6 +158,15 @@ template <> void PropertyPanel::DrawComponentSpecifics<ModelFileComponent>()
     if (ImGui::Button("...")) {
         comp.file = CreateFileSelectorDialog()->OpenFile().value_or(comp.file);
     }
+
+    for (auto& renderable : ModelLibrary::Get(comp.file).GetRenderables()) {
+        constexpr int treeNodeFlags
+            = ImGuiTreeNodeFlags_Selected | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow;
+        if (ImGui::TreeNodeEx("renderable", treeNodeFlags)) {
+            DrawRenderable(renderable);
+            ImGui::TreePop();
+        }
+    }
 }
 
 template <> void PropertyPanel::DrawComponentSpecifics<DirectionalLightComponent>()
@@ -140,44 +201,8 @@ template <> void PropertyPanel::DrawComponentSpecifics<SkyboxComponent>()
 
 template <> void PropertyPanel::DrawComponentSpecifics<Renderable>()
 {
-    // auto& renderable = m_sh_panel->GetSelectedEntity().Get<Renderable>();
-    ImGui::Text("Mesh Placeholder");
-    ImGui::Text("Material Placeholder");
-    ImGui::Text("Shader Placeholder");
-    // TODO: Materials? Should they store their own values?
-    // auto& material = renderable.material_;
-    // for (auto& [name, value] : material.Uniforms()) {
-    //     ImGui::Text("%s: ", name.c_str());
-    //     std::visit(Overloaded { [&](std::same_as<bool> auto&& value) {
-    //                                value = ImGui::Button(value ? "True" : "False") ? !value : value;
-    //                            },
-    //                    [&](std::same_as<int> auto&& value) { ImGui::SliderInt(name.c_str(), &value); },
-    //                    [&](std::same_as<unsigned int> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<float> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::vec2> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::vec3> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::vec4> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::mat2> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::mat3> auto value) {
-
-    //                    },
-    //                    [&](std::same_as<glm::mat4> auto value) {
-
-    //                    } },
-    //         value);
-    // }
+    auto& renderable = m_sh_panel->GetSelectedEntity().Get<Renderable>();
+    DrawRenderable(renderable);
 }
 
 void PropertyPanel::DrawCustomComponents()

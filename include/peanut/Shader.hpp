@@ -29,6 +29,7 @@ public:
 
     void Use() const;
     void SetUniform(const Uniform& uniform) const;
+    auto ShaderFile() const { return m_ShaderFile; }
 
 private:
     struct ShaderSources {
@@ -36,6 +37,7 @@ private:
         std::string fragment;
     };
     unsigned int m_ShaderProgramID;
+    std::filesystem::path m_ShaderFile;
 
     ShaderSources ParseShaderFile(const std::filesystem::path& file);
     unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
