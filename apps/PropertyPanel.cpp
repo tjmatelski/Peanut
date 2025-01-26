@@ -15,6 +15,7 @@
 
 // stl
 #include <array>
+#include <vector>
 
 using namespace PEANUT;
 
@@ -31,11 +32,28 @@ void DrawRenderable(Renderable& renderable)
 
     auto& material = renderable.material_;
     for (auto& [name, value] : material.Uniforms()) {
-        ImGui::Text("%s: ", name.c_str());
+
+        // Display modifiable uniform name
+        std::array<char, 256> name_buf;
+        std::strncpy(name_buf.data(), name.c_str(), name_buf.size());
+        const auto label = "Name##" + name; // Separate labels so one name is modified at a time
+        if (ImGui::InputText(label.c_str(), name_buf.data(), name_buf.size(),
+                ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue)) {
+            LOG_DEBUG("renaming uniform [{}]", name);
+            material.Uniforms().erase(name);
+            material.SetUniform(std::string { name_buf.data() }, value);
+            break;
+        }
+
+        // Button to remove the unform on same line
         ImGui::SameLine();
         if (ImGui::Button("X")) {
+            LOG_DEBUG("removing uniform [{}]", name);
             material.Uniforms().erase(name);
+            break;
         }
+
+        // Modifiable value of the uniform
         std::visit(
             Overloaded { [&](std::same_as<bool> auto& value) {
                             value = ImGui::Button(value ? "True" : "False") ? !value : value;
@@ -59,7 +77,44 @@ void DrawRenderable(Renderable& renderable)
                 } },
             value);
     }
-    // TODO: Add way to add and rename uniforms
+
+    // Button to add new uniforms
+    if (ImGui::Button("Add Uniform")) {
+        ImGui::OpenPopup("AddUniform");
+    }
+    if (ImGui::BeginPopup("AddUniform")) {
+        if (ImGui::MenuItem("bool")) {
+            material.SetUniform("new_uniform", false);
+        }
+        if (ImGui::MenuItem("int")) {
+            material.SetUniform("new_uniform", int(0));
+        }
+        if (ImGui::MenuItem("unsigned int")) {
+            material.SetUniform("new_uniform", 0U);
+        }
+        if (ImGui::MenuItem("float")) {
+            material.SetUniform("new_uniform", 0.0f);
+        }
+        if (ImGui::MenuItem("vec2")) {
+            material.SetUniform("new_uniform", glm::vec2 {});
+        }
+        if (ImGui::MenuItem("vec3")) {
+            material.SetUniform("new_uniform", glm::vec3 {});
+        }
+        if (ImGui::MenuItem("vec4")) {
+            material.SetUniform("new_uniform", glm::vec4 {});
+        }
+        if (ImGui::MenuItem("mat2")) {
+            material.SetUniform("new_uniform", glm::mat2 {});
+        }
+        if (ImGui::MenuItem("mat3")) {
+            material.SetUniform("new_uniform", glm::mat3 {});
+        }
+        if (ImGui::MenuItem("mat4")) {
+            material.SetUniform("new_uniform", glm::mat4 {});
+        }
+        ImGui::EndPopup();
+    }
 
     ImGui::Separator();
 
@@ -80,7 +135,8 @@ template <> void PropertyPanel::DrawComponent<TagComponent>(const std::string& c
     auto& tag = m_sh_panel->GetSelectedEntity().Get<TagComponent>();
     std::array<char, 256> buf;
     std::strncpy(buf.data(), tag.tag.c_str(), buf.size());
-    if (ImGui::InputText("Tag", buf.data(), buf.size())) {
+    if (ImGui::InputText(
+            "Tag", buf.data(), buf.size(), ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue)) {
         tag.tag = buf.data();
     }
 }
