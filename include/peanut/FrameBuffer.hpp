@@ -3,8 +3,10 @@
 namespace PEANUT {
 
 struct FrameBufferConfig {
-    int width;
-    int height;
+    enum class Type { COLOR, DEPTH };
+    int width = 100;
+    int height = 100;
+    Type type = FrameBufferConfig::Type::COLOR;
 };
 
 class FrameBuffer {
@@ -16,12 +18,12 @@ public:
     void Unbind();
     void Resize(int width, int height);
 
-    [[nodiscard]] unsigned int GetColorbufferTextureID() const { return m_colorBufferID; }
+    [[nodiscard]] unsigned int TextureID() const { return m_textureID; }
 
 private:
     FrameBufferConfig m_config;
     unsigned int m_id;
-    unsigned int m_colorBufferID;
+    unsigned int m_textureID;
     unsigned int m_renderBufferID;
 
     void Create();

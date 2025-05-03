@@ -43,51 +43,39 @@ Window::Window(const char* title, const int width, const int height)
     InitWindowCallbacks();
 }
 
-Window::~Window()
-{
-    glfwTerminate();
-}
+Window::~Window() { glfwTerminate(); }
 
-bool Window::WindowShouldClose() const
-{
-    return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window));
-}
+bool Window::WindowShouldClose() const { return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_window)); }
 
-void Window::SwapBuffers()
-{
-    glfwSwapBuffers(static_cast<GLFWwindow*>(m_window));
-}
+void Window::SwapBuffers() { glfwSwapBuffers(static_cast<GLFWwindow*>(m_window)); }
 
-void Window::PollEvents()
-{
-    glfwPollEvents();
-}
+void Window::PollEvents() { glfwPollEvents(); }
 
-float Window::GetTime() const
-{
-    return static_cast<float>(glfwGetTime());
-}
+float Window::GetTime() const { return static_cast<float>(glfwGetTime()); }
 
 void Window::InitWindowCallbacks()
 {
     auto* window = static_cast<GLFWwindow*>(m_window);
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window_, int width, int height) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
-        WindowResizeEvent event(width, height);
-        auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
-        myWindow->m_width = width;
-        myWindow->m_height = height;
-        myWindow->m_eventCallback(event);
-    });
+    glfwSetFramebufferSizeCallback(window,
+        [](GLFWwindow* window_, int width,
+            int height) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
+            WindowResizeEvent event(width, height);
+            auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
+            myWindow->m_width = width;
+            myWindow->m_height = height;
+            myWindow->m_eventCallback(event);
+        });
 
-    glfwSetErrorCallback([](int code, const char* message) {
-        LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message);
-    });
+    glfwSetErrorCallback(
+        [](int code, const char* message) { LOG_ERROR("GLFW ERROR CODE: {0} MESSAGE: {1}", code, message); });
 
-    glfwSetKeyCallback(window, [](GLFWwindow* window_, int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action, [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
-        KeyEvent event(static_cast<KeyCode>(key));
-        auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
-        myWindow->m_eventCallback(event);
-    });
+    glfwSetKeyCallback(window,
+        [](GLFWwindow* window_, int key, [[maybe_unused]] int scancode, [[maybe_unused]] int action,
+            [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
+            KeyEvent event(static_cast<KeyCode>(key));
+            auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window_));
+            myWindow->m_eventCallback(event);
+        });
 
     glfwSetWindowCloseCallback(window, [](GLFWwindow* window_) {
         WindowCloseEvent windowCloseEvent;
@@ -107,11 +95,13 @@ void Window::InitWindowCallbacks()
         myWindow->m_eventCallback(event);
     });
 
-    glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
-        MouseButtonEvent event(static_cast<MouseCode>(button), action == GLFW_PRESS);
-        auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-        myWindow->m_eventCallback(event);
-    });
+    glfwSetMouseButtonCallback(window,
+        [](GLFWwindow* window, int button, int action,
+            [[maybe_unused]] int mods) { // NOLINT(bugprone-easily-swappable-parameters): Callback has to match glfw API
+            MouseButtonEvent event(static_cast<MouseCode>(button), action == GLFW_PRESS);
+            auto* myWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+            myWindow->m_eventCallback(event);
+        });
 }
 
 bool Window::IsKeyPressed(KeyCode key) const

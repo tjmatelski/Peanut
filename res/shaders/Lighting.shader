@@ -7,10 +7,12 @@ layout (location = 2) in vec2 aTexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix;
 
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoords;
+out vec4 FragPosLightSpace;
 
 void main()
 {
@@ -18,6 +20,7 @@ void main()
    FragPos = vec3(model * vec4(aPos, 1.0));
    Normal = mat3(transpose(inverse(model))) *  aNormal; // TODO: inverse is very expensive. Switch to uniform eventually.
    TexCoords = aTexCoords;
+   FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 }
 
 #shader fragment
@@ -26,9 +29,10 @@ void main()
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoords;
+in vec4 FragPosLightSpace;
 out vec4 FragColor;
 
-#define MAX_TEXTURES 16
+#define MAX_TEXTURES 8
 
 struct Material {
     int numDiffuseTextures;
@@ -74,6 +78,7 @@ uniform Material material;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform vec3 viewPos;
+uniform sampler2D shadowMap;
 
 vec3 GetDiffuseTex()
 {
@@ -84,6 +89,21 @@ vec3 GetSpecularTex()
 {
     // TODO: Figure out how to combine texture values. Add? Multiply?
     return vec3(texture(material.specular[0], TexCoords));
+}
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
+    float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
@@ -98,7 +118,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 ambient  = light.ambient  * GetDiffuseTex();
     vec3 diffuse  = light.diffuse  * diff * GetDiffuseTex();
     vec3 specular = light.specular * spec * GetSpecularTex();
-    return (ambient + diffuse + specular);
+    return (ambient + (1.0 - ShadowCalculation(FragPosLightSpace, lightDir)) * (diffuse + specular));
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)

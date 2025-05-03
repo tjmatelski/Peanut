@@ -37,7 +37,6 @@ void VertexArray::Bind() const { GLCALL(glBindVertexArray(m_ID)); }
 
 void VertexArray::AddBuffer(VertexBuffer&& vb, const BufferLayout& bl)
 {
-
     Bind();
     vb.Bind();
     m_vertexBuffers.push_back(std::move(vb));

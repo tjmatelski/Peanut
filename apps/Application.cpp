@@ -56,6 +56,7 @@ public:
         ImGui_ImplOpenGL3_Init(glsl_version);
 
         m_frameBuffer.Resize(m_engine->GetWindow().GetWidth(), m_engine->GetWindow().GetHeight());
+        m_engine->SetViewport(m_viewportPanel->GetWidth(), m_viewportPanel->GetHeight());
     }
 
     void OnPreUpdate() override
@@ -96,14 +97,9 @@ public:
 
     void OnImGuiUpdate()
     {
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar
-            | ImGuiWindowFlags_NoDocking
-            | ImGuiWindowFlags_NoTitleBar
-            | ImGuiWindowFlags_NoCollapse
-            | ImGuiWindowFlags_NoResize
-            | ImGuiWindowFlags_NoMove
-            | ImGuiWindowFlags_NoBringToFrontOnFocus
-            | ImGuiWindowFlags_NoNavFocus;
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
+            | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
         auto windowViewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowSize(windowViewport->Size);
@@ -149,10 +145,7 @@ public:
     }
 
 private:
-    void AdjustRenderViewport(float width, float height)
-    {
-        m_engine->GetCamera().SetAspectRatio(width, height);
-    }
+    void AdjustRenderViewport(float width, float height) { m_engine->GetCamera().SetAspectRatio(width, height); }
 
     void OnWindowResize(const WindowResizeEvent& e)
     {
@@ -160,9 +153,7 @@ private:
         m_engine->SetViewport(e.GetWidth(), e.GetHeight());
     }
 
-    void OnScroll(const ScrollEvent&)
-    {
-    }
+    void OnScroll(const ScrollEvent&) { }
 
     void OnMouseButton(const MouseButtonEvent& event)
     {
@@ -205,9 +196,8 @@ private:
                         LOG_INFO("Saving Scene to '{0}'", saveFile);
                         const auto& plugins = m_engine->GetPlugins();
                         std::vector<std::string> plugin_names(plugins.size());
-                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
-                            return val.name;
-                        });
+                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(),
+                            [](const auto& val) { return val.name; });
                         m_engine->Serialize(*m_engine->GetScene(), saveFile, plugin_names);
                     } else {
                         LOG_WARN("Failed to select save file. Not saving scene.");
@@ -219,9 +209,8 @@ private:
                         LOG_INFO("Opening Scene: {}", sceneFile);
                         const auto& plugins = m_engine->GetPlugins();
                         std::vector<std::string> plugin_names(plugins.size());
-                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(), [](const auto& val) {
-                            return val.name;
-                        });
+                        std::transform(plugins.cbegin(), plugins.cend(), plugin_names.begin(),
+                            [](const auto& val) { return val.name; });
                         m_engine->Deserialize(*m_engine->GetScene(), sceneFile, plugin_names);
                         m_engine->GetScene()->ForEachEntity([this](Entity ent) {
                             if (ent.Has<PythonScriptComponent>()) {
@@ -269,9 +258,6 @@ private:
     bool m_rightMousePressed = false;
 };
 
-Application* GetApplication()
-{
-    return new MyApp();
-}
+Application* GetApplication() { return new MyApp(); }
 
 }

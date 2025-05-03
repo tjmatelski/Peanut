@@ -22,11 +22,13 @@ public:
     Renderer();
     static void ClearColor(const float r, const float g, const float b, const float a = 1.0f);
     static void ClearBuffers();
+    static void ClearDepthBuffer();
     static void EnableDepthTest();
     static void DisableDepthMask();
     static void EnableDepthMask();
     static Mesh GetCubeMesh();
-    static Mesh GetSkyboxMesh();
+    static Mesh GetQuadMesh();
+    static auto GetSkyboxMesh() -> Mesh;
     static void Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader);
     static void Draw(
         const VertexArray& vertexArray, const IndexBuffer& indexBuffer, const Shader& shader, const Texture& texture);

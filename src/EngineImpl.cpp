@@ -1,12 +1,16 @@
 #include "EngineImpl.hpp"
 
 #include "PythonBindings.hpp"
+#include "Renderer/GLDebug.hpp"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Renderer2D.hpp"
 #include "Renderer/TextureLibrary.hpp"
 #include "SceneSerializer.hpp"
 #include "Settings.hpp"
 #include "peanut/Engine.hpp"
+#include "peanut/FrameBuffer.hpp"
+#include <glm/ext/matrix_transform.hpp>
+#include <memory>
 #include <peanut/Application.hpp>
 #include <peanut/Component.hpp>
 #include <peanut/Entity.hpp>
@@ -32,18 +36,27 @@
 #include <exception>
 #include <pybind11/pytypes.h>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 namespace PEANUT {
 
 EngineImpl::EngineImpl()
-    : m_scene(std::make_shared<Scene>())
+    : m_window("Peanut", 1280, 720)
+    , m_scene(std::make_shared<Scene>())
+    // , m_shadow_fb(FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH })
+    , m_quad(Renderable { .mesh_ = Renderer::GetQuadMesh(), .material_ = {}, .shader_ = nullptr })
+    , m_viewport_width(0)
+    , m_viewport_height(0)
 {
     spdlog::set_level(spdlog::level::trace);
 
-    m_window = std::make_unique<Window>("Peanut", 800, 600);
-    m_window->SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
+    m_window.SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
     Renderer::EnableDepthTest();
+    // m_shadow_fb
+    //     = FrameBuffer(FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH });
+    m_shadow_fb = std::make_unique<FrameBuffer>(
+        FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH });
 
     LOG_DEBUG("Initializing Python Interpreter");
     pybind11::initialize_interpreter();
@@ -70,7 +83,7 @@ void EngineImpl::Run()
     m_pluginManager.LoadAll(Settings::GetApplicationDir() / "plugins");
     m_app->OnAttach();
     while (!m_shouldWindowClose) {
-        double currentFrameTime = m_window->GetTime();
+        double currentFrameTime = m_window.GetTime();
         double timeStep = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
@@ -119,8 +132,55 @@ void EngineImpl::Update(double)
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
     }
 
+    // Shadows
+    struct ShadowConfig {
+        int fb_width = 1024;
+        int fb_height = 1024;
+    };
+    ShadowConfig config;
+    Renderer::EnableDepthTest();
+    GLint prev_fb;
+    GLCALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prev_fb));
+    Renderer::SetViewport(config.fb_width, config.fb_width);
+    m_shadow_fb->Bind();
+    Renderer::ClearDepthBuffer();
+    float near_plane = -10.0f, far_plane = 10.0f;
+    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::vec3 dir_light_dir;
+    m_scene->ForEach<DirectionalLightComponent>(
+        [&](Entity, const DirectionalLightComponent& comp) { dir_light_dir = comp.direction; });
+    glm::mat4 lightView = glm::lookAt(-dir_light_dir, { 0.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 });
+    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+    auto* depth_shader = ShaderLibrary::Get("./res/shaders/simpleDepth.shader");
+    depth_shader->Use();
+    depth_shader->SetUniform(Uniform { "lightSpaceMatrix", lightSpaceMatrix });
+    // Render Models
+    m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
+        // TODO: Should camera uniforms be handled here or in renderer
+        auto& model = ModelLibrary::Get(comp.file);
+        depth_shader->SetUniform({ "model", ent.Get<TransformComponent>() });
+        for (auto& renderable : model.GetRenderables()) {
+            auto* actual_shader = renderable.shader_;
+            renderable.shader_ = depth_shader;
+            Renderer::Draw(renderable);
+            renderable.shader_ = actual_shader;
+        }
+    });
+    // Render Renderables
+    m_scene->ForEach<Renderable>([&](Entity ent, Renderable& renderable) {
+        depth_shader->SetUniform({ "model", ent.Get<TransformComponent>() });
+        auto* actual_shader = std::exchange(renderable.shader_, depth_shader);
+        Renderer::Draw(renderable);
+        renderable.shader_ = actual_shader;
+    });
+    m_shadow_fb->Unbind();
+
+    GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, prev_fb));
+
+    Renderer::SetViewport(m_window.GetWidth(), m_window.GetHeight());
+
     // Clear buffers for start of frame
-    Renderer::ClearColor(0.1f, 0.1f, 0.1f, 0.1f);
+    Renderer::ClearColor(0.2f, 0.2f, 0.2f, 0.1f);
     Renderer::ClearBuffers();
 
     // Render skybox
@@ -132,7 +192,7 @@ void EngineImpl::Update(double)
         Renderer::DisableDepthMask();
         Material mat;
         mat.AddTexture(TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap));
-        const Renderable renderable = { .mesh_ = Renderer::GetSkyboxMesh(),
+        static const Renderable renderable = { .mesh_ = Renderer::GetSkyboxMesh(),
             .material_ = mat,
             .shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader") };
         Renderer::Draw(renderable);
@@ -178,6 +238,10 @@ void EngineImpl::Update(double)
             renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
             renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
             renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
+            renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
+            renderable.shader_->SetUniform({ "shadowMap", int(15) });
+            GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
+            GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
         }
         Renderer::Draw(model);
     });
@@ -188,14 +252,32 @@ void EngineImpl::Update(double)
         renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
         renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
         renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
+        renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
+        renderable.shader_->SetUniform({ "shadowMap", int(15) });
+        GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
+        GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
         Renderer::Draw(renderable);
     });
+
+    // Renderer::ClearColor(1.0, 0.0, 0.0);
+    // Renderer::ClearBuffers();
+    GLCALL(glDisable(GL_DEPTH_TEST));
+    glm::mat4 quad_proj = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f);
+    quad_proj = glm::translate(quad_proj, { 3.0f, -3.0, 0.0 });
+    auto* quad_shader = ShaderLibrary::Get("./res/shaders/simpleQuad.shader");
+    quad_shader->Use();
+    quad_shader->SetUniform(Uniform { .name = "depthMap", .value = int(0) });
+    quad_shader->SetUniform(Uniform { .name = "view", .value = quad_proj });
+    GLCALL(glActiveTexture(GL_TEXTURE0));
+    GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
+    m_quad.shader_ = quad_shader;
+    Renderer::Draw(m_quad);
 }
 
 void EngineImpl::UpdateWindow()
 {
-    m_window->SwapBuffers();
-    m_window->PollEvents();
+    m_window.SwapBuffers();
+    m_window.PollEvents();
 }
 
 void EngineImpl::BeginRuntime()
@@ -298,7 +380,12 @@ Mesh GetCubeMesh() { return Renderer::GetCubeMesh(); }
 
 void EngineImpl::ReloadPlugin(std::string_view name) { m_pluginManager.Reload(name); }
 
-void EngineImpl::SetViewport(int width, int height) { Renderer::SetViewport(width, height); }
+void EngineImpl::SetViewport(int width, int height)
+{
+    m_viewport_width = width;
+    m_viewport_height = height;
+    Renderer::SetViewport(width, height);
+}
 
 void EngineImpl::Serialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins)
 {
@@ -315,7 +402,7 @@ void EngineImpl::Deserialize(Scene& scene, const std::string& file, const std::v
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto basic_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("peanut.log");
+    auto basic_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("peanut.log", true);
     std::vector<spdlog::sink_ptr> sinks { console_sink, basic_sink };
     auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
     spdlog::register_logger(logger); // if it would be used in some other place

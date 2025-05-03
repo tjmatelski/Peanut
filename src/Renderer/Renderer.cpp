@@ -89,6 +89,8 @@ void Renderer::ClearColor(const float r, const float g, const float b, const flo
 
 void Renderer::ClearBuffers() { GLCALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)); }
 
+void Renderer::ClearDepthBuffer() { GLCALL(glClear(GL_DEPTH_BUFFER_BIT)); }
+
 void Renderer::EnableDepthTest() { GLCALL(glEnable(GL_DEPTH_TEST)); }
 
 void Renderer::DisableDepthMask() { GLCALL(glDepthMask(GL_FALSE)); }
@@ -215,7 +217,35 @@ Mesh Renderer::GetCubeMesh()
     return mesh;
 }
 
-Mesh Renderer::GetSkyboxMesh()
+Mesh Renderer::GetQuadMesh()
+{
+    static constexpr std::array quad_data = {
+        // clang-format off
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+        // clang-format on
+    };
+    std::vector<Vertex> verts;
+    std::vector<unsigned int> indices = { 0, 1, 2, 3, 4, 5 };
+    for (size_t i = 0; i < quad_data.size(); i += 4) {
+        Vertex vert;
+        vert.position = glm::vec3(quad_data[i + 0], quad_data[i + 1], 0);
+        vert.normal = glm::vec3();
+        vert.texCoords = glm::vec2(quad_data[i + 2], quad_data[i + 3]);
+        verts.push_back(vert);
+    }
+
+    Mesh mesh(std::move(verts), std::move(indices));
+    return mesh;
+}
+
+auto Renderer::GetSkyboxMesh() -> Mesh
 {
     std::vector<Vertex> verts;
     std::vector<unsigned int> indicies;

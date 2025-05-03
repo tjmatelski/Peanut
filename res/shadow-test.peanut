@@ -1,0 +1,41 @@
+Scene: MyTempSceneName
+Entities:
+  - Entity: 123456789
+    TagComponent:
+      Tag: Floor
+    TransformComponent:
+      Translation: [-1.60000002, -5.80000019, 2]
+      Rotation: [0, 0, 0]
+      Scale: [9.80000019, 1, 9.39999962]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
+  - Entity: 123456789
+    TagComponent:
+      Tag: Cube2
+    TransformComponent:
+      Translation: [-0.800000012, -1.39999998, 4.80000019]
+      Rotation: [1.04719758, 0.541052043, 0.34906584]
+      Scale: [1, 1, 1]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
+  - Entity: 123456789
+    TagComponent:
+      Tag: Cube1
+    TransformComponent:
+      Translation: [1.20000005, 1, 4.5999999]
+      Rotation: [0, 0.628318548, 1.39626336]
+      Scale: [1, 1, 1]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
+  - Entity: 123456789
+    TagComponent:
+      Tag: Light
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    DirectionalLightComponent:
+      Direction: [-0.189999998, -1, 0.0500000007]
+      Ambient: 0.0500000007
+      Diffuse: 0.400000006
+      Specular: 0.5

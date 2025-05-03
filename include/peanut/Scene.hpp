@@ -18,17 +18,15 @@ public:
     void Clear();
     Entity CreateEntity(const std::string& name = "Default Entity Name");
 
-    template <class Functor>
-    void ForEachEntity(Functor func)
+    template <class Functor> void ForEachEntity(Functor func)
     {
         m_registry.each([&](entt::entity ent) { func({ ent, this }); });
     }
 
-    template <class... Args, class Fn>
-    void ForEach(Fn func)
+    template <class... Args, class Fn> void ForEach(Fn func)
     {
         auto view = m_registry.view<std::remove_reference_t<Args>...>();
-        view.each([&](auto ent, Args&... args) { func({ ent, this }, std::forward<Args...>(args)...); });
+        view.each([&](auto ent, Args&... args) { func({ ent, this }, args...); });
     }
 
 private:

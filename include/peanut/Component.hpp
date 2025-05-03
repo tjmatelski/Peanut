@@ -19,9 +19,9 @@ struct TagComponent {
 struct TransformComponent {
     TransformComponent() = default;
 
-    glm::vec3 translation;
-    glm::vec3 rotation; ///< In radians
-    glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 translation { 0.0, 0.0, 0.0 };
+    glm::vec3 rotation { 0.0, 0.0, 0.0 }; ///< In radians
+    glm::vec3 scale { 1.0f, 1.0f, 1.0f };
 
     operator glm::mat4() const { return GetTransform(); }
 

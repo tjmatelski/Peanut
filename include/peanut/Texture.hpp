@@ -7,19 +7,14 @@ namespace PEANUT {
 
 class Texture {
 public:
-    enum class Type {
-        None,
-        Diffuse,
-        Specular,
-        CubeMap
-    };
+    enum class Type { None, Diffuse, Specular, CubeMap };
 
     /**
      * Constructs a blank (all white) texture */
     Texture(const Type type = Type::None);
     Texture(const std::string& textureFile, const Type type = Type::None);
-    Texture(const Texture& texture) = default;
     Texture(const Texture& other, const Type type);
+    Texture(const Texture& texture) = default;
     Texture& operator=(const Texture& other) = default;
 
     void Bind() const;

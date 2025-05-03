@@ -11,6 +11,7 @@
 #include <concepts>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <variant>
 
@@ -51,6 +52,7 @@ void Shader::Use() const { GLCALL(glUseProgram(m_ShaderProgramID)); }
 
 Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
 {
+    LOG_DEBUG("Parsing shader [{}]", file.c_str());
     std::ifstream inputStream(file);
     std::string line;
     std::array<std::stringstream, 2> ss;
@@ -91,16 +93,18 @@ unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const 
     GLCALL(glAttachShader(programID, vertexID));
     GLCALL(glAttachShader(programID, fragmentID));
     GLCALL(glLinkProgram(programID));
-    GLCALL(glValidateProgram(programID));
     // // // Check for errors
     int success = 0;
     GLCALL(glGetProgramiv(programID, GL_LINK_STATUS, &success));
     if (!success) {
         std::array<char, 512> infoLog;
-        GLCALL(glGetProgramInfoLog(programID, infoLog.size(), nullptr, infoLog.data()));
+        GLsizei len = 0;
+        GLCALL(glGetProgramInfoLog(programID, infoLog.size(), &len, infoLog.data()));
+        infoLog[len] = '\0';
         LOG_ERROR("ERROR::SHADER::LINKING Info: {0}", infoLog.data());
-        throw "Failed to link shader";
+        throw std::runtime_error("Failed to link shader");
     }
+    GLCALL(glValidateProgram(programID));
     GLCALL(glDeleteShader(vertexID));
     GLCALL(glDeleteShader(fragmentID));
 
@@ -161,6 +165,9 @@ unsigned int Shader::CompileShader(const unsigned int type, const std::string& s
 void Shader::SetUniform(const Uniform& uniform) const
 {
     const auto loc = GetUniformLocation(uniform.name.c_str());
+    if (loc == -1) {
+        return;
+    }
     Use();
     std::visit(
         Overloaded { [&](std::same_as<bool> auto value) { GLCALL(glUniform1i(loc, static_cast<GLint>(value))); },
