@@ -9,8 +9,14 @@
 #include "Settings.hpp"
 #include "peanut/Engine.hpp"
 #include "peanut/FrameBuffer.hpp"
+#include <algorithm>
+#include <array>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/fwd.hpp>
+#include <glm/matrix.hpp>
+#include <limits>
 #include <memory>
+#include <numeric>
 #include <peanut/Application.hpp>
 #include <peanut/Component.hpp>
 #include <peanut/Entity.hpp>
@@ -132,6 +138,44 @@ void EngineImpl::Update(double)
         LOG_ERROR("Python Script Threw Exception: {}", e.what());
     }
 
+    // Generate frustrum in world space
+    std::array<glm::vec4, 8> frustrum_coords = {
+        // clang-format off
+        glm::vec4{-1.0f, -1.0f, -1.0f, 1.0},
+        glm::vec4{-1.0f, -1.0f,  1.0f, 1.0},
+        glm::vec4{-1.0f,  1.0f, -1.0f, 1.0},
+        glm::vec4{-1.0f,  1.0f,  1.0f, 1.0},
+        glm::vec4{ 1.0f, -1.0f, -1.0f, 1.0},
+        glm::vec4{ 1.0f, -1.0f,  1.0f, 1.0},
+        glm::vec4{ 1.0f,  1.0f, -1.0f, 1.0},
+        glm::vec4{ 1.0f,  1.0f,  1.0f, 1.0},
+        // clang-format on
+    };
+    const auto clip_to_world = glm::inverse(m_perspectiveCam.GetProjectionMatrix() * m_perspectiveCam.GetViewMatrix());
+    std::ranges::for_each(frustrum_coords, [&clip_to_world](auto& coord) {
+        coord = clip_to_world * coord;
+        coord /= coord.w;
+    });
+    const glm::vec3 center
+        = std::accumulate(frustrum_coords.begin(), frustrum_coords.end(), glm::vec4(0.0, 0.0, 0.0, 0.0))
+        / static_cast<float>(frustrum_coords.size());
+    glm::vec3 light_ortho_min(
+        std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    glm::vec3 light_ortho_max(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(),
+        std::numeric_limits<float>::lowest());
+    for (const auto& coord : frustrum_coords) {
+        light_ortho_min.x = std::min(light_ortho_min.x, coord.x);
+        light_ortho_min.y = std::min(light_ortho_min.y, coord.y);
+        light_ortho_min.z = std::min(light_ortho_min.z, coord.z);
+        light_ortho_max.x = std::max(light_ortho_max.x, coord.x);
+        light_ortho_max.y = std::max(light_ortho_max.y, coord.y);
+        light_ortho_max.z = std::max(light_ortho_max.z, coord.z);
+    }
+    constexpr float zMult = 0.1f; // extend by 10% of distance
+    const auto ortho_z_dist = light_ortho_min.z - light_ortho_max.z;
+    light_ortho_min.z += ortho_z_dist * zMult;
+    light_ortho_max.z -= ortho_z_dist * zMult;
+
     // Shadows
     struct ShadowConfig {
         int fb_width = 1024;
@@ -144,12 +188,12 @@ void EngineImpl::Update(double)
     Renderer::SetViewport(config.fb_width, config.fb_width);
     m_shadow_fb->Bind();
     Renderer::ClearDepthBuffer();
-    float near_plane = -10.0f, far_plane = 10.0f;
-    glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+    glm::mat4 lightProjection = glm::ortho(light_ortho_min.x, light_ortho_max.x, light_ortho_min.y, light_ortho_max.y,
+        light_ortho_min.z, light_ortho_max.z);
     glm::vec3 dir_light_dir;
     m_scene->ForEach<DirectionalLightComponent>(
         [&](Entity, const DirectionalLightComponent& comp) { dir_light_dir = comp.direction; });
-    glm::mat4 lightView = glm::lookAt(-dir_light_dir, { 0.0, 0.0, 0.0 }, { 0.0, 1.0, 0.0 });
+    glm::mat4 lightView = glm::lookAt(center - dir_light_dir, center, glm::vec3 { 0.0, 1.0, 0.0 });
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
     auto* depth_shader = ShaderLibrary::Get("./res/shaders/simpleDepth.shader");
     depth_shader->Use();
