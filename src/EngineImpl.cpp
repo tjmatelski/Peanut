@@ -164,6 +164,7 @@ void EngineImpl::Update(double)
     glm::vec3 light_ortho_max(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(),
         std::numeric_limits<float>::lowest());
     for (const auto& coord : frustrum_coords) {
+        // TODO: This only works for all positive values
         light_ortho_min.x = std::min(light_ortho_min.x, coord.x);
         light_ortho_min.y = std::min(light_ortho_min.y, coord.y);
         light_ortho_min.z = std::min(light_ortho_min.z, coord.z);
