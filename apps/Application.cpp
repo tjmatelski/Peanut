@@ -1,3 +1,4 @@
+#include "DebugPanel.hpp"
 #include "Panel.hpp"
 #include "PropertyPanel.hpp"
 #include "RenderStatsPanel.hpp"
@@ -41,6 +42,7 @@ public:
         m_panels.emplace_back(std::make_unique<PropertyPanel>(m_engine, sh_panel.get()));
         m_panels.emplace_back(std::move(sh_panel));
         m_panels.emplace_back(std::make_unique<RenderStatsPanel>("Render Stats", m_engine));
+        m_panels.emplace_back(std::make_unique<DebugPanel>(m_engine));
 
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "peanut/DebugConfig.hpp"
 #include <peanut/Component.hpp>
 #include <peanut/Entity.hpp>
 #include <peanut/PerspectiveCamera.hpp>
@@ -37,6 +38,7 @@ public:
     [[nodiscard]] auto GetPlugins() -> const std::vector<Plugin>&;
     [[nodiscard]] auto GetCubeMesh() -> Mesh;
     [[nodiscard]] auto GetScriptEditorMembers(PythonScript* script) -> EditorFieldMap&;
+    [[nodiscard]] auto GetDebugConfig() -> DebugConfig&;
 
     void StartRuntime();
     void StopRunTime();

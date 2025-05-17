@@ -4,6 +4,7 @@ add_executable(Application
     PropertyPanel.cpp
     RenderStatsPanel.cpp
     ViewportPanel.cpp
+    DebugPanel.cpp
     ${CMAKE_BINARY_DIR}/imports/imgui_impl_glfw.cpp
     ${CMAKE_BINARY_DIR}/imports/imgui_impl_opengl3.cpp
     )

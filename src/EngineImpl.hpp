@@ -1,5 +1,6 @@
 #pragma once
 
+#include "peanut/DebugConfig.hpp"
 #include "peanut/Mesh.hpp"
 #include <peanut/Component.hpp>
 #include <peanut/Engine.hpp>
@@ -56,6 +57,7 @@ private:
     Renderable m_quad;
     int m_viewport_width;
     int m_viewport_height;
+    DebugConfig debug_config_;
 
     void Run();
     void OnApplicationEvent(Event& event);
@@ -66,6 +68,7 @@ private:
     void Update(double dt);
 
     friend int ::main(int argc, char** argv);
+    friend class Engine;
 };
 
 Mesh GetCubeMesh();

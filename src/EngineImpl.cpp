@@ -89,6 +89,8 @@ void EngineImpl::Run()
     m_pluginManager.LoadAll(Settings::GetApplicationDir() / "plugins");
     m_app->OnAttach();
     while (!m_shouldWindowClose) {
+        spdlog::set_level(debug_config_.log_level_);
+
         double currentFrameTime = m_window.GetTime();
         double timeStep = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
@@ -304,19 +306,19 @@ void EngineImpl::Update(double)
         Renderer::Draw(renderable);
     });
 
-    // Renderer::ClearColor(1.0, 0.0, 0.0);
-    // Renderer::ClearBuffers();
-    GLCALL(glDisable(GL_DEPTH_TEST));
-    glm::mat4 quad_proj = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f);
-    quad_proj = glm::translate(quad_proj, { 3.0f, -3.0, 0.0 });
-    auto* quad_shader = ShaderLibrary::Get("./res/shaders/simpleQuad.shader");
-    quad_shader->Use();
-    quad_shader->SetUniform(Uniform { .name = "depthMap", .value = int(0) });
-    quad_shader->SetUniform(Uniform { .name = "view", .value = quad_proj });
-    GLCALL(glActiveTexture(GL_TEXTURE0));
-    GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
-    m_quad.shader_ = quad_shader;
-    Renderer::Draw(m_quad);
+    if (debug_config_.debug_view_ == DebugConfig::View::Shadow) {
+        GLCALL(glDisable(GL_DEPTH_TEST));
+        glm::mat4 quad_proj = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f);
+        quad_proj = glm::translate(quad_proj, { 3.0f, -3.0, 0.0 });
+        auto* quad_shader = ShaderLibrary::Get("./res/shaders/simpleQuad.shader");
+        quad_shader->Use();
+        quad_shader->SetUniform(Uniform { .name = "depthMap", .value = int(0) });
+        quad_shader->SetUniform(Uniform { .name = "view", .value = quad_proj });
+        GLCALL(glActiveTexture(GL_TEXTURE0));
+        GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
+        m_quad.shader_ = quad_shader;
+        Renderer::Draw(m_quad);
+    }
 }
 
 void EngineImpl::UpdateWindow()

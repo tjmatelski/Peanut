@@ -1,6 +1,7 @@
 #include <peanut/Engine.hpp>
 
 #include "EngineImpl.hpp"
+#include "peanut/DebugConfig.hpp"
 
 namespace PEANUT {
 
@@ -13,6 +14,8 @@ namespace PEANUT {
 [[nodiscard]] auto Engine::GetCamera() -> PerspectiveCamera& { return m_engine->GetCamera(); }
 
 [[nodiscard]] auto Engine::GetPlugins() -> const std::vector<Plugin>& { return m_engine->GetPlugins(); }
+
+[[nodiscard]] auto Engine::GetDebugConfig() -> DebugConfig& { return m_engine->debug_config_; }
 
 void Engine::StartRuntime() { m_engine->StartRuntime(); }
 
