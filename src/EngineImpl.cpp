@@ -163,14 +163,18 @@ void EngineImpl::Update(double)
         std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     glm::vec3 light_ortho_max(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(),
         std::numeric_limits<float>::lowest());
+    glm::vec3 dir_light_dir;
+    m_scene->ForEach<DirectionalLightComponent>(
+        [&](Entity, const DirectionalLightComponent& comp) { dir_light_dir = comp.direction; });
+    glm::mat4 light_view = glm::lookAt(center - dir_light_dir, center, glm::vec3 { 0.0, 1.0, 0.0 });
     for (const auto& coord : frustrum_coords) {
-        // TODO: This only works for all positive values
-        light_ortho_min.x = std::min(light_ortho_min.x, coord.x);
-        light_ortho_min.y = std::min(light_ortho_min.y, coord.y);
-        light_ortho_min.z = std::min(light_ortho_min.z, coord.z);
-        light_ortho_max.x = std::max(light_ortho_max.x, coord.x);
-        light_ortho_max.y = std::max(light_ortho_max.y, coord.y);
-        light_ortho_max.z = std::max(light_ortho_max.z, coord.z);
+        const auto coord_in_light_space = light_view * coord;
+        light_ortho_min.x = std::min(light_ortho_min.x, coord_in_light_space.x);
+        light_ortho_min.y = std::min(light_ortho_min.y, coord_in_light_space.y);
+        light_ortho_min.z = std::min(light_ortho_min.z, coord_in_light_space.z);
+        light_ortho_max.x = std::max(light_ortho_max.x, coord_in_light_space.x);
+        light_ortho_max.y = std::max(light_ortho_max.y, coord_in_light_space.y);
+        light_ortho_max.z = std::max(light_ortho_max.z, coord_in_light_space.z);
     }
     constexpr float zMult = 0.1f; // extend by 10% of distance
     const auto ortho_z_dist = light_ortho_min.z - light_ortho_max.z;
@@ -191,11 +195,7 @@ void EngineImpl::Update(double)
     Renderer::ClearDepthBuffer();
     glm::mat4 lightProjection = glm::ortho(light_ortho_min.x, light_ortho_max.x, light_ortho_min.y, light_ortho_max.y,
         light_ortho_min.z, light_ortho_max.z);
-    glm::vec3 dir_light_dir;
-    m_scene->ForEach<DirectionalLightComponent>(
-        [&](Entity, const DirectionalLightComponent& comp) { dir_light_dir = comp.direction; });
-    glm::mat4 lightView = glm::lookAt(center - dir_light_dir, center, glm::vec3 { 0.0, 1.0, 0.0 });
-    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+    glm::mat4 lightSpaceMatrix = lightProjection * light_view;
     auto* depth_shader = ShaderLibrary::Get("./res/shaders/simpleDepth.shader");
     depth_shader->Use();
     depth_shader->SetUniform(Uniform { "lightSpaceMatrix", lightSpaceMatrix });
