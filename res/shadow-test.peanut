@@ -2,29 +2,20 @@ Scene: MyTempSceneName
 Entities:
   - Entity: 123456789
     TagComponent:
-      Tag: Floor
+      Tag: Cube4
     TransformComponent:
-      Translation: [-1.60000002, -5.80000019, 2]
-      Rotation: [0, 0, 0]
-      Scale: [9.80000019, 1, 9.39999962]
+      Translation: [-3.5999999, 3.4000001, 56.7999992]
+      Rotation: [0.820304751, 0.209439516, 0.541052043]
+      Scale: [3, 3, 3]
     ModelFileComponent:
-      File: ../../../../res/models/cube/cube.obj
+      File: models/cube/cube.obj
   - Entity: 123456789
     TagComponent:
-      Tag: Cube2
+      Tag: Cube3
     TransformComponent:
-      Translation: [-0.800000012, -1.39999998, 4.80000019]
-      Rotation: [1.04719758, 0.541052043, 0.34906584]
-      Scale: [1, 1, 1]
-    ModelFileComponent:
-      File: ../../../../res/models/cube/cube.obj
-  - Entity: 123456789
-    TagComponent:
-      Tag: Cube1
-    TransformComponent:
-      Translation: [1.20000005, 1, 4.5999999]
-      Rotation: [0, 0.628318548, 1.39626336]
-      Scale: [1, 1, 1]
+      Translation: [3, -0.600000024, 21]
+      Rotation: [0, 0.436332315, 0.296705961]
+      Scale: [2, 2, 2]
     ModelFileComponent:
       File: ../../../../res/models/cube/cube.obj
   - Entity: 123456789
@@ -39,3 +30,30 @@ Entities:
       Ambient: 0.0500000007
       Diffuse: 0.400000006
       Specular: 0.5
+  - Entity: 123456789
+    TagComponent:
+      Tag: Cube1
+    TransformComponent:
+      Translation: [6, 1, -5.80000019]
+      Rotation: [0, 0.628318548, 1.39626336]
+      Scale: [1, 1, 1]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
+  - Entity: 123456789
+    TagComponent:
+      Tag: Cube2
+    TransformComponent:
+      Translation: [4.4000001, -2.20000005, -5.5999999]
+      Rotation: [1.04719758, 0.69813168, 1.30899692]
+      Scale: [1, 1, 1]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
+  - Entity: 123456789
+    TagComponent:
+      Tag: Floor
+    TransformComponent:
+      Translation: [-1.60000002, -5.5999999, 34]
+      Rotation: [0, 0, 0]
+      Scale: [9.80000019, 0.400000006, 41.4000015]
+    ModelFileComponent:
+      File: ../../../../res/models/cube/cube.obj
