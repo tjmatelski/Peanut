@@ -2,11 +2,13 @@
 
 // external
 #include "imgui.h"
+#include "peanut/DebugConfig.hpp"
 #include <spdlog/common.h>
 
 namespace PEANUT {
 void DebugPanel::Update()
 {
+    // log level
     constexpr auto log_name = [](spdlog::level::level_enum log_level) {
         switch (log_level) {
         case spdlog::level::level_enum::off:
@@ -40,6 +42,26 @@ void DebugPanel::Update()
         }
         if (ImGui::Selectable("Trace")) {
             Engine()->GetDebugConfig().log_level_ = spdlog::level::level_enum::trace;
+        }
+        ImGui::EndCombo();
+    }
+
+    // Debug view (renders in the bottom corner)
+    constexpr auto debug_view_name = [](DebugConfig::View debug_view) {
+        switch (debug_view) {
+        case DebugConfig::View::None:
+            return "None";
+        case DebugConfig::View::Shadow:
+            return "Shadow Map Buffer";
+        }
+        return "shouldn't see this";
+    };
+    if (ImGui::BeginCombo("Debug View", debug_view_name(Engine()->GetDebugConfig().debug_view_))) {
+        if (ImGui::Selectable("None")) {
+            Engine()->GetDebugConfig().debug_view_ = DebugConfig::View::None;
+        }
+        if (ImGui::Selectable("Shadow Map Buffer")) {
+            Engine()->GetDebugConfig().debug_view_ = DebugConfig::View::Shadow;
         }
         ImGui::EndCombo();
     }
