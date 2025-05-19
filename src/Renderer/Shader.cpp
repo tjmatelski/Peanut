@@ -1,3 +1,4 @@
+#include <limits>
 #include <peanut/Shader.hpp>
 
 #include "../Util.hpp"
@@ -27,7 +28,7 @@ Shader::Shader(const std::filesystem::path& shaderFile)
     : m_ShaderFile(shaderFile)
 {
     ShaderSources shaderSources = ParseShaderFile(shaderFile);
-    m_ShaderProgramID = CreateShaderProgram(shaderSources.vertex, shaderSources.fragment);
+    m_ShaderProgramID = CreateShaderProgram(shaderSources);
 }
 
 Shader::Shader(Shader&& other) { *this = std::move(other); }
@@ -55,9 +56,9 @@ Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
     LOG_DEBUG("Parsing shader [{}]", file.c_str());
     std::ifstream inputStream(file);
     std::string line;
-    std::array<std::stringstream, 2> ss;
+    std::array<std::stringstream, 3> ss;
 
-    enum class StreamType { NONE = -1, VERTEX = 0, FRAGMENT = 1 };
+    enum class StreamType { NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2 };
 
     if (!inputStream.is_open()) {
         LOG_ERROR("Failed to open shader {0}", file.c_str());
@@ -73,27 +74,63 @@ Shader::ShaderSources Shader::ParseShaderFile(const std::filesystem::path& file)
                 if (line.find("fragment") != std::string::npos) {
                     type = StreamType::FRAGMENT;
                 }
+                if (line.find("geometry") != std::string::npos) {
+                    type = StreamType::GEOMETRY;
+                }
             } else {
                 ss[static_cast<int>(type)] << line << '\n';
             }
         }
     }
 
-    return { ss[static_cast<int>(StreamType::VERTEX)].str(), ss[static_cast<int>(StreamType::FRAGMENT)].str() };
+    ShaderSources sources;
+    if (const auto source = ss[static_cast<int>(StreamType::VERTEX)].str(); !source.empty()) {
+        sources.vertex = source;
+    }
+    if (const auto source = ss[static_cast<int>(StreamType::FRAGMENT)].str(); !source.empty()) {
+        sources.fragment = source;
+    }
+    if (const auto source = ss[static_cast<int>(StreamType::GEOMETRY)].str(); !source.empty()) {
+        sources.geometry = source;
+    }
+
+    return sources;
 }
 
-unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource)
+unsigned int Shader::CreateShaderProgram(const ShaderSources& sources)
 {
-    unsigned int programID, vertexID, fragmentID;
-    vertexID = CompileShader(GL_VERTEX_SHADER, vertexSource);
-    fragmentID = CompileShader(GL_FRAGMENT_SHADER, fragmentSource);
+    unsigned int programID = std::numeric_limits<unsigned int>::max();
+    unsigned int vertexID = std::numeric_limits<unsigned int>::max();
+    unsigned int fragmentID = std::numeric_limits<unsigned int>::max();
+    unsigned int geometryID = std::numeric_limits<unsigned int>::max();
 
+    // Compile source if present
+    if (sources.vertex) {
+        vertexID = CompileShader(GL_VERTEX_SHADER, sources.vertex.value());
+    }
+    if (sources.fragment) {
+        fragmentID = CompileShader(GL_FRAGMENT_SHADER, sources.fragment.value());
+    }
+    if (sources.geometry) {
+        geometryID = CompileShader(GL_GEOMETRY_SHADER, sources.geometry.value());
+    }
+
+    // Link program
     programID = glCreateProgram();
     GL_CHECK_ERROR();
-    GLCALL(glAttachShader(programID, vertexID));
-    GLCALL(glAttachShader(programID, fragmentID));
+
+    if (vertexID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glAttachShader(programID, vertexID));
+    }
+    if (fragmentID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glAttachShader(programID, fragmentID));
+    }
+    if (geometryID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glAttachShader(programID, geometryID));
+    }
     GLCALL(glLinkProgram(programID));
-    // // // Check for errors
+
+    // Check for errors
     int success = 0;
     GLCALL(glGetProgramiv(programID, GL_LINK_STATUS, &success));
     if (!success) {
@@ -105,8 +142,17 @@ unsigned int Shader::CreateShaderProgram(const std::string& vertexSource, const 
         throw std::runtime_error("Failed to link shader");
     }
     GLCALL(glValidateProgram(programID));
-    GLCALL(glDeleteShader(vertexID));
-    GLCALL(glDeleteShader(fragmentID));
+
+    // Delete individual shaders
+    if (vertexID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glDeleteShader(vertexID));
+    }
+    if (fragmentID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glDeleteShader(fragmentID));
+    }
+    if (geometryID != std::numeric_limits<unsigned int>::max()) {
+        GLCALL(glDeleteShader(geometryID));
+    }
 
     // Print attributes
     GLint count = 0;

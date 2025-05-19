@@ -4,6 +4,7 @@
 
 // stl
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -33,14 +34,15 @@ public:
 
 private:
     struct ShaderSources {
-        std::string vertex;
-        std::string fragment;
+        std::optional<std::string> vertex;
+        std::optional<std::string> fragment;
+        std::optional<std::string> geometry;
     };
     unsigned int m_ShaderProgramID;
     std::filesystem::path m_ShaderFile;
 
     ShaderSources ParseShaderFile(const std::filesystem::path& file);
-    unsigned int CreateShaderProgram(const std::string& vertexSource, const std::string& fragmentSource);
+    unsigned int CreateShaderProgram(const ShaderSources& sources);
     unsigned int CompileShader(const unsigned int type, const std::string& shaderSource);
     int GetUniformLocation(const char* name) const;
 };
