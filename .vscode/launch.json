@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/apps/Application",
+            "program": "${workspaceFolder}/build/debug-none/bin/Application",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -21,7 +21,9 @@
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
-            ]
+            ],
+            "showDisplayString": true,
+            "visualizerFile": "${workspaceFolder}/.vscode/my_types.natvis"
         }
     ]
 }
