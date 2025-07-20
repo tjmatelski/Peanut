@@ -4,21 +4,22 @@
 
 // stl
 #include <filesystem>
-#include <string>
 #include <unordered_map>
 
 namespace PEANUT {
 
 class TextureLibrary {
 public:
-    static Texture Load(const std::filesystem::path& textureName, const Texture::Type type = Texture::Type::None);
+    static Texture* GetImage(const std::filesystem::path& file);
+    static Texture* GetCubemap(const std::filesystem::path& dir);
 
 private:
     TextureLibrary() = default;
-    std::unordered_map<std::string, Texture> m_savedTextures;
+    std::unordered_map<std::filesystem::path, Texture> textures_;
 
     static TextureLibrary& GetInstance();
-    Texture LoadImpl(const std::filesystem::path& textureName, const Texture::Type type);
+    Texture* GetImageImpl(const std::filesystem::path& file);
+    Texture* GetCubemapImpl(const std::filesystem::path& dir);
 };
 
 } // namespace Rhino

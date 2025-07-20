@@ -15,11 +15,13 @@ public:
     [[nodiscard]] static auto Default() -> Material;
 
     void SetUniform(std::string_view name, UniformValue value);
-    void AddTexture(Texture texture);
+    void AddDiffuseTexture(Texture* p_texture);
+    void AddSpecularTexture(Texture* p_texture);
 
     [[nodiscard]] auto Uniforms() -> auto& { return uniforms_; }
     [[nodiscard]] auto Uniforms() const -> const auto& { return uniforms_; }
-    [[nodiscard]] auto Textures() const -> const auto& { return textures_; }
+    [[nodiscard]] auto DiffuseTextures() const -> const auto& { return diffuse_textures_; }
+    [[nodiscard]] auto SpecularTextures() const -> const auto& { return specular_textures_; }
 
 private:
     struct StringHash {
@@ -32,7 +34,8 @@ private:
     };
     using UniformMap = std::unordered_map<std::string, UniformValue, StringHash, std::equal_to<>>;
     UniformMap uniforms_;
-    std::vector<Texture> textures_;
+    std::vector<Texture*> diffuse_textures_;
+    std::vector<Texture*> specular_textures_;
 };
 
 }

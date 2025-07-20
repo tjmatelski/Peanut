@@ -7,7 +7,8 @@ auto Material::Default() -> Material
 {
     Material mat;
     mat.SetUniform("material.shininess", 32.0f);
-    mat.AddTexture(TextureLibrary::Load("textures/BlankSquare.png"));
+    mat.AddDiffuseTexture(TextureLibrary::GetImage("textures/BlankSquare.png"));
+    // TODO: Default specular?
     return mat;
 }
 
@@ -20,5 +21,7 @@ void Material::SetUniform(std::string_view name, UniformValue value)
     uniforms_.emplace(name, value);
 }
 
-void Material::AddTexture(Texture texture) { textures_.push_back(texture); }
+void Material::AddDiffuseTexture(Texture* p_texture) { diffuse_textures_.push_back(p_texture); }
+
+void Material::AddSpecularTexture(Texture* p_texture) { specular_textures_.push_back(p_texture); }
 }

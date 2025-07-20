@@ -1,29 +1,46 @@
 #pragma once
 
 // stl
+#include <array>
+#include <cstddef>
+#include <filesystem>
+#include <optional>
 #include <string>
 
 namespace PEANUT {
 
 class Texture {
 public:
-    enum class Type { None, Diffuse, Specular, CubeMap };
+    enum class Wrapping { REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 
-    /**
-     * Constructs a blank (all white) texture */
-    Texture(const Type type = Type::None);
-    Texture(const std::string& textureFile, const Type type = Type::None);
-    Texture(const Texture& other, const Type type);
-    Texture(const Texture& texture) = default;
-    Texture& operator=(const Texture& other) = default;
+    enum class Filter { NEAREST, LINEAR };
+
+    struct Config {
+        size_t width_ = 256;
+        size_t height_ = 256;
+        Wrapping wrapping_ = Wrapping::REPEAT;
+        Filter filter_ = Filter::NEAREST;
+        std::optional<std::array<float, 4>> border_color_;
+    };
+
+    Texture(Config config, unsigned char* p_data = nullptr);
+    Texture(const Texture&) = delete;
+    Texture& operator=(const Texture&) = delete;
+    Texture(Texture&& other);
+    Texture& operator=(Texture&& other);
+    ~Texture();
+
+    static Texture MakeTextureImage(std::filesystem::path file);
+    static Texture MakeTextureCubeMap(std::filesystem::path dir);
 
     void Bind() const;
-    [[nodiscard]] inline Type GetType() const { return m_type; }
-    [[nodiscard]] unsigned int GetID() const { return m_ID; }
 
 private:
-    unsigned int m_ID;
-    Type m_type;
+    Texture();
+
+    unsigned int id_;
+    Config config_;
+    bool is_cube_map_;
 };
 
 }

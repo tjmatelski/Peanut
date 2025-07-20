@@ -10,26 +10,6 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-namespace {
-PEANUT::Texture::Type AssimpToPEANUTTexType(const aiTextureType type)
-{
-    switch (type) {
-    case aiTextureType_DIFFUSE:
-        return PEANUT::Texture::Type::Diffuse;
-        break;
-
-    case aiTextureType_SPECULAR:
-        return PEANUT::Texture::Type::Diffuse;
-        break;
-
-    default:
-        LOG_WARN("Non-Implemented Texture type: {}", static_cast<int>(type));
-        return PEANUT::Texture::Type::None;
-        break;
-    }
-}
-}
-
 namespace PEANUT {
 
 Model::Model(const std::string& modelFile)
@@ -67,7 +47,6 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
     LOG_DEBUG("Loading Mesh: {}", mesh->mName.C_Str());
     std::vector<Vertex> verts;
     std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
 
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
         Vertex vert;
@@ -87,35 +66,31 @@ Renderable Model::LoadRenderable(const aiMesh* mesh, const aiScene* scene)
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-    std::vector<Texture> diffuse = LoadTextures(material, aiTextureType_DIFFUSE);
-    std::vector<Texture> specular = LoadTextures(material, aiTextureType_SPECULAR);
-
-    textures.insert(textures.end(), diffuse.begin(), diffuse.end());
-    textures.insert(textures.end(), specular.begin(), specular.end());
+    auto diffuse = LoadTextures(material, aiTextureType_DIFFUSE);
+    auto specular = LoadTextures(material, aiTextureType_SPECULAR);
 
     Material mat;
     mat.SetUniform("material.shininess", 32.0f);
-    for (const auto& texture : diffuse) {
-        mat.AddTexture(texture);
+    for (auto* p_texture : diffuse) {
+        mat.AddDiffuseTexture(p_texture);
     }
-    for (const auto& texture : specular) {
-        mat.AddTexture(texture);
+    for (auto* p_texture : specular) {
+        mat.AddSpecularTexture(p_texture);
     }
     return { Mesh(std::move(verts), std::move(indices)), mat, ShaderLibrary::Get("./res/shaders/Lighting.shader") };
 }
 
-std::vector<Texture> Model::LoadTextures(const aiMaterial* mat, const int type)
+std::vector<Texture*> Model::LoadTextures(const aiMaterial* mat, const int type)
 {
     LOG_DEBUG("Loading Material {} Texture Type {}", mat->GetName().C_Str(), type);
-    std::vector<Texture> textures;
+    std::vector<Texture*> textures;
     aiTextureType assimpType = static_cast<aiTextureType>(type);
     for (unsigned int i = 0; i < mat->GetTextureCount(assimpType); ++i) {
         aiString name;
         mat->GetTexture(assimpType, i, &name);
-        Texture::Type myType = AssimpToPEANUTTexType(assimpType);
         LOG_DEBUG("Loading Texture: {}", name.C_Str());
-        Texture tex = TextureLibrary::Load(m_modelFile.parent_path() / name.C_Str(), myType);
-        textures.push_back(tex);
+        auto* p_tex = TextureLibrary::GetImage(m_modelFile.parent_path() / name.C_Str());
+        textures.push_back(p_tex);
     }
     return textures;
 }

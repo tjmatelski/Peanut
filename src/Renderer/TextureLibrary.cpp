@@ -1,6 +1,7 @@
 #include "TextureLibrary.hpp"
 
-#include "../Settings.hpp"
+// peanut
+#include "peanut/Texture.hpp"
 #include <peanut/Log.hpp>
 
 // stl
@@ -16,29 +17,52 @@ TextureLibrary& TextureLibrary::GetInstance()
     return s_library;
 }
 
-Texture TextureLibrary::Load(const fs::path& textureName, const Texture::Type type)
+Texture* TextureLibrary::GetImage(const fs::path& file) { return GetInstance().GetImageImpl(file); }
+
+Texture* TextureLibrary::GetCubemap(const fs::path& dir) { return GetInstance().GetCubemapImpl(dir); }
+
+Texture* TextureLibrary::GetImageImpl(const fs::path& file)
 {
-    return GetInstance().LoadImpl(textureName, type);
+    // Error if file doesn't exist
+    if (!std::filesystem::exists(file)) {
+        LOG_ERROR("Texture file does not exist [{}]", file.c_str());
+        return nullptr;
+    }
+
+    // Return cached texture if already loaded
+    if (const auto it = textures_.find(file); it != textures_.end()) {
+        return &it->second;
+    }
+
+    // Load texture
+    if (const auto p = textures_.emplace(file, Texture::MakeTextureImage(file)); p.second) {
+        LOG_DEBUG("Loaded texture [{}]", file.c_str());
+        return &p.first->second;
+    }
+
+    return nullptr;
 }
 
-Texture TextureLibrary::LoadImpl(const fs::path& textureName, const Texture::Type type)
+Texture* TextureLibrary::GetCubemapImpl(const fs::path& dir)
 {
-    fs::path fullPath = textureName;
-    if (!fs::exists(fullPath)) {
-        fullPath = Settings::GetResourceDir() / fullPath;
-    }
-    if (!fs::exists(fullPath)) {
-        LOG_ERROR("Texture File '{}' could not be found", textureName.c_str());
+    // Error if file doesn't exist
+    if (!std::filesystem::exists(dir)) {
+        LOG_ERROR("Texture dir does not exist [{}]", dir.c_str());
+        return nullptr;
     }
 
-    fullPath = fs::canonical(fullPath);
-    if (m_savedTextures.count(fullPath) != 0) {
-        return { m_savedTextures.at(fullPath), type };
+    // Return cached texture if already loaded
+    if (const auto it = textures_.find(dir); it != textures_.end()) {
+        return &it->second;
     }
 
-    LOG_DEBUG("Adding texture to cache '{}'", fullPath.c_str());
-    m_savedTextures.emplace(std::make_pair(fullPath, Texture(fullPath, type)));
-    return { m_savedTextures.at(fullPath), type };
+    // Load texture
+    if (const auto p = textures_.emplace(dir, Texture::MakeTextureCubeMap(dir)); p.second) {
+        LOG_DEBUG("Loaded cubemap texture [{}]", dir.c_str());
+        return &p.first->second;
+    }
+
+    return nullptr;
 }
 
 } // namespace Rhino

@@ -26,7 +26,7 @@ private:
 
     void ProcessNode(const aiNode* node, const aiScene* scene);
     Renderable LoadRenderable(const aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> LoadTextures(const aiMaterial* mat, const int type);
+    std::vector<Texture*> LoadTextures(const aiMaterial* mat, const int type);
 };
 
 }

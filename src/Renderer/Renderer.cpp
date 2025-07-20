@@ -119,7 +119,7 @@ void Renderer::Draw(const VertexArray& vertexArray, const IndexBuffer& indexBuff
     const std::vector<Texture>& textures)
 {
     int glTextureNumber = GL_TEXTURE0;
-    for (const auto texture : textures) {
+    for (const auto& texture : textures) {
         GLCALL(glActiveTexture(glTextureNumber++));
         texture.Bind();
     }
@@ -139,18 +139,18 @@ void Renderer::Draw(const Renderable& renderable)
     unsigned int numDiffuse = 0;
     unsigned int numSpecular = 0;
     renderable.shader_->Use();
-    for (const auto texture : renderable.material_.Textures()) {
-        if (texture.GetType() == Texture::Type::Diffuse) {
-            renderable.shader_->SetUniform(
-                { "material.diffuse[" + std::to_string(numDiffuse++) + "]", static_cast<int>(glTextureNumber) });
-        }
-        if (texture.GetType() == Texture::Type::Specular) {
-            renderable.shader_->SetUniform(
-                { "material.specular[" + std::to_string(numSpecular++) + "]", static_cast<int>(glTextureNumber) });
-        }
+    for (const auto* p_diffuse_tex : renderable.material_.DiffuseTextures()) {
+        renderable.shader_->SetUniform(
+            { "material.diffuse[" + std::to_string(numDiffuse++) + "]", static_cast<int>(glTextureNumber) });
+        GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
+        p_diffuse_tex->Bind();
+    }
+    for (const auto* p_spec_texture : renderable.material_.SpecularTextures()) {
+        renderable.shader_->SetUniform(
+            { "material.specular[" + std::to_string(numSpecular++) + "]", static_cast<int>(glTextureNumber) });
 
         GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
-        texture.Bind();
+        p_spec_texture->Bind();
     }
     for (const auto& [name, value] : renderable.material_.Uniforms()) {
         // TODO: Set Shinyness when constructing materials

@@ -232,25 +232,25 @@ void EngineImpl::Update(double)
 
     // Render skybox
     m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) {
-        ShaderLibrary::Get("./res/shaders/Skybox.shader")
-            ->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
-        ShaderLibrary::Get("./res/shaders/Skybox.shader")
-            ->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        auto* p_shader = ShaderLibrary::Get("./res/shaders/Skybox.shader");
+        p_shader->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
+        p_shader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
         Renderer::DisableDepthMask();
-        Material mat;
-        mat.AddTexture(TextureLibrary::Load(skybox.directory, Texture::Type::CubeMap));
+        const auto tex = TextureLibrary::GetCubemap(skybox.directory);
         static const Renderable renderable = { .mesh_ = Renderer::GetSkyboxMesh(),
-            .material_ = mat,
+            .material_ = {},
             .shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader") };
+        GLCALL(glActiveTexture(GL_TEXTURE0));
+        tex->Bind();
         Renderer::Draw(renderable);
         Renderer::EnableDepthMask();
     });
 
     // Render 2D sprites
-    m_scene->ForEach<SpriteRenderComponent>([&](Entity ent, const SpriteRenderComponent& spriteRender) {
-        Renderer2D::DrawQuad(
-            ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
-    });
+    // m_scene->ForEach<SpriteRenderComponent>([&](Entity ent, const SpriteRenderComponent& spriteRender) {
+    //     Renderer2D::DrawQuad(
+    //         ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
+    // });
 
     // Render Directional Lights
     m_scene->ForEach<DirectionalLightComponent>([&](Entity, const DirectionalLightComponent& comp) {

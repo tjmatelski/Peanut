@@ -14,6 +14,32 @@
 #include <limits>
 
 namespace {
+GLint ToGLType(PEANUT::Texture::Filter filter)
+{
+    switch (filter) {
+    case PEANUT::Texture::Filter::LINEAR:
+        return GL_LINEAR;
+    case PEANUT::Texture::Filter::NEAREST:
+        return GL_NEAREST;
+    }
+    return {};
+}
+
+GLint ToGLType(PEANUT::Texture::Wrapping wrapping)
+{
+    switch (wrapping) {
+    case PEANUT::Texture::Wrapping::REPEAT:
+        return GL_REPEAT;
+    case PEANUT::Texture::Wrapping::MIRRORED_REPEAT:
+        return GL_MIRRORED_REPEAT;
+    case PEANUT::Texture::Wrapping::CLAMP_TO_EDGE:
+        return GL_CLAMP_TO_EDGE;
+    case PEANUT::Texture::Wrapping::CLAMP_TO_BORDER:
+        return GL_CLAMP_TO_BORDER;
+    }
+    return {};
+}
+
 void LoadTexImage2D(int glType, const std::filesystem::path& file)
 {
     int width, height, nrChannels;
@@ -37,7 +63,7 @@ void LoadTexImage2D(int glType, const std::filesystem::path& file)
     stbi_image_free(data);
 }
 
-void Load2DTexture(const std::string& file)
+void Load2DTexture(const std::filesystem::path& file)
 {
     // set the texture wrapping/filtering options (on the currently bound texture object)
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
@@ -91,53 +117,77 @@ void LoadCubeMap(const std::filesystem::path& directory)
 
 namespace PEANUT {
 
-Texture::Texture(const Type type)
-    : m_ID(0)
-    , m_type(type)
+Texture Texture::MakeTextureImage(std::filesystem::path file)
 {
-    GLCALL(glGenTextures(1, &m_ID));
-    LOG_TRACE("Generated texture: {}", m_ID);
+    Texture tex;
+    if (!std::filesystem::exists(file)) {
+        LOG_ERROR("File [{}] does not exist", file.string());
+    }
+    Load2DTexture(file);
+    return tex;
+}
+
+Texture Texture::MakeTextureCubeMap(std::filesystem::path dir)
+{
+    Texture tex;
+    if (!std::filesystem::exists(dir)) {
+        LOG_ERROR("Cubemap directory [{}] does not exist", dir.string());
+    }
+    LoadCubeMap(dir);
+    return tex;
+}
+
+Texture::Texture()
+    : id_(0)
+    , config_()
+    , is_cube_map_(false)
+{
+    GLCALL(glGenTextures(1, &id_));
+    LOG_TRACE("Generated texture: {}", id_);
     Bind();
+}
+
+Texture::Texture(Config config, unsigned char* p_data)
+    : Texture()
+{
+    config_ = config;
     // set the texture wrapping/filtering options (on the currently bound texture object)
-    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    constexpr int width = 1024;
-    constexpr int height = 1024;
-    std::array<unsigned char, width * height * 3> data;
-    std::fill(data.begin(), data.end(), std::numeric_limits<unsigned char>::max());
-    GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.data()));
+    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ToGLType(config_.wrapping_)));
+    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLType(config_.wrapping_)));
+    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLType(config_.filter_)));
+    GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLType(config_.filter_)));
+    GLCALL(
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, config_.width_, config_.height_, 0, GL_RGB, GL_UNSIGNED_BYTE, p_data));
 }
 
-Texture::Texture(const Texture& other, const Type type)
-    : m_ID(other.m_ID)
-    , m_type(type)
+Texture::Texture(Texture&& other) { *this = std::move(other); }
+
+Texture& Texture::operator=(Texture&& other)
 {
+    id_ = other.id_;
+    config_ = other.config_;
+    is_cube_map_ = other.is_cube_map_;
+
+    other.id_ = 0;
+    other.config_ = {};
+    other.is_cube_map_ = false;
+
+    return *this;
 }
 
-Texture::Texture(const std::string& file, const Type type)
-    : m_ID(0)
-    , m_type(type)
+Texture::~Texture()
 {
-    GLCALL(glGenTextures(1, &m_ID));
-    LOG_TRACE("Generated texture: {}", m_ID);
-    Bind();
-    if (m_type == Type::CubeMap) {
-        LoadCubeMap(file);
-    } else {
-        Load2DTexture(file);
+    if (id_ != 0) {
+        GLCALL(glDeleteTextures(1, &id_));
     }
 }
 
-// TODO: Unload textures?
-
 void Texture::Bind() const
 {
-    if (m_type == Type::CubeMap) {
-        GLCALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_ID));
+    if (is_cube_map_) {
+        GLCALL(glBindTexture(GL_TEXTURE_CUBE_MAP, id_));
     } else {
-        GLCALL(glBindTexture(GL_TEXTURE_2D, m_ID));
+        GLCALL(glBindTexture(GL_TEXTURE_2D, id_));
     }
 }
 

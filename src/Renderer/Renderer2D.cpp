@@ -62,7 +62,7 @@ void Renderer2D::BeginScene(const OrthoCamera& camera)
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec3& color)
 {
-    DrawQuad(transform, color, TextureLibrary::Load("textures/BlankSquare.png"));
+    DrawQuad(transform, color, *TextureLibrary::GetImage("textures/BlankSquare.png"));
 }
 
 void Renderer2D::DrawQuad(const glm::mat4& transform, const Texture& texture)
