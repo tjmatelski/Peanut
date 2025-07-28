@@ -10,6 +10,6 @@ void ViewportPanel::Update()
     m_height = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
     m_focused = ImGui::IsWindowFocused();
     m_hovered = ImGui::IsWindowHovered();
-    ImGui::Image(reinterpret_cast<void*>(m_framebuffer->TextureID()), { m_width, m_height }, { 0, 1 }, { 1, 0 });
+    ImGui::Image(reinterpret_cast<void*>(p_tex_->GetID()), { m_width, m_height }, { 0, 1 }, { 1, 0 });
 }
 }

@@ -1,7 +1,9 @@
 #pragma once
 
+// peanut
 #include "peanut/DebugConfig.hpp"
 #include "peanut/Mesh.hpp"
+#include "peanut/Texture.hpp"
 #include <peanut/Component.hpp>
 #include <peanut/Engine.hpp>
 #include <peanut/Entity.hpp>
@@ -53,7 +55,8 @@ private:
     bool m_shouldWindowClose = false;
     bool m_runtime = false;
     PluginManager m_pluginManager;
-    std::unique_ptr<FrameBuffer> m_shadow_fb;
+    Texture shadow_tex_;
+    FrameBuffer shadow_fb_;
     Renderable m_quad;
     int m_viewport_width;
     int m_viewport_height;

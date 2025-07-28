@@ -1,16 +1,16 @@
 #pragma once
 
 #include "Panel.hpp"
-#include <peanut/FrameBuffer.hpp>
+#include "peanut/Texture.hpp"
 
 namespace PEANUT {
 class Engine;
 
 class ViewportPanel : public Panel {
 public:
-    ViewportPanel(class Engine* engine, const FrameBuffer* fb)
+    ViewportPanel(class Engine* engine, const Texture* p_tex)
         : Panel("Viewport", engine)
-        , m_framebuffer(fb)
+        , p_tex_(p_tex)
     {
     }
 
@@ -22,7 +22,7 @@ public:
     [[nodiscard]] bool IsHovered() const { return m_hovered; }
 
 private:
-    const FrameBuffer* m_framebuffer = nullptr;
+    const Texture* p_tex_ = nullptr;
     float m_width = 0.0f;
     float m_height = 0.0f;
     bool m_focused = false;

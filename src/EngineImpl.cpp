@@ -1,5 +1,6 @@
 #include "EngineImpl.hpp"
 
+// peanut
 #include "PythonBindings.hpp"
 #include "Renderer/GLDebug.hpp"
 #include "Renderer/Renderer.hpp"
@@ -9,14 +10,7 @@
 #include "Settings.hpp"
 #include "peanut/Engine.hpp"
 #include "peanut/FrameBuffer.hpp"
-#include <algorithm>
-#include <array>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
-#include <glm/matrix.hpp>
-#include <limits>
-#include <memory>
-#include <numeric>
+#include "peanut/Texture.hpp"
 #include <peanut/Application.hpp>
 #include <peanut/Component.hpp>
 #include <peanut/Entity.hpp>
@@ -33,13 +27,21 @@
 #include <peanut/WindowEvents.hpp>
 
 // external
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/fwd.hpp>
+#include <glm/matrix.hpp>
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 // stl
+#include <algorithm>
+#include <array>
 #include <exception>
+#include <limits>
+#include <memory>
+#include <numeric>
 #include <pybind11/pytypes.h>
 #include <spdlog/spdlog.h>
 #include <utility>
@@ -49,7 +51,13 @@ namespace PEANUT {
 EngineImpl::EngineImpl()
     : m_window("Peanut", 1280, 720)
     , m_scene(std::make_shared<Scene>())
-    // , m_shadow_fb(FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH })
+    , shadow_tex_(Texture::Config { .type_ = Texture::Type::DEPTH,
+          .width_ = 1024,
+          .height_ = 1024,
+          .wrapping_ = Texture::Wrapping::CLAMP_TO_BORDER,
+          .filter_ = Texture::Filter::NEAREST,
+          .border_color_ = { { 1.0f, 1.0f, 1.0f, 1.0f } } })
+    , shadow_fb_({ &shadow_tex_ }, FrameBuffer::Config { .bind_draw_buf_ = false, .bind_read_buf_ = false })
     , m_quad(Renderable { .mesh_ = Renderer::GetQuadMesh(), .material_ = {}, .shader_ = nullptr })
     , m_viewport_width(0)
     , m_viewport_height(0)
@@ -59,10 +67,6 @@ EngineImpl::EngineImpl()
     m_window.SetEventCallback([this](Event& e) -> void { this->OnApplicationEvent(e); });
     Renderer2D::Init();
     Renderer::EnableDepthTest();
-    // m_shadow_fb
-    //     = FrameBuffer(FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH });
-    m_shadow_fb = std::make_unique<FrameBuffer>(
-        FrameBufferConfig { .width = 1024, .height = 1024, .type = FrameBufferConfig::Type::DEPTH });
 
     LOG_DEBUG("Initializing Python Interpreter");
     pybind11::initialize_interpreter();
@@ -193,7 +197,7 @@ void EngineImpl::Update(double)
     GLint prev_fb;
     GLCALL(glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prev_fb));
     Renderer::SetViewport(config.fb_width, config.fb_width);
-    m_shadow_fb->Bind();
+    shadow_fb_.Bind();
     Renderer::ClearDepthBuffer();
     glm::mat4 lightProjection = glm::ortho(light_ortho_min.x, light_ortho_max.x, light_ortho_min.y, light_ortho_max.y,
         light_ortho_min.z, light_ortho_max.z);
@@ -220,7 +224,7 @@ void EngineImpl::Update(double)
         Renderer::Draw(renderable);
         renderable.shader_ = actual_shader;
     });
-    m_shadow_fb->Unbind();
+    shadow_fb_.Unbind();
 
     GLCALL(glBindFramebuffer(GL_FRAMEBUFFER, prev_fb));
 
@@ -288,7 +292,7 @@ void EngineImpl::Update(double)
             renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
             renderable.shader_->SetUniform({ "shadowMap", int(15) });
             GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
-            GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
+            GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
         }
         Renderer::Draw(model);
     });
@@ -302,7 +306,7 @@ void EngineImpl::Update(double)
         renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
         renderable.shader_->SetUniform({ "shadowMap", int(15) });
         GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
-        GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
+        GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
         Renderer::Draw(renderable);
     });
 
@@ -315,7 +319,7 @@ void EngineImpl::Update(double)
         quad_shader->SetUniform(Uniform { .name = "depthMap", .value = int(0) });
         quad_shader->SetUniform(Uniform { .name = "view", .value = quad_proj });
         GLCALL(glActiveTexture(GL_TEXTURE0));
-        GLCALL(glBindTexture(GL_TEXTURE_2D, m_shadow_fb->TextureID()));
+        GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
         m_quad.shader_ = quad_shader;
         Renderer::Draw(m_quad);
     }

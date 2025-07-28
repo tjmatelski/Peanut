@@ -4,8 +4,13 @@
 #include "RenderStatsPanel.hpp"
 #include "SceneHierarchyPanel.hpp"
 #include "ViewportPanel.hpp"
+
+// peanut
 #include "peanut/FileSelectorDialog.hpp"
 #include "peanut/FrameBuffer.hpp"
+#include "peanut/RenderBuffer.hpp"
+#include "peanut/Texture.hpp"
+#include "peanut/WindowEvents.hpp"
 #include <peanut/Application.hpp>
 #include <peanut/Engine.hpp>
 #include <peanut/Input.hpp>
@@ -35,7 +40,7 @@ class MyApp : public Application {
 public:
     void OnAttach() override
     {
-        auto vp_panel = std::make_unique<ViewportPanel>(m_engine, &m_frameBuffer);
+        auto vp_panel = std::make_unique<ViewportPanel>(m_engine, &viewport_tex_);
         m_viewportPanel = vp_panel.get();
         m_panels.emplace_back(std::move(vp_panel));
         auto sh_panel = std::make_unique<SceneHierarchyPanel>("Scene", m_engine);
@@ -57,7 +62,7 @@ public:
         const char* glsl_version = "#version 130";
         ImGui_ImplOpenGL3_Init(glsl_version);
 
-        m_frameBuffer.Resize(m_engine->GetWindow().GetWidth(), m_engine->GetWindow().GetHeight());
+        OnWindowResize(WindowResizeEvent { m_engine->GetWindow().GetWidth(), m_engine->GetWindow().GetHeight() });
         m_engine->SetViewport(m_viewportPanel->GetWidth(), m_viewportPanel->GetHeight());
     }
 
@@ -68,7 +73,7 @@ public:
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        m_frameBuffer.Bind();
+        framebuffer_.Bind();
         OnImGuiUpdate();
         AdjustRenderViewport(m_viewportPanel->GetWidth(), m_viewportPanel->GetHeight());
     }
@@ -82,7 +87,7 @@ public:
 
     void OnPostUpdate() override
     {
-        m_frameBuffer.Unbind();
+        framebuffer_.Unbind();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -151,7 +156,17 @@ private:
 
     void OnWindowResize(const WindowResizeEvent& e)
     {
-        m_frameBuffer.Resize(e.GetWidth(), e.GetHeight());
+        auto rb_config = render_buf_.GetConfig();
+        rb_config.width_ = e.GetWidth();
+        rb_config.height_ = e.GetHeight();
+        render_buf_ = RenderBuffer { rb_config };
+
+        auto tex_config = viewport_tex_.GetConfig();
+        tex_config.width_ = e.GetWidth();
+        tex_config.height_ = e.GetHeight();
+        viewport_tex_ = Texture { tex_config };
+
+        framebuffer_ = FrameBuffer({ &render_buf_, &viewport_tex_ });
         m_engine->SetViewport(e.GetWidth(), e.GetHeight());
     }
 
@@ -254,7 +269,9 @@ private:
 
     std::vector<std::unique_ptr<Panel>> m_panels;
     ViewportPanel* m_viewportPanel;
-    FrameBuffer m_frameBuffer = { { 100, 100 } };
+    FrameBuffer framebuffer_ { {} };
+    RenderBuffer render_buf_ { RenderBuffer::Config { .width_ = 100, .height_ = 100 } };
+    Texture viewport_tex_ { Texture::Config { .width_ = 100, .height_ = 100, .filter_ = Texture::Filter::LINEAR } };
     glm::vec2 m_mousePosition = { 0.0, 0.0 };
     bool m_leftMousePressed = false;
     bool m_rightMousePressed = false;

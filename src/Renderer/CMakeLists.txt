@@ -11,6 +11,7 @@ target_sources(peanut PRIVATE
     ModelLibrary.cpp
     OrthoCamera.cpp
     PerspectiveCamera.cpp
+    RenderBuffer.cpp
     Renderer.cpp
     Renderer2D.cpp
     Shader.cpp

@@ -5,22 +5,24 @@
 #include <cstddef>
 #include <filesystem>
 #include <optional>
-#include <string>
 
 namespace PEANUT {
 
 class Texture {
 public:
+    enum class Type { COLOR, DEPTH };
+
     enum class Wrapping { REPEAT, MIRRORED_REPEAT, CLAMP_TO_EDGE, CLAMP_TO_BORDER };
 
     enum class Filter { NEAREST, LINEAR };
 
     struct Config {
-        size_t width_ = 256;
-        size_t height_ = 256;
-        Wrapping wrapping_ = Wrapping::REPEAT;
-        Filter filter_ = Filter::NEAREST;
-        std::optional<std::array<float, 4>> border_color_;
+        Type type_ { Texture::Type::COLOR };
+        size_t width_ { 256 };
+        size_t height_ { 256 };
+        Wrapping wrapping_ { Wrapping::REPEAT };
+        Filter filter_ { Filter::NEAREST };
+        std::optional<std::array<float, 4>> border_color_ {};
     };
 
     Texture(Config config, unsigned char* p_data = nullptr);
@@ -34,6 +36,8 @@ public:
     static Texture MakeTextureCubeMap(std::filesystem::path dir);
 
     void Bind() const;
+    auto GetConfig() const { return config_; }
+    auto GetID() const { return id_; }
 
 private:
     Texture();

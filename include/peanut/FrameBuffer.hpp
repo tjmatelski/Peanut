@@ -1,33 +1,36 @@
 #pragma once
 
+// stl
+#include <variant>
+#include <vector>
+
 namespace PEANUT {
 
-struct FrameBufferConfig {
-    enum class Type { COLOR, DEPTH };
-    int width = 100;
-    int height = 100;
-    Type type = FrameBufferConfig::Type::COLOR;
-};
+class RenderBuffer;
+class Texture;
 
 class FrameBuffer {
 public:
-    FrameBuffer(const FrameBufferConfig& config);
+    struct Config {
+        static Config GetDefault() { return {}; }
+        bool bind_draw_buf_ { true };
+        bool bind_read_buf_ { true };
+    };
+
+    using Buffers = std::vector<std::variant<RenderBuffer*, Texture*>>;
+
+    FrameBuffer(const Buffers& bufs, Config config = Config::GetDefault());
+    FrameBuffer(const FrameBuffer&) = delete;
+    FrameBuffer(FrameBuffer&& other);
+    FrameBuffer& operator=(const FrameBuffer&) = delete;
+    FrameBuffer& operator=(FrameBuffer&& other);
     ~FrameBuffer();
 
     void Bind();
     void Unbind();
-    void Resize(int width, int height);
-
-    [[nodiscard]] unsigned int TextureID() const { return m_textureID; }
 
 private:
-    FrameBufferConfig m_config;
     unsigned int m_id;
-    unsigned int m_textureID;
-    unsigned int m_renderBufferID;
-
-    void Create();
-    void Destroy();
 };
 
 }

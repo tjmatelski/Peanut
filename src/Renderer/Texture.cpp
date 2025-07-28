@@ -1,5 +1,6 @@
 #include <peanut/Texture.hpp>
 
+// peanut
 #include "../stb_image.hpp"
 #include "GLDebug.hpp"
 #include <peanut/Log.hpp>
@@ -8,10 +9,7 @@
 #include <glad/glad.h>
 
 // stl
-#include <algorithm>
-#include <array>
 #include <filesystem>
-#include <limits>
 
 namespace {
 GLint ToGLType(PEANUT::Texture::Filter filter)
@@ -36,6 +34,17 @@ GLint ToGLType(PEANUT::Texture::Wrapping wrapping)
         return GL_CLAMP_TO_EDGE;
     case PEANUT::Texture::Wrapping::CLAMP_TO_BORDER:
         return GL_CLAMP_TO_BORDER;
+    }
+    return {};
+}
+
+GLint ToGLType(PEANUT::Texture::Type type)
+{
+    switch (type) {
+    case PEANUT::Texture::Type::COLOR:
+        return GL_RGB;
+    case PEANUT::Texture::Type::DEPTH:
+        return GL_DEPTH_COMPONENT;
     }
     return {};
 }
@@ -156,8 +165,8 @@ Texture::Texture(Config config, unsigned char* p_data)
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ToGLType(config_.wrapping_)));
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, ToGLType(config_.filter_)));
     GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, ToGLType(config_.filter_)));
-    GLCALL(
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, config_.width_, config_.height_, 0, GL_RGB, GL_UNSIGNED_BYTE, p_data));
+    GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, ToGLType(config_.type_), config_.width_, config_.height_, 0,
+        ToGLType(config_.type_), GL_UNSIGNED_BYTE, p_data));
 }
 
 Texture::Texture(Texture&& other) { *this = std::move(other); }
@@ -178,6 +187,7 @@ Texture& Texture::operator=(Texture&& other)
 Texture::~Texture()
 {
     if (id_ != 0) {
+        LOG_TRACE("Deleting Texture: [{}]", id_);
         GLCALL(glDeleteTextures(1, &id_));
     }
 }
