@@ -1,11 +1,16 @@
 #include "Renderer.hpp"
 
+// peanut
 #include "GLDebug.hpp"
+#include "peanut/RenderCommand.hpp"
 #include <peanut/Component.hpp>
 #include <peanut/Texture.hpp>
 
 // external
 #include <glad/glad.h>
+
+// stl
+#include <cassert>
 #include <vector>
 
 namespace {
@@ -93,6 +98,8 @@ void Renderer::ClearDepthBuffer() { GLCALL(glClear(GL_DEPTH_BUFFER_BIT)); }
 
 void Renderer::EnableDepthTest() { GLCALL(glEnable(GL_DEPTH_TEST)); }
 
+void Renderer::DisableDepthTest() { GLCALL(glDisable(GL_DEPTH_TEST)); }
+
 void Renderer::DisableDepthMask() { GLCALL(glDepthMask(GL_FALSE)); }
 
 void Renderer::EnableDepthMask() { GLCALL(glDepthMask(GL_TRUE)); }
@@ -160,6 +167,58 @@ void Renderer::Draw(const Renderable& renderable)
     renderable.mesh_.GetIndexBuffer().Bind();
 
     GLCALL(glDrawElements(GL_TRIANGLES, renderable.mesh_.GetIndexBuffer().GetElementCount(), GL_UNSIGNED_INT, 0));
+}
+
+void Renderer::Draw(const RenderCommand& command)
+{
+    // Preconditions
+    assert(command.p_shader_ != nullptr);
+    assert(command.p_mesh_ != nullptr);
+
+    unsigned int glTextureNumber = 0;
+    unsigned int numDiffuse = 0;
+    unsigned int numSpecular = 0;
+
+    // Make sure shader is enabled
+    command.p_shader_->Use();
+
+    // Material stuff
+    if (command.p_material_) {
+        for (const auto* p_diffuse_tex : command.p_material_->DiffuseTextures()) {
+            command.p_shader_->SetUniform(
+                { "material.diffuse[" + std::to_string(numDiffuse++) + "]", static_cast<int>(glTextureNumber) });
+            GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
+            p_diffuse_tex->Bind();
+        }
+        for (const auto* p_spec_texture : command.p_material_->SpecularTextures()) {
+            command.p_shader_->SetUniform(
+                { "material.specular[" + std::to_string(numSpecular++) + "]", static_cast<int>(glTextureNumber) });
+
+            GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
+            p_spec_texture->Bind();
+        }
+        for (const auto& [name, value] : command.p_material_->Uniforms()) {
+            command.p_shader_->SetUniform({ name, value });
+        }
+    }
+
+    // Extra textures
+    for (const auto& [name, p_tex] : command.textures_) {
+        command.p_shader_->SetUniform({ name, static_cast<int>(glTextureNumber) });
+
+        GLCALL(glActiveTexture(GL_TEXTURE0 + glTextureNumber++));
+        p_tex->Bind();
+    }
+
+    // Extra uniforms
+    for (const auto& [name, value] : command.uniforms_) {
+        command.p_shader_->SetUniform({ name, value });
+    }
+
+    // Draw
+    command.p_mesh_->GetVertexArray().Bind();
+    command.p_mesh_->GetIndexBuffer().Bind();
+    GLCALL(glDrawElements(GL_TRIANGLES, command.p_mesh_->GetIndexBuffer().GetElementCount(), GL_UNSIGNED_INT, 0));
 }
 
 void Renderer::SetDirectionalLight(const DirectionalLight& dirLight, const Shader& shader)

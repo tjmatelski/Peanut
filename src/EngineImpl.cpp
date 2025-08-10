@@ -10,6 +10,7 @@
 #include "Settings.hpp"
 #include "peanut/Engine.hpp"
 #include "peanut/FrameBuffer.hpp"
+#include "peanut/RenderCommand.hpp"
 #include "peanut/Texture.hpp"
 #include <peanut/Application.hpp>
 #include <peanut/Component.hpp>
@@ -236,25 +237,25 @@ void EngineImpl::Update(double)
 
     // Render skybox
     m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) {
-        auto* p_shader = ShaderLibrary::Get("./res/shaders/Skybox.shader");
-        p_shader->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
-        p_shader->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        // Load data
+        static const auto mesh = Renderer::GetSkyboxMesh();
+        static const Material material {};
+        const auto* p_tex = TextureLibrary::GetCubemap(skybox.directory);
+
+        // Build command
+        RenderCommand command;
+        command.p_shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader");
+        command.p_shader_->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
+        command.p_shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        command.p_mesh_ = &mesh;
+        command.p_material_ = &material;
+        command.textures_.emplace_back("skybox", p_tex);
+
+        // Draw
         Renderer::DisableDepthMask();
-        const auto tex = TextureLibrary::GetCubemap(skybox.directory);
-        static const Renderable renderable = { .mesh_ = Renderer::GetSkyboxMesh(),
-            .material_ = {},
-            .shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader") };
-        GLCALL(glActiveTexture(GL_TEXTURE0));
-        tex->Bind();
-        Renderer::Draw(renderable);
+        Renderer::Draw(command);
         Renderer::EnableDepthMask();
     });
-
-    // Render 2D sprites
-    // m_scene->ForEach<SpriteRenderComponent>([&](Entity ent, const SpriteRenderComponent& spriteRender) {
-    //     Renderer2D::DrawQuad(
-    //         ent.Get<TransformComponent>(), spriteRender.color, TextureLibrary::Load(spriteRender.texture));
-    // });
 
     // Render Directional Lights
     m_scene->ForEach<DirectionalLightComponent>([&](Entity, const DirectionalLightComponent& comp) {
@@ -280,48 +281,49 @@ void EngineImpl::Update(double)
     });
     Renderer::SetPointLights(pointLights, *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
 
+    const auto draw_renderable = [&](Entity ent, Renderable& renderable) {
+        RenderCommand command;
+        command.p_shader_ = renderable.shader_;
+        command.p_mesh_ = &renderable.mesh_;
+        command.p_material_ = &renderable.material_;
+
+        command.p_shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
+        command.p_shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
+        command.p_shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
+        command.p_shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
+        command.p_shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
+        command.textures_.emplace_back("shadowMap", &shadow_tex_);
+
+        Renderer::Draw(command);
+    };
+
     // Render Models
     m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
         // TODO: Should camera uniforms be handled here or in renderer
         auto& model = ModelLibrary::Get(comp.file);
         for (auto& renderable : model.GetRenderables()) {
-            renderable.shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-            renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-            renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-            renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
-            renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
-            renderable.shader_->SetUniform({ "shadowMap", int(15) });
-            GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
-            GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
+            draw_renderable(ent, renderable);
         }
-        Renderer::Draw(model);
     });
 
     // Render Renderables
-    m_scene->ForEach<Renderable>([&](Entity ent, const Renderable& renderable) {
-        renderable.shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        renderable.shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        renderable.shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        renderable.shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
-        renderable.shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
-        renderable.shader_->SetUniform({ "shadowMap", int(15) });
-        GLCALL(glActiveTexture(GL_TEXTURE0 + 15));
-        GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
-        Renderer::Draw(renderable);
-    });
+    m_scene->ForEach<Renderable>([&](Entity ent, Renderable& renderable) { draw_renderable(ent, renderable); });
 
+    // Shadow map debug view
     if (debug_config_.debug_view_ == DebugConfig::View::Shadow) {
-        GLCALL(glDisable(GL_DEPTH_TEST));
-        glm::mat4 quad_proj = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f);
-        quad_proj = glm::translate(quad_proj, { 3.0f, -3.0, 0.0 });
-        auto* quad_shader = ShaderLibrary::Get("./res/shaders/simpleQuad.shader");
-        quad_shader->Use();
-        quad_shader->SetUniform(Uniform { .name = "depthMap", .value = int(0) });
-        quad_shader->SetUniform(Uniform { .name = "view", .value = quad_proj });
-        GLCALL(glActiveTexture(GL_TEXTURE0));
-        GLCALL(glBindTexture(GL_TEXTURE_2D, shadow_tex_.GetID()));
-        m_quad.shader_ = quad_shader;
-        Renderer::Draw(m_quad);
+        static const auto quad_proj
+            = glm::translate(glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, -1.0f, 1.0f), { 3.0f, -3.0, 0.0 });
+        static const auto quad_mesh = Renderer::GetQuadMesh();
+
+        RenderCommand command;
+        command.p_shader_ = ShaderLibrary::Get("./res/shaders/simpleQuad.shader");
+        command.p_mesh_ = &quad_mesh;
+        command.uniforms_.emplace_back("view", quad_proj);
+        command.textures_.emplace_back("depthMap", &shadow_tex_);
+
+        Renderer::DisableDepthTest();
+        Renderer::Draw(command);
+        Renderer::EnableDepthTest();
     }
 }
 

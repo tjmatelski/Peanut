@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Lights.hpp"
+#include "peanut/RenderCommand.hpp"
 #include <peanut/IndexBuffer.hpp>
 #include <peanut/Material.hpp>
 #include <peanut/Mesh.hpp>
@@ -24,8 +25,9 @@ public:
     static void ClearBuffers();
     static void ClearDepthBuffer();
     static void EnableDepthTest();
-    static void DisableDepthMask();
+    static void DisableDepthTest();
     static void EnableDepthMask();
+    static void DisableDepthMask();
     static Mesh GetCubeMesh();
     static Mesh GetQuadMesh();
     static auto GetSkyboxMesh() -> Mesh;
@@ -36,6 +38,7 @@ public:
         const std::vector<Texture>& textures);
     static void Draw(const Model& model);
     static void Draw(const Renderable& renderable);
+    static void Draw(const RenderCommand& renderable);
     static void SetDirectionalLight(const DirectionalLight& dirLight, const Shader& shader);
     static void SetPointLights(const std::vector<PointLight>& lights, const Shader& shader);
     static void SetSpotLight(const SpotLight& spotLight, Shader& shader);
