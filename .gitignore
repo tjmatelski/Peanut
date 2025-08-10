@@ -34,6 +34,7 @@
 build*/
 .vscode/c_cpp_properties.json
 .cache/
+.cpm_cache/
 __pycache__/
 
 imgui.ini

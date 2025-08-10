@@ -1,23 +1,18 @@
 #pragma once
 
 // peanut
-#include "peanut/DebugConfig.hpp"
-#include "peanut/Mesh.hpp"
-#include "peanut/Texture.hpp"
+#include "Renderer/Lights.hpp"
 #include <peanut/Component.hpp>
+#include <peanut/DebugConfig.hpp>
 #include <peanut/Engine.hpp>
-#include <peanut/Entity.hpp>
-#include <peanut/Event.hpp>
 #include <peanut/FrameBuffer.hpp>
 #include <peanut/PerspectiveCamera.hpp>
 #include <peanut/PluginManager.hpp>
 #include <peanut/Scene.hpp>
-#include <peanut/Shader.hpp>
+#include <peanut/Texture.hpp>
 #include <peanut/Window.hpp>
 
 // stl
-#include <memory>
-#include <string>
 
 int main(int argc, char** argv);
 
@@ -46,6 +41,12 @@ public:
     void Serialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins);
     void Deserialize(Scene& scene, const std::string& file, const std::vector<std::string>& plugins);
 
+    // Systems
+    void SkyboxSystem(const SkyboxComponent& skybox);
+    void DirLightSystem(const DirectionalLightComponent& comp);
+    void PointLightSystem(Entity ent, const PointLightComponent& comp);
+    void RenderableSystem(Entity ent, Renderable& renderable, const glm::mat4& lightSpaceMatrix);
+
 private:
     Application* m_app = nullptr;
     Window m_window;
@@ -61,6 +62,7 @@ private:
     int m_viewport_width;
     int m_viewport_height;
     DebugConfig debug_config_;
+    std::vector<PointLight> pointLights_;
 
     void Run();
     void OnApplicationEvent(Event& event);

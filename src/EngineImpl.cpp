@@ -1,53 +1,50 @@
 #include "EngineImpl.hpp"
 
 // peanut
+#include "Pybind11.hpp"
 #include "PythonBindings.hpp"
-#include "Renderer/GLDebug.hpp"
+#include "Renderer/GLDebug.hpp" // TODO: Temporary
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Renderer2D.hpp"
-#include "Renderer/TextureLibrary.hpp"
 #include "SceneSerializer.hpp"
 #include "Settings.hpp"
-#include "peanut/Engine.hpp"
-#include "peanut/FrameBuffer.hpp"
-#include "peanut/RenderCommand.hpp"
-#include "peanut/Texture.hpp"
-#include <peanut/Application.hpp>
-#include <peanut/Component.hpp>
-#include <peanut/Entity.hpp>
-#include <peanut/Input.hpp>
-#include <peanut/KeyCodes.hpp>
-#include <peanut/Log.hpp>
-#include <peanut/Material.hpp>
-#include <peanut/Mesh.hpp>
-#include <peanut/ModelLibrary.hpp>
-#include <peanut/MouseCodes.hpp>
-#include <peanut/NativeScript.hpp>
-#include <peanut/Shader.hpp>
-#include <peanut/ShaderLibrary.hpp>
-#include <peanut/WindowEvents.hpp>
+#include "peanut/Application.hpp"
+#include "peanut/DebugConfig.hpp"
+#include "peanut/ModelLibrary.hpp"
+#include "peanut/ShaderLibrary.hpp"
 
 // external
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
-#include <glm/matrix.hpp>
-#include <pybind11/embed.h>
-#include <pybind11/pybind11.h>
-#include <spdlog/sinks/basic_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 // stl
-#include <algorithm>
-#include <array>
-#include <exception>
-#include <limits>
-#include <memory>
 #include <numeric>
-#include <pybind11/pytypes.h>
-#include <spdlog/spdlog.h>
-#include <utility>
+
+// Forward decls
+
+namespace spdlog {
+void set_level(level::level_enum log_level);
+}
 
 namespace PEANUT {
+
+namespace {
+    auto ToSpdlogLevel(DebugConfig::LogLevel level) -> spdlog::level::level_enum
+    {
+        switch (level) {
+        case DebugConfig::LogLevel::Error:
+            return spdlog::level::level_enum::err;
+        case DebugConfig::LogLevel::Warn:
+            return spdlog::level::level_enum::warn;
+        case DebugConfig::LogLevel::Info:
+            return spdlog::level::level_enum::info;
+        case DebugConfig::LogLevel::Debug:
+            return spdlog::level::level_enum::debug;
+        case DebugConfig::LogLevel::Trace:
+            return spdlog::level::level_enum::trace;
+        }
+        assert(false);
+        return spdlog::level::level_enum::info;
+    }
+}
 
 EngineImpl::EngineImpl()
     : m_window("Peanut", 1280, 720)
@@ -76,7 +73,7 @@ EngineImpl::EngineImpl()
 EngineImpl::~EngineImpl()
 {
     m_scene->ForEach<PythonScriptComponent>(
-        [](Entity, const PythonScriptComponent& comp) { py::cast(comp.script_obj).dec_ref(); });
+        [](Entity, const PythonScriptComponent& comp) { pybind11::cast(comp.script_obj).dec_ref(); });
     LOG_DEBUG("Stopping Python Interpreter");
     pybind11::finalize_interpreter();
     Renderer2D::Destroy();
@@ -94,7 +91,7 @@ void EngineImpl::Run()
     m_pluginManager.LoadAll(Settings::GetApplicationDir() / "plugins");
     m_app->OnAttach();
     while (!m_shouldWindowClose) {
-        spdlog::set_level(debug_config_.log_level_);
+        spdlog::set_level(ToSpdlogLevel(debug_config_.log_level_));
 
         double currentFrameTime = m_window.GetTime();
         double timeStep = currentFrameTime - m_lastFrameTime;
@@ -236,78 +233,29 @@ void EngineImpl::Update(double)
     Renderer::ClearBuffers();
 
     // Render skybox
-    m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) {
-        // Load data
-        static const auto mesh = Renderer::GetSkyboxMesh();
-        static const Material material {};
-        const auto* p_tex = TextureLibrary::GetCubemap(skybox.directory);
-
-        // Build command
-        RenderCommand command;
-        command.p_shader_ = ShaderLibrary::Get("./res/shaders/Skybox.shader");
-        command.p_shader_->SetUniform({ "view", glm::mat4(glm::mat3(m_perspectiveCam.GetViewMatrix())) });
-        command.p_shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        command.p_mesh_ = &mesh;
-        command.p_material_ = &material;
-        command.textures_.emplace_back("skybox", p_tex);
-
-        // Draw
-        Renderer::DisableDepthMask();
-        Renderer::Draw(command);
-        Renderer::EnableDepthMask();
-    });
+    m_scene->ForEach<SkyboxComponent>([&](Entity, const SkyboxComponent& skybox) { SkyboxSystem(skybox); });
 
     // Render Directional Lights
-    m_scene->ForEach<DirectionalLightComponent>([&](Entity, const DirectionalLightComponent& comp) {
-        Renderer::SetDirectionalLight(
-            { comp.direction, { comp.ambient, comp.ambient, comp.ambient },
-                { comp.diffuse, comp.diffuse, comp.diffuse }, { comp.specular, comp.specular, comp.specular } },
-            *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
-    });
+    m_scene->ForEach<DirectionalLightComponent>(
+        [&](Entity, const DirectionalLightComponent& comp) { DirLightSystem(comp); });
 
     // Render Point Lights
-    std::vector<PointLight> pointLights;
-    m_scene->ForEach<PointLightComponent>([&](Entity ent, const PointLightComponent& comp) {
-        PointLight pl;
-        pl.active = true;
-        pl.position = ent.Get<TransformComponent>().translation;
-        pl.ambient = comp.ambient * comp.color;
-        pl.diffuse = comp.diffuse * comp.color;
-        pl.specular = comp.specular * comp.color;
-        pl.constant = comp.constant;
-        pl.linear = comp.linear;
-        pl.quadratic = comp.quadratic;
-        pointLights.push_back(pl);
-    });
-    Renderer::SetPointLights(pointLights, *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
-
-    const auto draw_renderable = [&](Entity ent, Renderable& renderable) {
-        RenderCommand command;
-        command.p_shader_ = renderable.shader_;
-        command.p_mesh_ = &renderable.mesh_;
-        command.p_material_ = &renderable.material_;
-
-        command.p_shader_->SetUniform({ "view", m_perspectiveCam.GetViewMatrix() });
-        command.p_shader_->SetUniform({ "projection", m_perspectiveCam.GetProjectionMatrix() });
-        command.p_shader_->SetUniform({ "viewPos", m_perspectiveCam.Position() });
-        command.p_shader_->SetUniform({ "model", ent.Get<TransformComponent>() });
-        command.p_shader_->SetUniform({ "lightSpaceMatrix", lightSpaceMatrix });
-        command.textures_.emplace_back("shadowMap", &shadow_tex_);
-
-        Renderer::Draw(command);
-    };
+    m_scene->ForEach<PointLightComponent>(
+        [&](Entity ent, const PointLightComponent& comp) { PointLightSystem(ent, comp); });
+    // TODO: I don't like this
+    Renderer::SetPointLights(pointLights_, *ShaderLibrary::Get("./res/shaders/Lighting.shader"));
 
     // Render Models
     m_scene->ForEach<ModelFileComponent>([&](Entity ent, const ModelFileComponent& comp) {
-        // TODO: Should camera uniforms be handled here or in renderer
         auto& model = ModelLibrary::Get(comp.file);
         for (auto& renderable : model.GetRenderables()) {
-            draw_renderable(ent, renderable);
+            RenderableSystem(ent, renderable, lightSpaceMatrix);
         }
     });
 
     // Render Renderables
-    m_scene->ForEach<Renderable>([&](Entity ent, Renderable& renderable) { draw_renderable(ent, renderable); });
+    m_scene->ForEach<Renderable>(
+        [&](Entity ent, Renderable& renderable) { RenderableSystem(ent, renderable, lightSpaceMatrix); });
 
     // Shadow map debug view
     if (debug_config_.debug_view_ == DebugConfig::View::Shadow) {
@@ -421,7 +369,7 @@ void LoadPythonScriptObj(Entity ent)
 void ReloadPythonScript(Entity ent)
 {
     auto& comp = ent.Get<PythonScriptComponent>();
-    auto inst = py::cast(comp.script_obj);
+    auto inst = pybind11::cast(comp.script_obj);
     inst.dec_ref();
     comp.script_obj = nullptr;
     LoadPythonScriptObj(ent);
@@ -451,26 +399,3 @@ void EngineImpl::Deserialize(Scene& scene, const std::string& file, const std::v
 }
 
 } // namespace PEANUT
-
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
-{
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto basic_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("peanut.log", true);
-    std::vector<spdlog::sink_ptr> sinks { console_sink, basic_sink };
-    auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
-    spdlog::register_logger(logger); // if it would be used in some other place
-    spdlog::set_default_logger(logger);
-    spdlog::set_level(static_cast<spdlog::level::level_enum>(SPDLOG_ACTIVE_LEVEL));
-
-    LOG_INFO("Starting Application: {}", argv[0]);
-    PEANUT::Settings::SetApplication(argv[0]);
-
-    PEANUT::Engine engine;
-    auto& engine_impl = PEANUT::EngineImpl::Get();
-    engine_impl.m_app = PEANUT::GetApplication();
-    engine.m_engine = &engine_impl;
-    engine_impl.m_app->m_engine = &engine;
-    engine_impl.Run();
-
-    return 0;
-}

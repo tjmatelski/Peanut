@@ -3,45 +3,38 @@
 // external
 #include "imgui.h"
 #include "peanut/DebugConfig.hpp"
-#include <spdlog/common.h>
 
 namespace PEANUT {
 void DebugPanel::Update()
 {
     // log level
-    constexpr auto log_name = [](spdlog::level::level_enum log_level) {
+    constexpr auto log_name = [](DebugConfig::LogLevel log_level) {
         switch (log_level) {
-        case spdlog::level::level_enum::off:
-            return "Off";
-        case spdlog::level::level_enum::critical:
-            return "Critical";
-        case spdlog::level::level_enum::err:
+        case DebugConfig::LogLevel::Error:
             return "Error";
-        case spdlog::level::level_enum::warn:
+        case DebugConfig::LogLevel::Warn:
             return "Warning";
-        case spdlog::level::level_enum::info:
+        case DebugConfig::LogLevel::Info:
             return "Info";
-        case spdlog::level::level_enum::debug:
+        case DebugConfig::LogLevel::Debug:
             return "Debug";
-        case spdlog::level::level_enum::trace:
+        case DebugConfig::LogLevel::Trace:
             return "Trace";
-        case spdlog::level::level_enum::n_levels:
-            return "shouldn't see this";
         }
         return "shouldn't see this";
     };
     if (ImGui::BeginCombo("Log Level", log_name(Engine()->GetDebugConfig().log_level_))) {
         if (ImGui::Selectable("Warn")) {
-            Engine()->GetDebugConfig().log_level_ = spdlog::level::level_enum::warn;
+            Engine()->GetDebugConfig().log_level_ = DebugConfig::LogLevel::Warn;
         }
         if (ImGui::Selectable("Info")) {
-            Engine()->GetDebugConfig().log_level_ = spdlog::level::level_enum::info;
+            Engine()->GetDebugConfig().log_level_ = DebugConfig::LogLevel::Info;
         }
         if (ImGui::Selectable("Debug")) {
-            Engine()->GetDebugConfig().log_level_ = spdlog::level::level_enum::debug;
+            Engine()->GetDebugConfig().log_level_ = DebugConfig::LogLevel::Debug;
         }
         if (ImGui::Selectable("Trace")) {
-            Engine()->GetDebugConfig().log_level_ = spdlog::level::level_enum::trace;
+            Engine()->GetDebugConfig().log_level_ = DebugConfig::LogLevel::Trace;
         }
         ImGui::EndCombo();
     }

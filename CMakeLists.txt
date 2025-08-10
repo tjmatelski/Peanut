@@ -37,7 +37,6 @@ conan_cmake_configure(
         glm/0.9.9.8
         imgui/cci.20220621+1.88.docking
         pkgconf/1.9.3
-        spdlog/1.11.0
         yaml-cpp/0.7.0
         pybind11/2.10.4
     GENERATORS
@@ -64,6 +63,10 @@ conan_cmake_install(
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+
+include("cmake/CPM.cmake")
+set(CPM_SOURCE_CACHE ".cpm_cache")
+CPMAddPackage(URI "gh:gabime/spdlog@1.15.3" OPTIONS "SPDLOG_STATIC_LIB ON")
 
 if ("${LINT_WITH_CLANG_TIDY}")
     set(CMAKE_CXX_CLANG_TIDY clang-tidy --extra-arg=-std=c++20)

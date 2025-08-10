@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Log.hpp"
+// external
 
 namespace PEANUT {
 struct DebugConfig {
     enum class View { None, Shadow };
+    enum class LogLevel { Error, Warn, Info, Debug, Trace };
 
-    spdlog::level::level_enum log_level_ = spdlog::level::level_enum::info;
+    LogLevel log_level_ = LogLevel::Info;
     View debug_view_ = View::None;
 };
 }
