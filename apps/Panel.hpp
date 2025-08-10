@@ -17,17 +17,13 @@ public:
     {
     }
 
-    void Begin()
-    {
-        ImGui::Begin(m_name.c_str());
-    }
+    virtual ~Panel() = default;
+
+    void Begin() { ImGui::Begin(m_name.c_str()); }
 
     virtual void Update() { }
 
-    void End()
-    {
-        ImGui::End();
-    }
+    void End() { ImGui::End(); }
 
     auto Engine() -> PEANUT::Engine* { return m_engine; }
     auto Name() const -> const std::string& { return m_name; }
