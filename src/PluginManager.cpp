@@ -15,6 +15,9 @@ namespace PEANUT {
 
 void PluginManager::LoadAll(const std::filesystem::path& path)
 {
+    if (!std::filesystem::exists(path)) {
+        return;
+    }
     for (const auto& entry : std::filesystem::directory_iterator(path)) {
         if (entry.path().extension() == ".so") {
             try {
@@ -28,7 +31,8 @@ void PluginManager::LoadAll(const std::filesystem::path& path)
 
 void PluginManager::Reload(std::string_view name)
 {
-    const auto itr = std::find_if(m_plugins.begin(), m_plugins.end(), [name](const auto& plugin) { return name == plugin.name; });
+    const auto itr
+        = std::find_if(m_plugins.begin(), m_plugins.end(), [name](const auto& plugin) { return name == plugin.name; });
     if (itr == m_plugins.end()) {
         LOG_ERROR("Failed to reload plugin: {}", name);
         return;

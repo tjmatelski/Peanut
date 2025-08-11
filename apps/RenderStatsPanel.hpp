@@ -8,7 +8,7 @@
 
 class RenderStatsPanel : public Panel {
 public:
-    RenderStatsPanel(std::string_view name, PEANUT::Engine* p_engine);
+    RenderStatsPanel(PEANUT::Engine* p_engine);
     void Update() override;
 
 private:

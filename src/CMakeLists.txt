@@ -41,6 +41,7 @@ target_link_libraries(peanut
         yaml-cpp
 )
 
+target_compile_definitions(peanut PRIVATE STBI_NO_SIMD)
 target_compile_options(peanut PRIVATE -Wall -Wextra -Werror)
 target_compile_features(peanut PUBLIC cxx_std_20)
 target_precompile_headers(peanut PUBLIC "../include/peanut/Math.hpp")

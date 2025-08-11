@@ -43,10 +43,10 @@ public:
         auto vp_panel = std::make_unique<ViewportPanel>(m_engine, &viewport_tex_);
         m_viewportPanel = vp_panel.get();
         m_panels.emplace_back(std::move(vp_panel));
-        auto sh_panel = std::make_unique<SceneHierarchyPanel>("Scene", m_engine);
+        auto sh_panel = std::make_unique<SceneHierarchyPanel>(m_engine);
         m_panels.emplace_back(std::make_unique<PropertyPanel>(m_engine, sh_panel.get()));
         m_panels.emplace_back(std::move(sh_panel));
-        m_panels.emplace_back(std::make_unique<RenderStatsPanel>("Render Stats", m_engine));
+        m_panels.emplace_back(std::make_unique<RenderStatsPanel>(m_engine));
         m_panels.emplace_back(std::make_unique<DebugPanel>(m_engine));
 
         ImGui::CreateContext();

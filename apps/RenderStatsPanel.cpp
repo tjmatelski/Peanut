@@ -9,8 +9,8 @@
 #include <chrono>
 #include <iterator>
 
-RenderStatsPanel::RenderStatsPanel(std::string_view name, PEANUT::Engine* p_engine)
-    : Panel(name, p_engine)
+RenderStatsPanel::RenderStatsPanel(PEANUT::Engine* p_engine)
+    : Panel("Render Stats", p_engine)
     , m_avg_fps(60.0)
 {
     std::ranges::fill(m_frame_times, 0.0f);
@@ -30,7 +30,7 @@ void RenderStatsPanel::Update()
     const double avg_frame_time = m_frame_times.back() * (N - 1.0) / N + (delta_ns / 1000.0) / N;
 
     // Append frame time to end of list
-    std::rotate(m_frame_times.begin(), m_frame_times.end(), std::next(m_frame_times.begin()));
+    std::rotate(m_frame_times.begin(), std::next(m_frame_times.begin()), m_frame_times.end());
     m_frame_times.back() = avg_frame_time;
 
     ImGui::Text("FPS: %.0f", m_avg_fps);
