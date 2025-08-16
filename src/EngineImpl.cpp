@@ -240,6 +240,7 @@ void EngineImpl::Update(double)
         [&](Entity, const DirectionalLightComponent& comp) { DirLightSystem(comp); });
 
     // Render Point Lights
+    pointLights_.clear();
     m_scene->ForEach<PointLightComponent>(
         [&](Entity ent, const PointLightComponent& comp) { PointLightSystem(ent, comp); });
     // TODO: I don't like this
