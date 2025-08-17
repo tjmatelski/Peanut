@@ -36,6 +36,7 @@ build*/
 .cache/
 .cpm_cache/
 __pycache__/
+.vscode/
 
 imgui.ini
 conan_imports_manifest.txt

@@ -27,7 +27,7 @@ CPMAddPackage(URI "gh:gabime/spdlog@1.15.3"
 CPMAddPackage(URI "gh:skypjack/entt@3.11.1")
 CPMAddPackage(URI "gh:pybind/pybind11@2.10.4")
 CPMAddPackage(URI "gh:jbeder/yaml-cpp#yaml-cpp-0.7.0")
-CPMAddPackage(URI "gh:pkgconf/pkgconf@1.9.3")
+CPMAddPackage(URI "gh:pkgconf/pkgconf#pkgconf-1.9.3")
 CPMAddPackage(URI "gh:g-truc/glm#0.9.9.8")
 CPMAddPackage(URI "gh:Dav1dde/glad@0.1.36")
 CPMAddPackage(URI "gh:assimp/assimp@5.4.3"
