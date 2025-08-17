@@ -121,6 +121,37 @@ void LoadCubeMap(const std::filesystem::path& directory)
     } else {
         LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "back.jpg" }.c_str());
     }
+    // TODO: Probably better way to do this
+    if (std::filesystem::exists(directory / "right.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, directory / "right.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "right.png" }.c_str());
+    }
+    if (std::filesystem::exists(directory / "left.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, directory / "left.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "left.png" }.c_str());
+    }
+    if (std::filesystem::exists(directory / "top.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, directory / "top.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "top.png" }.c_str());
+    }
+    if (std::filesystem::exists(directory / "bottom.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, directory / "bottom.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "bottom.png" }.c_str());
+    }
+    if (std::filesystem::exists(directory / "front.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, directory / "front.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "front.png" }.c_str());
+    }
+    if (std::filesystem::exists(directory / "back.png")) {
+        LoadTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, directory / "back.png");
+    } else {
+        LOG_ERROR("Failed to find cubemap file '{}'", std::filesystem::path { directory / "back.png" }.c_str());
+    }
 }
 }
 
