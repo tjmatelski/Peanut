@@ -5,17 +5,13 @@ add_executable(Application
     RenderStatsPanel.cpp
     ViewportPanel.cpp
     DebugPanel.cpp
-    ${CMAKE_BINARY_DIR}/imports/imgui_impl_glfw.cpp
-    ${CMAKE_BINARY_DIR}/imports/imgui_impl_opengl3.cpp
-    )
+)
 
-find_package(imgui CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(Application
     PRIVATE
         peanut
         dl
-        imgui::imgui
+        imgui
         glfw
 )
 target_include_directories(Application PRIVATE ${CMAKE_BINARY_DIR}/imports)

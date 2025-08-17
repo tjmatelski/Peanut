@@ -19,14 +19,7 @@ target_sources(peanut PRIVATE
     WindowInput.cpp
 )
 
-find_package(EnTT CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(PkgConfig)
-find_package(pybind11 REQUIRED)
-# find_package(spdlog CONFIG REQUIRED)
-find_package(yaml-cpp CONFIG REQUIRED)
+include(FindPkgConfig)
 pkg_check_modules(GTKMM_LIB REQUIRED IMPORTED_TARGET gtkmm-3.0)
 target_link_libraries(peanut
     PUBLIC
@@ -35,7 +28,7 @@ target_link_libraries(peanut
         spdlog::spdlog
     PRIVATE
         glfw
-        glad::glad
+        glad
         PkgConfig::GTKMM_LIB
         pybind11::embed
         yaml-cpp
